@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+
+  passken:
+    build: ./
+    container_name: passken
+    volumes:
+      - ./:/usr/src/app
+      - passken_node_modules:/usr/src/app/node_modules
+
+
+volumes:
+  passken_node_modules:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/node_modules
