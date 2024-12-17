@@ -19,7 +19,7 @@ const Types = {
   required: {
     validate: (v: any, min: number, max: number, typeCheck: boolean) => !!v
   }
-};
+} as const;
 
-export default Types;
+export { Types };
   

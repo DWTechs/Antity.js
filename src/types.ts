@@ -1,3 +1,5 @@
+import type { Verbs } from "./verbs";
+import type { Types } from "./checks";
 
-export type Types = "boolean" | "string" | "number" | "integer" | "array" | "required";
-export type Verbs = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
+export type Type = keyof typeof Types;
+export type Verb = typeof Verbs[number];

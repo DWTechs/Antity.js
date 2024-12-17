@@ -1,4 +1,4 @@
 
-const Verbs = [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
+const Verbs = [ "GET", "PATCH", "PUT", "POST", "DELETE" ] as const;
 
-export default Verbs;
+export { Verbs };

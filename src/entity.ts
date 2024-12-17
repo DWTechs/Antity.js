@@ -1,5 +1,6 @@
 import { Property } from './property';
-import Messages from './message';
+import { Messages } from './message';
+import { Types } from './checks';
 
 export class Entity {
   name: string;
@@ -39,7 +40,7 @@ export class Entity {
         const v = r[key];
         if (required && !v)
           return Messages.missing(key);
-        if (!types[type].validate(v, min, max, typeCheck))
+        if (!Types[type].validate(v, min, max, typeCheck))
           return Messages.invalid(key, type);
       }
     }
