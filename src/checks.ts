@@ -1,4 +1,4 @@
-import { isBoolean, isString, isValidInteger, isValidNumber, isArray } from '@dwtechs/checkard';
+import { isBoolean, isString, isValidInteger, isValidNumber, isArray, isNil } from '@dwtechs/checkard';
 
 const Types = {
   boolean: {
@@ -15,11 +15,12 @@ const Types = {
   },
   array: {
     validate: (v: any, min: number, max: number, typeCheck: boolean) => isArray(v, min, max)
-  },
-  required: {
-    validate: (v: any, min: number, max: number, typeCheck: boolean) => !!v
   }
 } as const;
 
-export { Types };
+const Required = {
+  validate: (v: any) => !isNil(v)
+};
+
+export { Types, Required };
   

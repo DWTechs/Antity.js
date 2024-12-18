@@ -10,10 +10,13 @@ export class Property {
   max: number;
   required: boolean;
   typeCheck: boolean;
-  // primary: boolean;
   verbs: Verb[];
-  normalize: Function;
-  control: Function;
+  sanitize: boolean;
+  normalize: boolean;
+  control: boolean;
+  sanitizer: Function | null;
+  normalizer: Function | null;
+  controller: Function | null;
   
   constructor(
     key: string,
@@ -22,10 +25,13 @@ export class Property {
     max: number,
     required: boolean,
     typeCheck: boolean,
-    // primary: boolean,
     verbs: Verb[],
-    normalize: Function | null,
-    control: Function | null
+    sanitize: boolean,
+    normalize: boolean,
+    control: boolean,
+    sanitizer: Function | null,
+    normalizer: Function | null,
+    controller: Function | null,
   ) {
 
     if (!isString(key, true)) 
@@ -45,10 +51,13 @@ export class Property {
     this.max = isInteger(max, true) ? max : 999999999;
     this.required = isBoolean(required) ? required : false;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-    // this.primary = primary || false;
     this.verbs = verbs || Verbs;
-    this.normalize = isFunction(normalize) ? normalize : null;
-    this.control = isFunction(control) ? control : null;
+    this.sanitize = isBoolean(sanitize) ? sanitize : true;
+    this.normalize = isBoolean(normalize) ? normalize : false;
+    this.control = isBoolean(control) ? control : true;
+    this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
+    this.normalizer = isFunction(normalizer) ? normalizer : null;
+    this.controller = isFunction(controller) ? controller : null;
   }
 
 }
