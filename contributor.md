@@ -3,21 +3,21 @@
 ## Clone the project :
 
   ```bash
-  $ git clone https://github.com/DWTechs/Passken.js.git
+  $ git clone https://github.com/DWTechs/Antity.js.git
   ```
 
 ## Launch with docker
  
   ### build image : 
   ```bash
-  $ cd Passken.js/
+  $ cd Antity.js/
   $ docker-compose up -d
   ```
   
   ### build lib : 
   ```bash
-  $ cd Passken.js/
-  $ docker-compose run passken
+  $ cd Antity.js/
+  $ docker-compose run antity
   ```
   
 OR
@@ -25,7 +25,7 @@ OR
 ## Install project dependencies :
 
   ```bash
-  $ cd Passken.js/
+  $ cd Antity.js/
   $ npm i
   ```
 

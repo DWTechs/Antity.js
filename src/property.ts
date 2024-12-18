@@ -14,9 +14,9 @@ export class Property {
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
-  sanitizer: Function | null;
-  normalizer: Function | null;
-  controller: Function | null;
+  sanitizer: ((v:any) => any) | null;
+  normalizer: ((v:any) => any) | null;
+  controller: ((v:any) => any) | null;
   
   constructor(
     key: string,
@@ -29,9 +29,9 @@ export class Property {
     sanitize: boolean,
     normalize: boolean,
     control: boolean,
-    sanitizer: Function | null,
-    normalizer: Function | null,
-    controller: Function | null,
+    sanitizer: ((v:any) => any) | null,
+    normalizer: ((v:any) => any) | null,
+    controller: ((v:any) => any) | null,
   ) {
 
     if (!isString(key, true)) 

@@ -1,9 +1,9 @@
 
 const config =  {
-  input: "build/es6/passken.js",
+  input: "build/es6/antity.js",
   output: {
-    name: "passken",
-    file: "build/passken.mjs",
+    name: "antity",
+    file: "build/antity.mjs",
     format: "es"
   },
   external: [

@@ -1,23 +1,22 @@
-// const path = require('path');
 const fs      = require('fs');
 
-const mail    = 'https://github.com/DWTechs/Passken.js';
+const mail    = 'https://github.com/DWTechs/Antity.js';
 const CRLF    = '\r\n';
 const rel     = './';
 const src     = `${rel}build/`;
 const dest    = `${rel}dist/`; 
 const files   = [
   {
-    src:  `${rel}src/passken.d.ts`,
-    dest: `${dest}passken.d.ts`
+    src:  `${rel}src/antity.d.ts`,
+    dest: `${dest}antity.d.ts`
   },
   {
-    src:  `${src}passken.cjs.js`,
-    dest: `${dest}passken.cjs.js`
+    src:  `${src}antity.cjs.js`,
+    dest: `${dest}antity.cjs.js`
   },
   {
-    src:  `${src}passken.mjs`,
-    dest: `${dest}passken.mjs`
+    src:  `${src}antity.mjs`,
+    dest: `${dest}antity.mjs`
   },
 ];
 

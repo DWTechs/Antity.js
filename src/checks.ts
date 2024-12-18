@@ -2,19 +2,19 @@ import { isBoolean, isString, isValidInteger, isValidNumber, isArray, isNil } fr
 
 const Types = {
   boolean: {
-    validate: (v: any, min: number, max: number, typeCheck: boolean) => isBoolean(v)
+    validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => isBoolean(v)
   },
   string: {
-    validate: (v: any, min: number, max: number, typeCheck: boolean) => isString(v, false)
+    validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => isString(v, false)
   },
   number: {
-    validate: (v: any, min: number, max: number, typeCheck: boolean) => isValidNumber(v, min || null, max || null, typeCheck || null)
+    validate: (v: any, min: number, max: number, typeCheck: boolean) => isValidNumber(v, min || undefined, max || undefined, typeCheck || undefined)
   },
   integer: {
-    validate: (v: any, min: number, max: number, typeCheck: boolean) => isValidInteger(v, min || null, max || null, typeCheck || null)
+    validate: (v: any, min: number, max: number, typeCheck: boolean) => isValidInteger(v, min || undefined, max || undefined, typeCheck || undefined)
   },
   array: {
-    validate: (v: any, min: number, max: number, typeCheck: boolean) => isArray(v, min, max)
+    validate: (v: any, min: number, max: number, _typeCheck: boolean) => isArray(v, min, max)
   }
 } as const;
 

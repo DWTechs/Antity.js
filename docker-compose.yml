@@ -1,16 +1,16 @@
 version: "3.8"
 services:
 
-  passken:
+  antity:
     build: ./
-    container_name: passken
+    container_name: antity
     volumes:
       - ./:/usr/src/app
-      - passken_node_modules:/usr/src/app/node_modules
+      - antity_node_modules:/usr/src/app/node_modules
 
 
 volumes:
-  passken_node_modules:
+  antity_node_modules:
     driver: local
     driver_opts:
       type: none
