@@ -145,6 +145,23 @@ class Entity {
 ```
 
 
+### Available options for a property
+
+Any of these can be passed into the options object for each function.
+
+| Name            |               Description                    |  Default value  |  
+| :-------------- | :------------------------------------------ | :-------------- |
+| len	| Integer, length of password.  |   12 |
+| num*	| Boolean, put numbers in password.  |  true |
+| sym*	| Boolean or String, put symbols in password.  |	true |
+| lcase*	| Boolean, put lowercase in password   |  true |
+| ucase*	| Boolean, use uppercase letters in password.   |	  true |
+| exclSimilarChars	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
+| strict	| Boolean, password must include at least one character from each pool.	 |  true |
+
+*At least one should be true.
+
+
 ## Contributors
 
 Winstan.js is still in development and we would be glad to get all the help you can provide.

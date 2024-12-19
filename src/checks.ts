@@ -1,11 +1,11 @@
-import { isBoolean, isString, isValidInteger, isValidNumber, isArray, isNil } from '@dwtechs/checkard';
+import { isBoolean, isStringOfLength, isArrayOfLength, isValidInteger, isValidNumber, isNil } from '@dwtechs/checkard';
 
 const Types = {
   boolean: {
     validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => isBoolean(v)
   },
   string: {
-    validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => isString(v, false)
+    validate: (v: any, min: number, max: number, _typeCheck: boolean) => isStringOfLength(v, min, max)
   },
   number: {
     validate: (v: any, min: number, max: number, typeCheck: boolean) => isValidNumber(v, min || undefined, max || undefined, typeCheck || undefined)
@@ -14,7 +14,7 @@ const Types = {
     validate: (v: any, min: number, max: number, typeCheck: boolean) => isValidInteger(v, min || undefined, max || undefined, typeCheck || undefined)
   },
   array: {
-    validate: (v: any, min: number, max: number, _typeCheck: boolean) => isArray(v, min, max)
+    validate: (v: any, min: number, max: number, _typeCheck: boolean) => isArrayOfLength(v, min, max)
   }
 } as const;
 

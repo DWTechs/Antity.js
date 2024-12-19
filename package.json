@@ -35,7 +35,7 @@
     "dist/"
   ],
   "dependencies": {
-    "@dwtechs/checkard": "2.28.0"
+    "@dwtechs/checkard": "2.29.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "28.0.1",
