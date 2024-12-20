@@ -1,9 +1,9 @@
 {
   "name": "@dwtechs/antity",
   "version": "0.1.0",
-  "description": "an open source password management library for Node.js to create, encrypt and compare passwords safely",
+  "description": "Open source library for easy entity management",
   "keywords": [
-    "passwords"
+    "entities"
   ],
   "homepage": "https://github.com/DWTechs/Antity.js",
   "main": "dist/antity",
@@ -28,14 +28,14 @@
     "build": "node ./scripts/clear && tsc && npm run rollup && node ./scripts/copy && npm run test",
     "rollup:mjs": "rollup --config rollup.config.mjs",
     "rollup:cjs": "rollup --config rollup.config.cjs.mjs",
-    "rollup": "npm run rollup:mjs && npm run rollup:cjs",
+    "rollup": "npm run rollup:mjs",
     "test": "jest --coverage"
   },
   "files": [
     "dist/"
   ],
   "dependencies": {
-    "@dwtechs/checkard": "2.29.0"
+    "@dwtechs/checkard": "2.29.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "28.0.1",

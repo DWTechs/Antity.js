@@ -29,7 +29,7 @@
 
 ## Support
 
-- node: 16
+- node: 22
 
 This is the oldest targeted versions. The library should work properly on older versions of Node.js but we do not support it officially.  
 
@@ -49,6 +49,9 @@ $ npm i @dwtechs/antity
 ```javascript
 
 import { Entity } from "@dwtechs/antity";
+import { normalizeName, normalizeNickname } from "@dwtechs/checkard";
+
+const 
 
 const entity = new Entity("consumer", [
   {
@@ -57,6 +60,7 @@ const entity = new Entity("consumer", [
     min: 0,
     max: 999999999,
     typeCheck: true,
+    verbs: ["get", "put", "delete"],
     required: true,
     sanitize: true,
     normalize: true,
@@ -71,12 +75,13 @@ const entity = new Entity("consumer", [
     min: 0,
     max: 999999999,
     typeCheck: true,
+    verbs: ["get", "post", "put", "delete"],
     required: true,
     sanitize: true,
     normalize: true,
     control: true,
     sanitizer: null,
-    normalizer: null,
+    normalizer: normalizeName,
     controller: null,
   },
   {
@@ -85,12 +90,13 @@ const entity = new Entity("consumer", [
     min: 0,
     max: 999999999,
     typeCheck: true,
+    verbs: ["get", "post", "put", "delete"],
     required: true,
     sanitize: true,
     normalize: true,
     control: true,
     sanitizer: null,
-    normalizer: null,
+    normalizer: normalizeName,
     controller: null,
   },
   {
@@ -99,12 +105,13 @@ const entity = new Entity("consumer", [
     min: 0,
     max: 999999999,
     typeCheck: true,
+    verbs: ["get", "post", "put", "delete"],
     required: true,
     sanitize: true,
     normalize: true,
     control: true,
     sanitizer: null,
-    normalizer: null,
+    normalizer: normalizeNickname,
     controller: null,
   },
 ]);
@@ -149,15 +156,21 @@ class Entity {
 
 Any of these can be passed into the options object for each function.
 
-| Name            |               Description                    |  Default value  |  
-| :-------------- | :------------------------------------------ | :-------------- |
-| len	| Integer, length of password.  |   12 |
-| num*	| Boolean, put numbers in password.  |  true |
-| sym*	| Boolean or String, put symbols in password.  |	true |
-| lcase*	| Boolean, put lowercase in password   |  true |
-| ucase*	| Boolean, use uppercase letters in password.   |	  true |
-| exclSimilarChars	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
-| strict	| Boolean, password must include at least one character from each pool.	 |  true |
+| Name            | Type                      |               Description                         |  Default value  |  
+| :-------------- | :------------------------ | :------------------------------------------------ | :-------------- |
+| key             |  string,                  | Name of the property                              |
+| type            |  Type,                    | Type of the name                                  |
+| min             |  number,                  | Minimum value                                     | 0
+| max             |  number,                  | Maximum value                                     | 999999999
+| required        |  boolean,                 | Property required                                 | false
+| typeCheck       |  boolean,                 | Type is checked if true                           | false
+| verbs           |  Verb[],                  | Verbs that the property is allowed to be used in  | [ "GET", "PATCH", "PUT", "POST", "DELETE" ]
+| sanitize        |  boolean,                 | Sanitize the property if true                     | true
+| normalize       |  boolean,                 | Normalize the property if true                    | false
+| control         |  boolean,                 | Control the property if true                      | true
+| sanitizer       |  ((v:any) => any) | null, | Sanitizer function if sanitize is true            | null
+| normalizer      |  ((v:any) => any) | null, | Normalizer function if normalize is true          | null
+| controller      |  ((v:any) => any) | null, | Controller function if control is true            | null
 
 *At least one should be true.
 
