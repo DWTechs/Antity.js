@@ -158,19 +158,19 @@ Any of these can be passed into the options object for each function.
 
 | Name            | Type                      |               Description                         |  Default value  |  
 | :-------------- | :------------------------ | :------------------------------------------------ | :-------------- |
-| key             |  string,                  | Name of the property                              |
-| type            |  Type,                    | Type of the name                                  |
-| min             |  number,                  | Minimum value                                     | 0
-| max             |  number,                  | Maximum value                                     | 999999999
-| required        |  boolean,                 | Property required                                 | false
-| typeCheck       |  boolean,                 | Type is checked if true                           | false
-| verbs           |  Verb[],                  | Verbs that the property is allowed to be used in  | [ "GET", "PATCH", "PUT", "POST", "DELETE" ]
-| sanitize        |  boolean,                 | Sanitize the property if true                     | true
-| normalize       |  boolean,                 | Normalize the property if true                    | false
-| control         |  boolean,                 | Control the property if true                      | true
-| sanitizer       |  ((v:any) => any) | null, | Sanitizer function if sanitize is true            | null
-| normalizer      |  ((v:any) => any) | null, | Normalizer function if normalize is true          | null
-| controller      |  ((v:any) => any) | null, | Controller function if control is true            | null
+| key             |  string                   | Name of the property                              |
+| type            |  Type                     | Type of the name                                  |
+| min             |  number                   | Minimum value                                     | 0
+| max             |  number                   | Maximum value                                     | 999999999
+| required        |  boolean                  | Property required                                 | false
+| typeCheck       |  boolean                  | Type is checked if true                           | false
+| verbs           |  Verb[]                   | Verbs that the property is allowed to be used in  | [ "GET", "PATCH", "PUT", "POST", "DELETE" ]
+| sanitize        |  boolean                  | Sanitize the property if true                     | true
+| normalize       |  boolean                  | Normalize the property if true                    | false
+| control         |  boolean                  | Control the property if true                      | true
+| sanitizer       |  ((v:any) => any) | null  | Sanitizer function if sanitize is true            | null
+| normalizer      |  ((v:any) => any) | null  | Normalizer function if normalize is true          | null
+| controller      |  ((v:any) => any) | null  | Controller function if control is true            | null
 
 *At least one should be true.
 
