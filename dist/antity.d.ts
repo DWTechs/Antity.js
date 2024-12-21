@@ -24,37 +24,82 @@ SOFTWARE.
 https://github.com/DWTechs/Antity.js
 */
 
-type Options = {
-  len: number,
-  num: boolean,
-  ucase: boolean, 
-  lcase: boolean,
-  sym: boolean,
-  strict: boolean,
-  exclSimilarChars: boolean,
-};
-export type { Options };
 
-declare function getSaltRounds(): number;
-declare function setSaltRounds(rnds: number): number;
-declare function getKeyLen(): number;
-declare function setKeyLen(len: number): number;
-declare function getDigest(): string;
-declare function setDigest(func: string): string;
-declare function getDigests(): string[];
-declare function encrypt(pwd: string, secret: string): string;
-declare function compare(pwd: string, hash: string, secret: string): boolean;
-declare function create(opts?: Partial<Options>): string;
+type Type = keyof typeof Types;
+type Verb = typeof Verbs[number];
 
-export { 
-  getSaltRounds,
-  setSaltRounds,
-  getKeyLen,
-  setKeyLen,
-  getDigest,
-  setDigest,
-  getDigests,
-  encrypt,
-  compare,
-  create,
+declare const Verbs: readonly ["GET", "PATCH", "PUT", "POST", "DELETE"];
+
+declare const Types: {
+  readonly boolean: {
+      readonly validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => v is boolean;
+  };
+  readonly string: {
+      readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is string;
+  };
+  readonly number: {
+      readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
+  };
+  readonly integer: {
+      readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
+  };
+  readonly array: {
+      readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is any[];
+  };
 };
+
+declare const Required: {
+  validate: (v: any) => boolean;
+};
+
+declare class Entity {
+    name: string;
+    properties: Property[];
+    constructor(name: string, properties: Property[]);
+    private init;
+    validate(rows: Record<string, any>[], verb: Verb): string | null;
+    private require;
+    private control;
+    private normalize;
+    private sanitize;
+    private trim;
+}
+
+declare const Messages: {
+    missing: (key: string) => string;
+    invalid: (key: string, type: Type) => string;
+};
+
+declare class Property {
+    key: string;
+    type: Type;
+    min: number;
+    max: number;
+    required: boolean;
+    typeCheck: boolean;
+    verbs: Verb[];
+    sanitize: boolean;
+    normalize: boolean;
+    control: boolean;
+    sanitizer: ((v: any) => any) | null;
+    normalizer: ((v: any) => any) | null;
+    controller: ((v: any) => any) | null;
+    constructor(
+      key: string, 
+      type: Type, 
+      min: number, 
+      max: number, 
+      required: boolean, 
+      typeCheck: boolean, 
+      verbs: Verb[], 
+      sanitize: boolean, 
+      normalize: boolean, 
+      control: boolean, 
+      sanitizer: ((v: any) => any) | null, 
+      normalizer: ((v: any) => any) | null, 
+      controller: ((v: any) => any) | null
+    );
+}
+export type { Type, Verb };
+export { Entity, Property, Messages, Types, Required, Verbs };
+
