@@ -75,5 +75,12 @@ declare class Property {
     );
 }
 export type { Type, Verb };
-export { Entity, Property, Messages, Types, Required, Verbs };
+export { 
+  Entity,
+  Property,
+  Messages,
+  Types,
+  Required,
+  Verbs 
+};
 
