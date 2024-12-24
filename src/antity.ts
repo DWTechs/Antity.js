@@ -2,17 +2,20 @@ import { isArray, isObject, isString, isIn } from '@dwtechs/checkard';
 import { Property } from './property';
 import { Messages } from './message';
 import { Types, Required } from './checks';
-import type { Type, Verb } from './types';
+import type { Type, Method } from './types';
 
 export class Entity {
   name: string;
+  table: string;
   properties: Property[];
 
   constructor(
     name: string,
+    table: string,
     properties: Property[],
   ) {
     this.name = name;
+    this.table = table;
     this.properties = this.init(properties);
   }
 
@@ -27,7 +30,7 @@ export class Entity {
           p.max,
           p.required,
           p.typeCheck,
-          p.verbs,
+          p.methods,
           p.sanitize,
           p.normalize,
           p.control,
@@ -40,7 +43,16 @@ export class Entity {
     return props;
   }
 
-  public validate(rows: Record<string, any>[], verb: Verb): string | null {
+  public cols(method: Method): string[] {
+    const cols = [];
+    for (const p of this.properties) {
+      if (isIn(method, p.methods))
+        cols.push(p.key);
+    }
+    return cols;
+  }
+
+  public validate(rows: Record<string, any>[], method: Method): string | null {
     for (const r of rows) {
       for (const { 
         key, 
@@ -49,7 +61,7 @@ export class Entity {
         max,
         required,
         typeCheck,
-        verbs,
+        methods,
         sanitize,
         normalize,
         control,
@@ -58,7 +70,7 @@ export class Entity {
         controller
       } of this.properties) {
         const v = r[key];
-        if (verb && isIn(verb, verbs)) {
+        if (method && isIn(method, methods)) {
           if (sanitize)
             r[key] = this.sanitize(v, sanitizer);
           if (normalize && normalizer)

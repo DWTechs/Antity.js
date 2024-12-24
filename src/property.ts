@@ -1,7 +1,7 @@
 import { isString, isArray, isIn, isProperty, isInteger, isBoolean, isFunction } from '@dwtechs/checkard';
-import { Verbs } from './verbs';
+import { Methods } from './methods';
 import { Types } from './checks';
-import type { Type, Verb } from './types';
+import type { Type, Method } from './types';
 
 export class Property {
   key: string;
@@ -10,7 +10,7 @@ export class Property {
   max: number;
   required: boolean;
   typeCheck: boolean;
-  verbs: Verb[];
+  methods: Method[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
@@ -25,7 +25,7 @@ export class Property {
     max: number,
     required: boolean,
     typeCheck: boolean,
-    verbs: Verb[],
+    methods: Method[],
     sanitize: boolean,
     normalize: boolean,
     control: boolean,
@@ -38,10 +38,10 @@ export class Property {
       throw new Error(`Property key must be a string. Received ${key}`);
     if (!isProperty(type, Types))
       throw new Error(`Property type must be a valid type. Received ${type}`);
-    if (isArray(verbs)){
-      for (const v of verbs) {
-        if (!isIn(v, Verbs as unknown as any[]))
-          throw new Error(`Property verbs must be an array of REST Verbs. Received ${v}`);
+    if (isArray(methods)){
+      for (const m of methods) {
+        if (!isIn(m, Methods as unknown as any[]))
+          throw new Error(`Property methods must be an array of REST Methods. Received ${m}`);
       }
     }
 
@@ -51,7 +51,7 @@ export class Property {
     this.max = isInteger(max, true) ? max : 999999999;
     this.required = isBoolean(required) ? required : false;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-    this.verbs = verbs || Verbs;
+    this.methods = methods || Methods;
     this.sanitize = isBoolean(sanitize) ? sanitize : true;
     this.normalize = isBoolean(normalize) ? normalize : false;
     this.control = isBoolean(control) ? control : true;

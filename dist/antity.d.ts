@@ -26,9 +26,9 @@ https://github.com/DWTechs/Antity.js
 
 
 type Type = keyof typeof Types;
-type Verb = typeof Verbs[number];
+type Method = typeof Methods[number];
 
-declare const Verbs: readonly ["GET", "PATCH", "PUT", "POST", "DELETE"];
+declare const Methods: readonly ["GET", "PATCH", "PUT", "POST", "DELETE"];
 
 declare const Types: {
   readonly boolean: {
@@ -77,7 +77,7 @@ declare class Property {
     max: number;
     required: boolean;
     typeCheck: boolean;
-    verbs: Verb[];
+    methods: Method[];
     sanitize: boolean;
     normalize: boolean;
     control: boolean;
@@ -91,7 +91,7 @@ declare class Property {
       max: number, 
       required: boolean, 
       typeCheck: boolean, 
-      verbs: Verb[], 
+      methods: Method[], 
       sanitize: boolean, 
       normalize: boolean, 
       control: boolean, 
@@ -100,6 +100,13 @@ declare class Property {
       controller: ((v: any) => any) | null
     );
 }
-export type { Type, Verb };
-export { Entity, Property, Messages, Types, Required, Verbs };
+export type { Type, Method };
+export { 
+  Entity,
+  Property,
+  Messages,
+  Types,
+  Required,
+  Methods 
+};
 

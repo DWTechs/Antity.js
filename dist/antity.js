@@ -26,7 +26,7 @@ https://github.com/DWTechs/Antity.js
 
 import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isArrayOfLength, isNil, isString, isProperty, isArray, isIn, isInteger, isFunction, isObject } from '@dwtechs/checkard';
 
-const Verbs = ["GET", "PATCH", "PUT", "POST", "DELETE"];
+const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
 
 const Types = {
     boolean: {
@@ -50,15 +50,15 @@ const Required = {
 };
 
 class Property {
-    constructor(key, type, min, max, required, typeCheck, verbs, sanitize, normalize, control, sanitizer, normalizer, controller) {
+    constructor(key, type, min, max, required, typeCheck, methods, sanitize, normalize, control, sanitizer, normalizer, controller) {
         if (!isString(key, true))
             throw new Error(`Property key must be a string. Received ${key}`);
         if (!isProperty(type, Types))
             throw new Error(`Property type must be a valid type. Received ${type}`);
-        if (isArray(verbs)) {
-            for (const v of verbs) {
-                if (!isIn(v, Verbs))
-                    throw new Error(`Property verbs must be an array of REST Verbs. Received ${v}`);
+        if (isArray(methods)) {
+            for (const m of methods) {
+                if (!isIn(m, Methods))
+                    throw new Error(`Property methods must be an array of REST Methods. Received ${m}`);
             }
         }
         this.key = key;
@@ -67,7 +67,7 @@ class Property {
         this.max = isInteger(max, true) ? max : 999999999;
         this.required = isBoolean(required) ? required : false;
         this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-        this.verbs = verbs || Verbs;
+        this.methods = methods || Methods;
         this.sanitize = isBoolean(sanitize) ? sanitize : true;
         this.normalize = isBoolean(normalize) ? normalize : false;
         this.control = isBoolean(control) ? control : true;
@@ -83,22 +83,31 @@ const Messages = {
 };
 
 class Entity {
-    constructor(name, properties) {
+    constructor(name, table, properties) {
         this.name = name;
+        this.table = table;
         this.properties = this.init(properties);
     }
     init(properties) {
         const props = [];
         for (const p of properties) {
-            props.push(new Property(p.key, p.type, p.min, p.max, p.required, p.typeCheck, p.verbs, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller));
+            props.push(new Property(p.key, p.type, p.min, p.max, p.required, p.typeCheck, p.methods, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller));
         }
         return props;
     }
-    validate(rows, verb) {
+    cols(method) {
+        const cols = [];
+        for (const p of this.properties) {
+            if (isIn(method, p.methods))
+                cols.push(p.key);
+        }
+        return cols;
+    }
+    validate(rows, method) {
         for (const r of rows) {
-            for (const { key, type, min, max, required, typeCheck, verbs, sanitize, normalize, control, sanitizer, normalizer, controller } of this.properties) {
+            for (const { key, type, min, max, required, typeCheck, methods, sanitize, normalize, control, sanitizer, normalizer, controller } of this.properties) {
                 const v = r[key];
-                if (verb && isIn(verb, verbs)) {
+                if (method && isIn(method, methods)) {
                     if (sanitize)
                         r[key] = this.sanitize(v, sanitizer);
                     if (normalize && normalizer)
