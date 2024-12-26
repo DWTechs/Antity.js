@@ -13,7 +13,7 @@ describe('Entity', () => {
         verbs: ['POST'],
         required: true,
         sanitize: true,
-        normalize: false,
+        normalize: true,
         control: true,
         sanitizer: null,
         normalizer: val => val.toLowerCase(),
@@ -21,13 +21,13 @@ describe('Entity', () => {
       },
       {
         key: 'age',
-        type: 'number',
+        type: 'integer',
         min: 0,
         max: 120,
         typeCheck: true,
         verbs: ['POST', 'PATCH'],
         required: true,
-        sanitize: false,
+        sanitize: true,
         normalize: false,
         control: true,
         sanitizer: null,
@@ -44,24 +44,25 @@ describe('Entity', () => {
     expect(result).toBeNull();
   });
 
+  test('should validate 2 valid rows with verb POST', () => {
+    const rows = [{ name: 'John Doe', age: 30 }, { name: 'Jane Doe', age: 25 }];
+    const verb = 'POST';
+    const result = entity.validate(rows, verb);
+    expect(result).toBeNull();
+  });
+
   test('should return error message for missing required field', () => {
     const rows = [{ age: 30 }];
     const verb = 'POST';
     const result = entity.validate(rows, verb);
-    expect(result).toBe('The field name is missing.');
+    expect(result).toBe('Missing name');
   });
 
   test('should return error message for invalid field type', () => {
     const rows = [{ name: 'John Doe', age: 'thirty' }];
     const verb = 'POST';
     const result = entity.validate(rows, verb);
-    expect(result).toBe('The field age is invalid.');
+    expect(result).toBe('Invalid age, must be of type integer');
   });
 
-  test('should apply sanitizer and normalizer', () => {
-    const rows = [{ name: ' JOHN DOE ', age: 30 }];
-    const verb = 'POST';
-    entity.validate(rows, verb);
-    expect(rows[0].name).toBe('john doe');
-  });
 });

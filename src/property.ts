@@ -1,4 +1,11 @@
-import { isString, isArray, isIn, isProperty, isInteger, isBoolean, isFunction } from '@dwtechs/checkard';
+import { 
+  isString,
+  isArray,
+  isIn,
+  isProperty,
+  isInteger,
+  isBoolean,
+  isFunction } from '@dwtechs/checkard';
 import { Methods } from './methods';
 import { Types } from './checks';
 import type { Type, Method } from './types';

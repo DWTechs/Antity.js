@@ -103,45 +103,61 @@ class Entity {
         }
         return cols;
     }
+    normalize(rows) {
+        for (const r of rows) {
+            for (const { key, sanitize, normalize, sanitizer, normalizer, } of this.properties) {
+                let v = r[key];
+                if (v) {
+                    if (sanitize)
+                        v = this.sanitize(v, sanitizer);
+                    if (normalize && normalizer)
+                        v = normalizer(v);
+                    r[key] = v;
+                }
+                console.log(r[key]);
+            }
+        }
+        console.log(rows);
+        return rows;
+    }
     validate(rows, method) {
         for (const r of rows) {
-            for (const { key, type, min, max, required, typeCheck, methods, sanitize, normalize, control, sanitizer, normalizer, controller } of this.properties) {
+            for (const { key, type, min, max, required, typeCheck, methods, control, controller } of this.properties) {
                 const v = r[key];
                 if (method && isIn(method, methods)) {
-                    if (sanitize)
-                        r[key] = this.sanitize(v, sanitizer);
-                    if (normalize && normalizer)
-                        r[key] = this.normalize(v, normalizer);
-                    if (required)
-                        return this.require(v, key);
-                    if (control)
-                        return this.control(v, key, type, min, max, typeCheck, controller);
+                    if (required) {
+                        const rq = this.require(v, key);
+                        if (rq)
+                            return rq;
+                    }
+                    if (control) {
+                        const ct = this.control(v, key, type, min, max, typeCheck, controller);
+                        if (ct)
+                            return ct;
+                    }
                 }
             }
         }
         return null;
     }
     require(v, key) {
-        return Required.validate(v) ? Messages.missing(key) : null;
+        return Required.validate(v) ? null : Messages.missing(key);
     }
     control(v, key, type, min, max, typeCheck, cb) {
         if (cb)
-            return !cb(v) ? Messages.invalid(key, type) : null;
-        return !Types[type].validate(v, min, max, typeCheck) ? Messages.invalid(key, type) : null;
-    }
-    normalize(v, cb) {
-        return cb ? cb(v) : v;
+            return cb(v) ? null : Messages.invalid(key, type);
+        return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);
     }
     sanitize(v, cb) {
         if (cb)
             return cb(v);
-        if (isArray(v, null, null))
+        if (isArray(v, null, null)) {
             for (let d of v) {
                 d = this.trim(d);
             }
-        else
-            v = this.trim(v);
-        return v;
+            return v;
+        }
+        return this.trim(v);
     }
     trim(v) {
         if (isString(v, true))

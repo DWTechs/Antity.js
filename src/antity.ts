@@ -52,6 +52,30 @@ export class Entity {
     return cols;
   }
 
+  public normalize(rows: Record<string, any>[]): Record<string, any>[] {
+    for (const r of rows) {
+      for (const { 
+        key, 
+        sanitize,
+        normalize,
+        sanitizer,
+        normalizer,
+      } of this.properties) {
+        let v = r[key];
+        if (v) {
+          if (sanitize)
+            v = this.sanitize(v, sanitizer);
+          if (normalize && normalizer)
+            v = normalizer(v);
+          r[key] = v;
+        }
+        console.log(r[key]);
+      }
+    }
+    console.log(rows);
+    return rows;
+  }
+
   public validate(rows: Record<string, any>[], method: Method): string | null {
     for (const r of rows) {
       for (const { 
@@ -62,23 +86,21 @@ export class Entity {
         required,
         typeCheck,
         methods,
-        sanitize,
-        normalize,
         control,
-        sanitizer,
-        normalizer,
         controller
       } of this.properties) {
         const v = r[key];
         if (method && isIn(method, methods)) {
-          if (sanitize)
-            r[key] = this.sanitize(v, sanitizer);
-          if (normalize && normalizer)
-            r[key] = this.normalize(v, normalizer);
-          if (required)
-            return this.require(v, key);
-          if (control)
-            return this.control(v, key, type, min, max, typeCheck, controller);
+          if (required) {
+            const rq = this.require(v, key);
+            if (rq)
+              return rq;
+          }
+          if (control) {
+            const ct = this.control(v, key, type, min, max, typeCheck, controller);
+            if (ct)
+              return ct;
+          }
         }
       }
     }
@@ -86,7 +108,7 @@ export class Entity {
   }
 
   private require(v: any, key: string): any {
-    return Required.validate(v) ? Messages.missing(key) : null;
+    return Required.validate(v) ? null : Messages.missing(key);
   }
 
   private control(
@@ -99,24 +121,20 @@ export class Entity {
     cb: ((v:any) => any) | null
   ): any {
     if (cb)
-      return !cb(v) ? Messages.invalid(key, type) : null ;
-    return !Types[type].validate(v, min, max, typeCheck) ? Messages.invalid(key, type) : null;
-  }
-
-  private normalize(v: any, cb: ((v:any) => any) | null): any { 
-    return cb ? cb(v) : v;
+      return cb(v) ? null : Messages.invalid(key, type);
+    return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);
   }
 
   private sanitize(v: any, cb: ((v:any) => any) | null): any {
     if (cb)
       return cb(v);
-    if (isArray(v, null, null))
+    if (isArray(v, null, null)) {
       for (let d of v) {
         d = this.trim(d);
       }
-    else
-      v = this.trim(v);
-    return v;
+      return v;
+    }
+    return this.trim(v);
   }
 
   private trim(v: any): any {
