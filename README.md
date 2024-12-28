@@ -171,9 +171,9 @@ Any of these can be passed into the options object for each function.
 | sanitize        |  boolean                  | Sanitize the property if true                     | true
 | normalize       |  boolean                  | Normalize the property if true                    | false
 | control         |  boolean                  | Control the property if true                      | true
-| sanitizer       |  ((v:any) => any) | null  | Sanitizer function if sanitize is true            | null
-| normalizer      |  ((v:any) => any) | null  | Normalizer function if normalize is true          | null
-| controller      |  ((v:any) => any) | null  | Controller function if control is true            | null
+| sanitizer       |  ((v:any) => any) \| null  | Sanitizer function if sanitize is true            | null
+| normalizer      |  ((v:any) => any) \| null  | Normalizer function if normalize is true          | null
+| controller      |  ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null  | Controller function if control is true            | null
 
 *At least one should be true.
 
