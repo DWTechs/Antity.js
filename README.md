@@ -125,8 +125,8 @@ const check = entity.validate(req.body, req.method);
 
 ```javascript
 
-export type Type = "boolean" | "string" | "number" | "integer" | "array";
-export type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
+type Type = "boolean" | "string" | "number" | "integer" | "array";
+type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
 
 class Property {
   key: string;
