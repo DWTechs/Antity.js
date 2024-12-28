@@ -123,10 +123,6 @@ export class Entity {
     return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);
   }
 
-  // private normalize(v: any, cb: ((v:any) => any) | null): any { 
-  //   return cb ? cb(v) : v;
-  // }
-
   private sanitize(v: any, cb: ((v:any) => any) | null): any {
     if (cb)
       return cb(v);
