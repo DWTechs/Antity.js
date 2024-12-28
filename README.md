@@ -9,7 +9,6 @@
 - [Installation](#installation)
 - [Usage](#usage)
   - [ES6](#es6)
-- [Configure](#configure)
 - [API Reference](#api-reference)
 - [Contributors](#contributors)
 - [Stack](#stack)
