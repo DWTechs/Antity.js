@@ -51,7 +51,7 @@ $ npm i @dwtechs/antity
 import { Entity } from "@dwtechs/antity";
 import { normalizeName, normalizeNickname } from "@dwtechs/checkard";
 
-const entity = new Entity("consumer", [
+const entity = new Entity("consumer", "consumers", [
   {
     key: "id",
     type: "integer",
@@ -148,8 +148,8 @@ class Entity {
   name: string;
   table: string;
   properties: Property[];
-  normalize: Function;
-  validate: Function;
+  normalize(rows: Record<string, any>[]): Record<string, any>[];
+  validate(rows: Record<string, any>[], method: Method): string | null;
 }
 
 ```
