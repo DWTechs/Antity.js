@@ -58,7 +58,7 @@ const entity = new Entity("consumer", [
     key: "id",
     type: "integer",
     min: 0,
-    max: 999999999,
+    max: 120,
     typeCheck: true,
     verbs: ["get", "put", "delete"],
     required: true,
@@ -73,7 +73,7 @@ const entity = new Entity("consumer", [
     key: "firstName",
     type: "string",
     min: 0,
-    max: 999999999,
+    max: 255,
     typeCheck: true,
     verbs: ["get", "post", "put", "delete"],
     required: true,
@@ -88,7 +88,7 @@ const entity = new Entity("consumer", [
     key: "lastName",
     type: "string",
     min: 0,
-    max: 999999999,
+    max: 255,
     typeCheck: true,
     verbs: ["get", "post", "put", "delete"],
     required: true,
@@ -103,7 +103,7 @@ const entity = new Entity("consumer", [
     key: "nickname",
     type: "string",
     min: 0,
-    max: 999999999,
+    max: 255,
     typeCheck: true,
     verbs: ["get", "post", "put", "delete"],
     required: true,
@@ -115,6 +115,9 @@ const entity = new Entity("consumer", [
     controller: null,
   },
 ]);
+
+req.body = entity.normalize(req.body);
+const check = entity.validate(req.body, req.method);
 
 ```
 
@@ -145,7 +148,9 @@ class Property {
 
 class Entity {
   name: string;
+  table: string;
   properties: Property[];
+  normalize: Function;
   validate: Function;
 }
 
@@ -159,12 +164,12 @@ Any of these can be passed into the options object for each function.
 | Name            | Type                      |               Description                         |  Default value  |  
 | :-------------- | :------------------------ | :------------------------------------------------ | :-------------- |
 | key             |  string                   | Name of the property                              |
-| type            |  Type                     | Type of the name                                  |
+| type            |  Type                     | Type of the property                                  |
 | min             |  number                   | Minimum value                                     | 0
 | max             |  number                   | Maximum value                                     | 999999999
-| required        |  boolean                  | Property required                                 | false
+| required        |  boolean                  | Is this property required for these methods       | false
 | typeCheck       |  boolean                  | Type is checked if true                           | false
-| verbs           |  Verb[]                   | Verbs that the property is allowed to be used in  | [ "GET", "PATCH", "PUT", "POST", "DELETE" ]
+| methods         |  Method[]                 | REST Methods that use the property                | [ "GET", "PATCH", "PUT", "POST", "DELETE" ]
 | sanitize        |  boolean                  | Sanitize the property if true                     | true
 | normalize       |  boolean                  | Normalize the property if true                    | false
 | control         |  boolean                  | Control the property if true                      | true
@@ -177,7 +182,7 @@ Any of these can be passed into the options object for each function.
 
 ## Contributors
 
-Winstan.js is still in development and we would be glad to get all the help you can provide.
+Antity.js is still in development and we would be glad to get all the help you can provide.
 To contribute please read **[contributor.md](https://github.com/DWTechs/Antity.js/blob/main/contributor.md)** for detailed installation guide.
 
 

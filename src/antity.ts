@@ -69,13 +69,11 @@ export class Entity {
             v = normalizer(v);
           r[key] = v;
         }
-        console.log(r[key]);
       }
     }
-    console.log(rows);
     return rows;
   }
-
+  
   public validate(rows: Record<string, any>[], method: Method): string | null {
     for (const r of rows) {
       for (const { 
@@ -124,6 +122,10 @@ export class Entity {
       return cb(v) ? null : Messages.invalid(key, type);
     return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);
   }
+
+  // private normalize(v: any, cb: ((v:any) => any) | null): any { 
+  //   return cb ? cb(v) : v;
+  // }
 
   private sanitize(v: any, cb: ((v:any) => any) | null): any {
     if (cb)

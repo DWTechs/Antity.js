@@ -114,10 +114,8 @@ class Entity {
                         v = normalizer(v);
                     r[key] = v;
                 }
-                console.log(r[key]);
             }
         }
-        console.log(rows);
         return rows;
     }
     validate(rows, method) {
