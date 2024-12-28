@@ -175,8 +175,8 @@ Any of these can be passed into the options object for each function.
 | normalizer      |  ((v:any) => any) \| null  | Normalizer function if normalize is true          | null
 | controller      |  ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null  | Controller function if control is true            | null
 
-* **Min and max parameters are not used for boolean type**
-* **TypeCheck Parameter is not used for boolean, string and array types**
+* *Min and max parameters are not used for boolean type*
+* *TypeCheck Parameter is not used for boolean, string and array types*
 
 
 ## Contributors
