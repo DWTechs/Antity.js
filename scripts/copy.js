@@ -10,10 +10,10 @@ const files   = [
     src:  `${rel}src/antity.d.ts`,
     dest: `${dest}antity.d.ts`
   },
-  // {
-  //   src:  `${src}antity.cjs.js`,
-  //   dest: `${dest}antity.cjs.js`
-  // },
+  {
+    src:  `${src}antity.cjs.js`,
+    dest: `${dest}antity.cjs.js`
+  },
   {
     src:  `${src}antity.mjs`,
     dest: `${dest}antity.js`
