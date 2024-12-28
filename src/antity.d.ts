@@ -27,16 +27,18 @@ declare const Required: {
 };
 
 declare class Entity {
-    name: string;
-    properties: Property[];
-    constructor(name: string, properties: Property[]);
-    private init;
-    validate(rows: Record<string, any>[], verb: Verb): string | null;
-    private require;
-    private control;
-    private normalize;
-    private sanitize;
-    private trim;
+  name: string;
+  table: string;
+  properties: Property[];
+  constructor(name: string, table: string, properties: Property[]);
+  private init;
+  cols(method: Method): string[];
+  normalize(rows: Record<string, any>[]): Record<string, any>[];
+  validate(rows: Record<string, any>[], method: Method): string | null;
+  private require;
+  private control;
+  private sanitize;
+  private trim;
 }
 
 declare const Messages: {
@@ -45,34 +47,33 @@ declare const Messages: {
 };
 
 declare class Property {
-    key: string;
-    type: Type;
-    min: number;
-    max: number;
-    required: boolean;
-    typeCheck: boolean;
-    methods: Method[];
-    sanitize: boolean;
-    normalize: boolean;
-    control: boolean;
-    sanitizer: ((v: any) => any) | null;
-    normalizer: ((v: any) => any) | null;
-    controller: ((v: any) => any) | null;
-    constructor(
-      key: string, 
-      type: Type, 
-      min: number, 
-      max: number, 
-      required: boolean, 
-      typeCheck: boolean, 
-      methods: Method[], 
-      sanitize: boolean, 
-      normalize: boolean, 
-      control: boolean, 
-      sanitizer: ((v: any) => any) | null, 
-      normalizer: ((v: any) => any) | null, 
-      controller: ((v: any) => any) | null
-    );
+  key: string;
+  type: Type;
+  min: number;
+  max: number;
+  required: boolean;
+  typeCheck: boolean;
+  methods: Method[];
+  sanitize: boolean;
+  normalize: boolean;
+  control: boolean;
+  sanitizer: ((v: any) => any) | null;
+  normalizer: ((v: any) => any) | null;
+  controller: ((v: any) => any) | null;
+  constructor(key: string,
+    type: Type,
+    min: number,
+    max: number,
+    required: boolean,
+    typeCheck: boolean,
+    methods: Method[],
+    sanitize: boolean,
+    normalize: boolean,
+    control: boolean,
+    sanitizer: ((v: any) => any) | null,
+    normalizer: ((v: any) => any) | null,
+    controller: ((v: any) => any) | null
+  );
 }
 export type { Type, Method };
 export { 
