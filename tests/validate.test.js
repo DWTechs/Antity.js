@@ -1,3 +1,4 @@
+import { isJWT } from "@dwtechs/checkard";
 import { Entity } from '../dist/antity.js';
 
 describe('Entity', () => {
@@ -33,7 +34,22 @@ describe('Entity', () => {
         sanitizer: null,
         normalizer: null,
         controller: null
-      }
+      },
+      {
+        key: 'token',
+        type: 'string',
+        min: 0,
+        max: 120,
+        typeCheck: true,
+        verbs: ['POST', 'PATCH'],
+        required: false,
+        sanitize: true,
+        normalize: false,
+        control: true,
+        sanitizer: null,
+        normalizer: null,
+        controller: isJWT
+      },
     ]);
   });
   

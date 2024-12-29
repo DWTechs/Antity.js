@@ -94,7 +94,7 @@ export class Entity {
             if (rq)
               return rq;
           }
-          if (control) {
+          if (v && control) {
             const ct = this.control(v, key, type, min, max, typeCheck, controller);
             if (ct)
               return ct;
