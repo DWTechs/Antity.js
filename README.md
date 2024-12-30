@@ -157,11 +157,11 @@ type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
 class Property {
   key: string;
   type: Type;
-  min: number;
-  max: number;
+  min: number | Date;
+  max: number | Date;
   required: boolean;
   typeCheck: boolean;
-  verbs: Verb[];
+  methods: Method[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
