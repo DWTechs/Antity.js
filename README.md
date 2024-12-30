@@ -175,6 +175,7 @@ class Property {
 class Entity {
   name: string;
   table: string;
+  cols: Record<Method, string>;
   properties: Property[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
   validate(rows: Record<string, any>[], method: Method): string | null;

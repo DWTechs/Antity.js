@@ -1,3 +1,4 @@
+import type { Type } from './types';
 import { 
   isSymbol,
   isBoolean,
@@ -29,7 +30,7 @@ import {
   isObject
 } from '@dwtechs/checkard';
 
-const Types: { [key: string]: { validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean } } = {
+const Types: Record<Type, { validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean }> = {
   boolean: {
     validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => 
       isBoolean(v)
@@ -138,7 +139,7 @@ const Types: { [key: string]: { validate: (v: any, min: number | Date, max: numb
     validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => 
       isObject(v)
   }
-} as const;
+};
 
 const Required = {
   validate: (v: any) => !isNil(v)

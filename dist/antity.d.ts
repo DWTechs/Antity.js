@@ -25,34 +25,41 @@ https://github.com/DWTechs/Antity.js
 */
 
 
-type Type = keyof typeof Types;
 type Method = typeof Methods[number];
+type Type = 
+  "boolean" |
+  "string" |
+  "number" |
+  "integer" |
+  "float" |
+  "even" |
+  "odd" |
+  "positive" |
+  "negative" |
+  "powerOfTwo" |
+  "ascii" |
+  "array" |
+  "jwt" |
+  "symbol" |
+  "email" |
+  "regex" |
+  "json" |
+  "ipAddress" |
+  "slug" |
+  "hexadecimal" |
+  "date" |
+  "timestamp" |
+  "function" |
+  "htmlElement" |
+  "htmlEventAttribute" |
+  "node" |
+  "object";
 
 declare const Methods: readonly ["GET", "PATCH", "PUT", "POST", "DELETE"];
 
-declare const Types: {
-  [key: string]: {
-      validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
-  };
-};
-
-// declare const Types: {
-//   readonly boolean: {
-//       readonly validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => v is boolean;
-//   };
-//   readonly string: {
-//       readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is string;
-//   };
-//   readonly number: {
-//       readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
-//   };
-//   readonly integer: {
-//       readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
-//   };
-//   readonly array: {
-//       readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is any[];
-//   };
-// };
+declare const Types: Record<Type, {
+  validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
+}>;
 
 declare const Required: {
   validate: (v: any) => boolean;
@@ -61,10 +68,12 @@ declare const Required: {
 declare class Entity {
   name: string;
   table: string;
+  cols: Record<Method, string>;
   properties: Property[];
   constructor(name: string, table: string, properties: Property[]);
   private init;
-  cols(method: Method): string[];
+  getTable(): string;
+  getCols(method: Method): string;
   normalize(rows: Record<string, any>[]): Record<string, any>[];
   validate(rows: Record<string, any>[], method: Method): string | null;
   private require;

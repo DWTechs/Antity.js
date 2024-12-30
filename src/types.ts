@@ -1,5 +1,32 @@
 import type { Methods } from "./methods";
-import type { Types } from "./checks";
 
-export type Type = keyof typeof Types;
+export type Type =  
+  "boolean" | 
+  "string" | 
+  "number" | 
+  "integer" | 
+  "float" |
+  "even" |
+  "odd" |
+  "positive" |
+  "negative" |
+  "powerOfTwo" |
+  "ascii" |
+  "array" |
+  "jwt" |
+  "symbol" |
+  "email" |
+  "regex" |
+  "json" |
+  "ipAddress" |
+  "slug" |
+  "hexadecimal" |
+  "date" |
+  "timestamp" |
+  "function" |
+  "htmlElement" |
+  "htmlEventAttribute" |
+  "node" |
+  "object";
+
 export type Method = typeof Methods[number];
