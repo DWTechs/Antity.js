@@ -1,6 +1,6 @@
 # 0.2.0 (Dec 29th 2024)
 
-- add a few types : 
+- add new types : 
     jwt, 
     symbol, 
     float,
