@@ -116,6 +116,8 @@ const entity = new Entity("consumer", "consumers", [
 req.body = entity.normalize(req.body);
 const check = entity.validate(req.body, req.method);
 
+
+
 ```
 
 
@@ -176,6 +178,8 @@ class Entity {
   properties: Property[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
   validate(rows: Record<string, any>[], method: Method): string | null;
+  getTable(): string;
+  getCols(method: Method): string;
 }
 
 ```

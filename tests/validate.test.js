@@ -11,7 +11,7 @@ describe('Entity', () => {
         min: 1,
         max: 255,
         typeCheck: true,
-        verbs: ['POST'],
+        methods: ['POST'],
         required: true,
         sanitize: true,
         normalize: true,
@@ -26,7 +26,7 @@ describe('Entity', () => {
         min: 0,
         max: 120,
         typeCheck: true,
-        verbs: ['POST', 'PATCH'],
+        methods: ['POST', 'PATCH'],
         required: true,
         sanitize: true,
         normalize: false,
@@ -37,18 +37,18 @@ describe('Entity', () => {
       },
       {
         key: 'token',
-        type: 'string',
+        type: 'jwt',
         min: 0,
         max: 120,
         typeCheck: true,
-        verbs: ['POST', 'PATCH'],
+        methods: ['POST', 'PATCH'],
         required: false,
         sanitize: true,
         normalize: false,
         control: true,
         sanitizer: null,
         normalizer: null,
-        controller: isJWT
+        controller: null
       },
     ]);
   });

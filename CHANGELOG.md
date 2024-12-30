@@ -1,3 +1,8 @@
+# 0.3.0 (Dec 30th 2024)
+
+- add getTable() method
+- add getCols() method
+
 # 0.2.0 (Dec 29th 2024)
 
 - add new types : 

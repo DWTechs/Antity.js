@@ -7,6 +7,7 @@ import type { Type, Method } from './types';
 export class Entity {
   name: string;
   table: string;
+  cols: Record<Method, string>;
   properties: Property[];
 
   constructor(
@@ -16,6 +17,13 @@ export class Entity {
   ) {
     this.name = name;
     this.table = table;
+    this.cols = {
+      GET: "",
+      POST: "",
+      PUT: "",
+      PATCH: "",
+      DELETE: "",
+    }
     this.properties = this.init(properties);
   }
 
@@ -39,17 +47,20 @@ export class Entity {
           p.controller, 
         )
       );
+      for (const m of p.methods) {
+        this.cols[m] += this.cols[m].length ? `, ${p.key}` : `${p.key}`;
+      }
     }
     return props;
   }
 
-  public cols(method: Method): string[] {
-    const cols = [];
-    for (const p of this.properties) {
-      if (isIn(method, p.methods))
-        cols.push(p.key);
-    }
-    return cols;
+
+  public getTable() {
+    return this.table;
+  }
+
+  public getCols(method: Method): string {
+    return this.cols[method];
   }
 
   public normalize(rows: Record<string, any>[]): Record<string, any>[] {
@@ -104,7 +115,7 @@ export class Entity {
     }
     return null;
   }
-
+    
   private require(v: any, key: string): any {
     return Required.validate(v) ? null : Messages.missing(key);
   }

@@ -152,22 +152,30 @@ class Entity {
     constructor(name, table, properties) {
         this.name = name;
         this.table = table;
+        this.cols = {
+            GET: "",
+            POST: "",
+            PUT: "",
+            PATCH: "",
+            DELETE: "",
+        };
         this.properties = this.init(properties);
     }
     init(properties) {
         const props = [];
         for (const p of properties) {
             props.push(new Property(p.key, p.type, p.min, p.max, p.required, p.typeCheck, p.methods, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller));
+            for (const m of p.methods) {
+                this.cols[m] += this.cols[m].length ? `, ${p.key}` : `${p.key}`;
+            }
         }
         return props;
     }
-    cols(method) {
-        const cols = [];
-        for (const p of this.properties) {
-            if (isIn(method, p.methods))
-                cols.push(p.key);
-        }
-        return cols;
+    getTable() {
+        return this.table;
+    }
+    getCols(method) {
+        return this.cols[method];
     }
     normalize(rows) {
         for (const r of rows) {

@@ -36,6 +36,24 @@ declare const Types: {
   };
 };
 
+// declare const Types: {
+//   readonly boolean: {
+//       readonly validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => v is boolean;
+//   };
+//   readonly string: {
+//       readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is string;
+//   };
+//   readonly number: {
+//       readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
+//   };
+//   readonly integer: {
+//       readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
+//   };
+//   readonly array: {
+//       readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is any[];
+//   };
+// };
+
 declare const Required: {
   validate: (v: any) => boolean;
 };
