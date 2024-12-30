@@ -84,11 +84,39 @@ const comparisons = {
     '<=': (a, b) => a <= b,
     '>=': (a, b) => a >= b
 };
+
+function isAscii(c, ext = true) {
+    return isInteger(c, false) && ((ext && c >= 0 && c <= 255) || (c >= 0 && c <= 127));
+}
 function isInteger(n, type = true) {
     if (!isNumber(n, type))
         return false;
     const int = Number.parseInt(String(n), 10);
     return type ? n === int : n == int;
+}
+function isFloat(n, type = true) {
+    if (isSymbol(n))
+        return false;
+    const modulo = n % 1 !== 0;
+    return type ? (Number(n) === n && modulo) : (Number(n) == n && modulo);
+}
+function isEven(n, type = true) {
+    return isInteger(n, type) && !(n & 1);
+}
+function isOdd(n, type = true) {
+    return isInteger(n, type) && Boolean(n & 1);
+}
+function isOrigin(n, type = true) {
+    return type ? n === 0 : n == 0;
+}
+function isPositive(n, type = true) {
+    return isNumber(n, type) && n > 0;
+}
+function isNegative(n, type = true) {
+    return isNumber(n, type) && n < 0;
+}
+function isPowerOfTwo(n, type = true) {
+    return isInteger(n, type) && !isOrigin(n, type) && (n & (n - 1)) === 0;
 }
 
 function isValidNumber(n, min = -999999999, max = 999999999, type = true) {
@@ -96,6 +124,9 @@ function isValidNumber(n, min = -999999999, max = 999999999, type = true) {
 }
 function isValidInteger(n, min = -999999999, max = 999999999, type = true) {
     return isInteger(n, type) && n >= min && n <= max;
+}
+function isValidFloat(n, min = -999999999.9, max = 999999999.9, type = true) {
+    return isFloat(n, type) && n >= min && n <= max;
 }
 
 function isArray(a, comp, len) {
@@ -122,6 +153,64 @@ function isStringOfLength(s, min = 0, max = 999999999) {
     }
     return false;
 }
+function isJson(s) {
+    if (!isString(s))
+        return false;
+    try {
+        JSON.parse(s);
+    }
+    catch (e) {
+        return false;
+    }
+    return true;
+}
+function isRegex(r, type = true) {
+    if (type)
+        return r instanceof RegExp;
+    try {
+        new RegExp(r);
+    }
+    catch (e) {
+        return false;
+    }
+    return true;
+}
+const emailReg = /^(?=[a-z0-9@.!$%&'*+\/=?^_‘{|}~-]{6,254}$)(?=[a-z0-9.!#$%&'*+\/=?^_‘{|}~-]{1,64}@)[a-z0-9!#$%&'*+\/=?^‘{|}~]+(?:[\._-][a-z0-9!#$%&'*+\/=?^‘{|}~]+)*@(?:(?=[a-z0-9-]{1,63}\.)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?=[a-z0-9-]{2,63}$)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+function isEmail(e) {
+    return !isSymbol(e) && emailReg.test(String(e).toLowerCase());
+}
+const ipReg = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+function isIpAddress(i) {
+    return !isSymbol(i) && ipReg.test(i);
+}
+const b64Reg = /^[A-Za-z0-9\-_]+={0,2}$/;
+function isJWT(t) {
+    if (!isString(t))
+        return false;
+    const p = t.split('.');
+    if (p.length !== 3)
+        return false;
+    const header = p[0];
+    const payload = p[1];
+    const signature = p[3];
+    if (b64Reg.test(header) && b64Reg.test(payload) && b64Reg.test(signature)) {
+        try {
+            return isJson(atob(header)) && isJson(atob(payload));
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    return false;
+}
+const slugReg = /^[^\s-_](?!.*?[-_]{2,})[a-z0-9-\\][^\s]*[^-_\s]$/;
+function isSlug(s) {
+    return isString(s) && slugReg.test(s);
+}
+const hexadecimal = /^(#|0x|0h)?[0-9A-F]+$/i;
+function isHexadecimal(s) {
+    return isString(s) && hexadecimal.test(s);
+}
 
 function isObject(o, empty = false) {
     return o !== null && typeof o === "object" && !isArray(o) && (empty ? !!Object.keys(o).length : true);
@@ -129,6 +218,117 @@ function isObject(o, empty = false) {
 function isProperty(val, obj) {
     const v = String(val);
     return isString(v, true) && isObject(obj) ? Object.keys(obj).includes(v) : false;
+}
+
+function isHtmlElement(h) {
+    return Boolean(typeof HTMLElement === "object"
+        ? h instanceof HTMLElement
+        : h &&
+            typeof h === "object" &&
+            h.nodeType === 1 &&
+            typeof h.nodeName === "string");
+}
+function isHtmlEventAttribute(h) {
+    switch (h) {
+        case "onafterprint":
+        case "onbeforeprint":
+        case "onbeforeunload":
+        case "onerror":
+        case "onhashchange":
+        case "onload":
+        case "onmessage":
+        case "onoffline":
+        case "ononline":
+        case "onpagehide":
+        case "onpageshow":
+        case "onpopstate":
+        case "onresize":
+        case "onstorage":
+        case "onunload":
+        case "onblur":
+        case "onchange":
+        case "oncontextmenu":
+        case "onfocus":
+        case "oninput":
+        case "oninvalid":
+        case "onreset":
+        case "onsearch":
+        case "onselect":
+        case "onsubmit":
+        case "onkeydown":
+        case "onkeypress":
+        case "onkeyup":
+        case "onclick":
+        case "ondblclick":
+        case "onmousedown":
+        case "onmousemove":
+        case "onmouseout":
+        case "onmouseover":
+        case "onmouseup":
+        case "onmousewheel":
+        case "onwheel":
+        case "ondrag":
+        case "ondragend":
+        case "ondragenter":
+        case "ondragleave":
+        case "ondragover":
+        case "ondragstart":
+        case "ondrop":
+        case "onscroll":
+        case "oncopy":
+        case "oncut":
+        case "onpaste":
+        case "onabort":
+        case "oncanplay":
+        case "oncanplaythrough":
+        case "oncuechange":
+        case "ondurationchange":
+        case "onemptied":
+        case "onended":
+        case "onerror":
+        case "onloadeddata":
+        case "onloadedmetadata":
+        case "onloadstart":
+        case "onpause":
+        case "onplay":
+        case "onplaying":
+        case "onprogress":
+        case "onratechange":
+        case "onseeked":
+        case "onseeking":
+        case "onstalled":
+        case "onsuspend":
+        case "ontimeupdate":
+        case "onvolumechange":
+        case "onwaiting":
+        case "ontoggle":
+            return true;
+        default:
+            return false;
+    }
+}
+function isNode(n) {
+    return Boolean(typeof Node === "object"
+        ? n instanceof Node
+        : n &&
+            typeof n === "object" &&
+            typeof n.nodeType === "number" &&
+            typeof n.nodeName === "string");
+}
+
+function isDate(d) {
+    return !isNaN(d) && d instanceof Date;
+}
+const minDate = new Date('1/1/1900');
+const maxDate = new Date('1/1/2200');
+function isValidDate(d, min = minDate, max = maxDate) {
+    return isDate(d) && d >= min && d <= max;
+}
+function isTimestamp(t, type = true) {
+    return isInteger(t, type) && isNumeric(new Date(parseInt(t + '')).getTime());
+}
+function isValidTimestamp(t, min = -2208989361000, max = 7258114800000, type = true) {
+    return isTimestamp(t, type) && t >= min && t <= max;
 }
 
 const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
@@ -146,8 +346,74 @@ const Types = {
     integer: {
         validate: (v, min, max, typeCheck) => isValidInteger(v, min || undefined, max || undefined, typeCheck || undefined)
     },
+    float: {
+        validate: (v, min, max, typeCheck) => isValidFloat(v, min || undefined, max || undefined, typeCheck || undefined)
+    },
+    even: {
+        validate: (v, _min, _max, typeCheck) => isEven(v, typeCheck || undefined)
+    },
+    odd: {
+        validate: (v, _min, _max, typeCheck) => isOdd(v, typeCheck || undefined)
+    },
+    positive: {
+        validate: (v, _min, _max, typeCheck) => isPositive(v, typeCheck || undefined)
+    },
+    negative: {
+        validate: (v, _min, _max, typeCheck) => isNegative(v, typeCheck || undefined)
+    },
+    powerOfTwo: {
+        validate: (v, _min, _max, typeCheck) => isPowerOfTwo(v, typeCheck || undefined)
+    },
+    ascii: {
+        validate: (v, _min, _max, typeCheck) => isAscii(v, typeCheck || undefined)
+    },
     array: {
-        validate: (v, min, max, _typeCheck) => isArrayOfLength(v, min, max)
+        validate: (v, min, max, _typeCheck) => isArrayOfLength(v, min || undefined, max || undefined)
+    },
+    email: {
+        validate: (v, _min, _max, _typeCheck) => isEmail(v)
+    },
+    regex: {
+        validate: (v, _min, _max, typeCheck) => isRegex(v, typeCheck || undefined)
+    },
+    json: {
+        validate: (v, _min, _max, _typeCheck) => isJson(v)
+    },
+    jwt: {
+        validate: (v, _min, _max, _typeCheck) => isJWT(v)
+    },
+    symbol: {
+        validate: (v, _min, _max, _typeCheck) => isSymbol(v)
+    },
+    ipAddress: {
+        validate: (v, _min, _max, _typeCheck) => isIpAddress(v)
+    },
+    slug: {
+        validate: (v, _min, _max, _typeCheck) => isSlug(v)
+    },
+    hexadecimal: {
+        validate: (v, _min, _max, _typeCheck) => isHexadecimal(v)
+    },
+    date: {
+        validate: (v, min, max, _typeCheck) => isValidDate(v, min || undefined, max || undefined)
+    },
+    timestamp: {
+        validate: (v, min, max, typeCheck) => isValidTimestamp(v, min || undefined, max || undefined, typeCheck || undefined)
+    },
+    function: {
+        validate: (v, _min, _max, _typeCheck) => isFunction(v)
+    },
+    htmlElement: {
+        validate: (v, _min, _max, _typeCheck) => isHtmlElement(v)
+    },
+    htmlEventAttribute: {
+        validate: (v, _min, _max, _typeCheck) => isHtmlEventAttribute(v)
+    },
+    node: {
+        validate: (v, _min, _max, _typeCheck) => isNode(v)
+    },
+    object: {
+        validate: (v, _min, _max, _typeCheck) => isObject(v)
     }
 };
 const Required = {

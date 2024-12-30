@@ -24,7 +24,7 @@ SOFTWARE.
 https://github.com/DWTechs/Antity.js
 */
 
-import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isArrayOfLength, isNil, isString, isProperty, isArray, isIn, isInteger, isFunction, isObject } from '@dwtechs/checkard';
+import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isValidFloat, isEven, isOdd, isPositive, isNegative, isPowerOfTwo, isAscii, isArrayOfLength, isEmail, isRegex, isJson, isJWT, isSymbol, isIpAddress, isSlug, isHexadecimal, isValidDate, isValidTimestamp, isFunction, isHtmlElement, isHtmlEventAttribute, isNode, isObject, isNil, isString, isProperty, isArray, isIn, isInteger } from '@dwtechs/checkard';
 
 const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
 
@@ -41,8 +41,74 @@ const Types = {
     integer: {
         validate: (v, min, max, typeCheck) => isValidInteger(v, min || undefined, max || undefined, typeCheck || undefined)
     },
+    float: {
+        validate: (v, min, max, typeCheck) => isValidFloat(v, min || undefined, max || undefined, typeCheck || undefined)
+    },
+    even: {
+        validate: (v, _min, _max, typeCheck) => isEven(v, typeCheck || undefined)
+    },
+    odd: {
+        validate: (v, _min, _max, typeCheck) => isOdd(v, typeCheck || undefined)
+    },
+    positive: {
+        validate: (v, _min, _max, typeCheck) => isPositive(v, typeCheck || undefined)
+    },
+    negative: {
+        validate: (v, _min, _max, typeCheck) => isNegative(v, typeCheck || undefined)
+    },
+    powerOfTwo: {
+        validate: (v, _min, _max, typeCheck) => isPowerOfTwo(v, typeCheck || undefined)
+    },
+    ascii: {
+        validate: (v, _min, _max, typeCheck) => isAscii(v, typeCheck || undefined)
+    },
     array: {
-        validate: (v, min, max, _typeCheck) => isArrayOfLength(v, min, max)
+        validate: (v, min, max, _typeCheck) => isArrayOfLength(v, min || undefined, max || undefined)
+    },
+    email: {
+        validate: (v, _min, _max, _typeCheck) => isEmail(v)
+    },
+    regex: {
+        validate: (v, _min, _max, typeCheck) => isRegex(v, typeCheck || undefined)
+    },
+    json: {
+        validate: (v, _min, _max, _typeCheck) => isJson(v)
+    },
+    jwt: {
+        validate: (v, _min, _max, _typeCheck) => isJWT(v)
+    },
+    symbol: {
+        validate: (v, _min, _max, _typeCheck) => isSymbol(v)
+    },
+    ipAddress: {
+        validate: (v, _min, _max, _typeCheck) => isIpAddress(v)
+    },
+    slug: {
+        validate: (v, _min, _max, _typeCheck) => isSlug(v)
+    },
+    hexadecimal: {
+        validate: (v, _min, _max, _typeCheck) => isHexadecimal(v)
+    },
+    date: {
+        validate: (v, min, max, _typeCheck) => isValidDate(v, min || undefined, max || undefined)
+    },
+    timestamp: {
+        validate: (v, min, max, typeCheck) => isValidTimestamp(v, min || undefined, max || undefined, typeCheck || undefined)
+    },
+    function: {
+        validate: (v, _min, _max, _typeCheck) => isFunction(v)
+    },
+    htmlElement: {
+        validate: (v, _min, _max, _typeCheck) => isHtmlElement(v)
+    },
+    htmlEventAttribute: {
+        validate: (v, _min, _max, _typeCheck) => isHtmlEventAttribute(v)
+    },
+    node: {
+        validate: (v, _min, _max, _typeCheck) => isNode(v)
+    },
+    object: {
+        validate: (v, _min, _max, _typeCheck) => isObject(v)
     }
 };
 const Required = {

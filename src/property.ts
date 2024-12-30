@@ -28,8 +28,8 @@ export class Property {
   constructor(
     key: string,
     type: Type,
-    min: number,
-    max: number,
+    min: number | Date,
+    max: number | Date,
     required: boolean,
     typeCheck: boolean,
     methods: Method[],

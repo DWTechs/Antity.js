@@ -124,7 +124,34 @@ const check = entity.validate(req.body, req.method);
 
 ```javascript
 
-type Type = "boolean" | "string" | "number" | "integer" | "array";
+type Type = "boolean" | 
+            "string" | 
+            "number" | 
+            "integer" | 
+            "float" |
+            "even" |
+            "odd" |
+            "positve" |
+            "negative" |
+            "powerOfTwo" |
+            "ascii" |
+            "array" | 
+            "jwt" |
+            "symbol" | 
+            "email" |
+            "regex" |
+            "json" |
+            "ipAddress" |
+            "slug" |
+            "hexadecimal" |
+            "date" |
+            "timestamp" |
+            "function" |
+            "htmlElement" |
+            "htmlEventAttribute" |
+            "node" |
+            "object";
+            
 type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
 
 class Property {

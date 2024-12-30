@@ -31,20 +31,8 @@ type Method = typeof Methods[number];
 declare const Methods: readonly ["GET", "PATCH", "PUT", "POST", "DELETE"];
 
 declare const Types: {
-  readonly boolean: {
-      readonly validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => v is boolean;
-  };
-  readonly string: {
-      readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is string;
-  };
-  readonly number: {
-      readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
-  };
-  readonly integer: {
-      readonly validate: (v: any, min: number, max: number, typeCheck: boolean) => v is number;
-  };
-  readonly array: {
-      readonly validate: (v: any, min: number, max: number, _typeCheck: boolean) => v is any[];
+  [key: string]: {
+      validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
   };
 };
 
@@ -88,8 +76,8 @@ declare class Property {
   controller: ((v: any) => any) | null;
   constructor(key: string,
     type: Type,
-    min: number,
-    max: number,
+    min: number | Date,
+    max: number | Date,
     required: boolean,
     typeCheck: boolean,
     methods: Method[],
@@ -101,6 +89,7 @@ declare class Property {
     controller: ((v: any) => any) | null
   );
 }
+
 export type { Type, Method };
 export { 
   Entity,
