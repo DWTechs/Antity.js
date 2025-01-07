@@ -1,6 +1,7 @@
 import { 
   isString,
   isArray,
+  isDate,
   isIn,
   isProperty,
   isInteger,
@@ -29,8 +30,8 @@ export class Property {
   constructor(
     key: string,
     type: Type,
-    min: number | Date,
-    max: number | Date,
+    min: number | Date | null,
+    max: number | Date | null,
     required: boolean,
     safe: boolean,
     typeCheck: boolean,
@@ -56,7 +57,7 @@ export class Property {
 
     this.key = key;
     this.type = type;
-    this.min = isInteger(min, true) ? min : 0;
+    this.min = type === "date" ? isDate(min) ? min : null : isInteger(min, true) ? min : 0;
     this.max = isInteger(max, true) ? max : 999999999;
     this.required = isBoolean(required) ? required : false;
     this.safe = isBoolean(safe) ? safe : true;
