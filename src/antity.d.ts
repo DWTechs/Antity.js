@@ -63,8 +63,8 @@ declare const Messages: {
 declare class Property {
   key: string;
   type: Type;
-  min: number;
-  max: number;
+  min: number | Date | null;
+  max: number | Date | null;
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
@@ -77,8 +77,8 @@ declare class Property {
   controller: ((v: any) => any) | null;
   constructor(key: string,
     type: Type,
-    min: number | Date,
-    max: number | Date,
+    min: number | Date | null,
+    max: number | Date | null,
     required: boolean,
     safe: boolean,
     typeCheck: boolean,

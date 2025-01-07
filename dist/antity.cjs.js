@@ -331,7 +331,7 @@ function isValidTimestamp(t, min = -2208989361000, max = 7258114800000, type = t
     return isTimestamp(t, type) && t >= min && t <= max;
 }
 
-const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
+const Operations = ["select", "insert", "update", "merge", "delete"];
 
 const Types = {
     boolean: {
@@ -421,30 +421,36 @@ const Required = {
 };
 
 class Property {
-    constructor(key, type, min, max, required, typeCheck, methods, sanitize, normalize, control, sanitizer, normalizer, controller) {
+    constructor(key, type, min, max, required, safe, typeCheck, operations, sanitize, normalize, control, sanitizer, normalizer, controller) {
         if (!isString(key, true))
-            throw new Error(`Property key must be a string. Received ${key}`);
+            throw new Error(`Property"key" must be a string. Received ${key}`);
         if (!isProperty(type, Types))
-            throw new Error(`Property type must be a valid type. Received ${type}`);
-        if (isArray(methods)) {
-            for (const m of methods) {
-                if (!isIn(m, Methods))
-                    throw new Error(`Property methods must be an array of REST Methods. Received ${m}`);
+            throw new Error(`Property "type" must be a valid type. Received ${type}`);
+        if (isArray(operations)) {
+            for (const o of operations) {
+                if (!isIn(o, Operations))
+                    throw new Error(`Property "operations" must be an array of SQL operations. Received ${o}`);
             }
         }
         this.key = key;
         this.type = type;
-        this.min = isInteger(min, true) ? min : 0;
-        this.max = isInteger(max, true) ? max : 999999999;
+        this.min = this.interval(min, type, 0);
+        this.max = this.interval(max, type, 999999999);
         this.required = isBoolean(required) ? required : false;
+        this.safe = isBoolean(safe) ? safe : true;
         this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-        this.methods = methods || Methods;
+        this.operations = operations || Operations;
         this.sanitize = isBoolean(sanitize) ? sanitize : true;
         this.normalize = isBoolean(normalize) ? normalize : false;
         this.control = isBoolean(control) ? control : true;
         this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
         this.normalizer = isFunction(normalizer) ? normalizer : null;
         this.controller = isFunction(controller) ? controller : null;
+    }
+    interval(min, type, def) {
+        if (type === "date")
+            return isDate(min) ? min : null;
+        return isInteger(min, true) ? min : def;
     }
 }
 
@@ -454,33 +460,35 @@ const Messages = {
 };
 
 class Entity {
-    constructor(name, table, properties) {
-        this.name = name;
+    constructor(table, properties) {
         this.table = table;
+        this.properties = [];
         this.cols = {
-            GET: "",
-            POST: "",
-            PUT: "",
-            PATCH: "",
-            DELETE: "",
+            select: "",
+            insert: "",
+            update: "",
+            merge: "",
+            delete: ""
         };
-        this.properties = this.init(properties);
-    }
-    init(properties) {
-        const props = [];
+        this.unsafeProps = [];
         for (const p of properties) {
-            props.push(new Property(p.key, p.type, p.min, p.max, p.required, p.typeCheck, p.methods, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller));
-            for (const m of p.methods) {
-                this.cols[m] += this.cols[m].length ? `, ${p.key}` : `${p.key}`;
+            const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.operations, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller);
+            this.properties.push(prop);
+            for (const o of p.operations) {
+                this.cols[o] += this.cols[o].length ? `, ${p.key}` : `${p.key}`;
             }
+            if (!prop.safe)
+                this.unsafeProps.push(prop.key);
         }
-        return props;
     }
     getTable() {
         return this.table;
     }
-    getCols(method) {
-        return this.cols[method];
+    getCols(operation) {
+        return this.cols[operation];
+    }
+    getUnsafeProps() {
+        return this.unsafeProps;
     }
     normalize(rows) {
         for (const r of rows) {
@@ -497,11 +505,11 @@ class Entity {
         }
         return rows;
     }
-    validate(rows, method) {
+    validate(rows, operation) {
         for (const r of rows) {
-            for (const { key, type, min, max, required, typeCheck, methods, control, controller } of this.properties) {
+            for (const { key, type, min, max, required, typeCheck, operations, control, controller } of this.properties) {
                 const v = r[key];
-                if (method && isIn(method, methods)) {
+                if (operation && isIn(operation, operations)) {
                     if (required) {
                         const rq = this.require(v, key);
                         if (rq)

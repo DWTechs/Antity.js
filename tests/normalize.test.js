@@ -3,14 +3,14 @@ import { Entity } from '../dist/antity.js';
 describe('Entity', () => {
   let entity;
   beforeEach(() => {
-    entity = new Entity('Person', 'persons', [
+    entity = new Entity('persons', [
       {
         key: 'name',
         type: 'string',
         min: 1,
         max: 255,
         typeCheck: true,
-        methods: ['insert'],
+        operations: ['insert'],
         required: true,
         safe: true,
         sanitize: true,
@@ -26,7 +26,7 @@ describe('Entity', () => {
         min: 0,
         max: 120,
         typeCheck: true,
-        methods: ['insert', 'update'],
+        operations: ['insert', 'update'],
         required: true,
         safe: true,
         sanitize: true,

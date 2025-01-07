@@ -14,8 +14,8 @@ import type { Type, Operation } from './types';
 export class Property {
   key: string;
   type: Type;
-  min: number;
-  max: number;
+  min: number | Date | null;
+  max: number | Date | null;
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
@@ -57,8 +57,8 @@ export class Property {
 
     this.key = key;
     this.type = type;
-    this.min = type === "date" ? isDate(min) ? min : null : isInteger(min, true) ? min : 0;
-    this.max = isInteger(max, true) ? max : 999999999;
+    this.min = this.interval(min, type, 0);
+    this.max = this.interval(max, type,999999999);
     this.required = isBoolean(required) ? required : false;
     this.safe = isBoolean(safe) ? safe : true;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
@@ -69,6 +69,16 @@ export class Property {
     this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
     this.normalizer = isFunction(normalizer) ? normalizer : null;
     this.controller = isFunction(controller) ? controller : null;
+  }
+
+  private interval(
+    min: number | Date | null, 
+    type: Type,
+    def: number
+  ): number | Date | null {
+    if (type === "date")
+      return isDate(min) ? min : null
+    return isInteger(min, true) ? min : def
   }
 
 }
