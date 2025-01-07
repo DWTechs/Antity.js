@@ -1,5 +1,5 @@
 
-type Method = typeof Methods[number];
+type Operation = typeof Operations[number];
 type Type = 
   "boolean" |
   "string" |
@@ -29,7 +29,7 @@ type Type =
   "node" |
   "object";
 
-declare const Methods: readonly ["GET", "PATCH", "PUT", "POST", "DELETE"];
+declare const Operations: readonly [ "select", "insert", "update", "merge", "delete" ];
 
 declare const Types: Record<Type, {
   validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
@@ -40,16 +40,15 @@ declare const Required: {
 };
 
 declare class Entity {
-  name: string;
   table: string;
-  cols: Record<Method, string>;
+  cols: Record<Operation, string>;
   properties: Property[];
-  constructor(name: string, table: string, properties: Property[]);
-  private init;
+  constructor(table: string, properties: Property[]);
   getTable(): string;
-  getCols(method: Method): string;
+  getCols(operation: Operation): string;
+  getUnsafeProps(): string[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
-  validate(rows: Record<string, any>[], method: Method): string | null;
+  validate(rows: Record<string, any>[], operation: Operation): string | null;
   private require;
   private control;
   private sanitize;
@@ -67,8 +66,9 @@ declare class Property {
   min: number;
   max: number;
   required: boolean;
+  safe: boolean;
   typeCheck: boolean;
-  methods: Method[];
+  operations: Operation[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
@@ -80,8 +80,9 @@ declare class Property {
     min: number | Date,
     max: number | Date,
     required: boolean,
+    safe: boolean,
     typeCheck: boolean,
-    methods: Method[],
+    operations: Operation[],
     sanitize: boolean,
     normalize: boolean,
     control: boolean,
@@ -91,13 +92,13 @@ declare class Property {
   );
 }
 
-export type { Type, Method };
+export type { Type, Operation };
 export { 
   Entity,
   Property,
   Messages,
   Types,
   Required,
-  Methods 
+  Operations 
 };
 

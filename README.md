@@ -50,15 +50,16 @@ $ npm i @dwtechs/antity
 import { Entity } from "@dwtechs/antity";
 import { normalizeName, normalizeNickname } from "@dwtechs/checkard";
 
-const entity = new Entity("consumer", "consumers", [
+const entity = new Entity("consumers", [
   {
     key: "id",
     type: "integer",
     min: 0,
     max: 120,
     typeCheck: true,
-    methods: ["get", "put", "delete"],
+    methods: ["select", "update", "delete"],
     required: true,
+    safe: true,
     sanitize: true,
     normalize: true,
     control: true,
@@ -72,8 +73,9 @@ const entity = new Entity("consumer", "consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    methods: ["get", "post", "put", "delete"],
+    methods: ["select", "insert", "update", "delete"],
     required: true,
+    safe: true,
     sanitize: true,
     normalize: true,
     control: true,
@@ -87,8 +89,9 @@ const entity = new Entity("consumer", "consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    methods: ["get", "post", "put", "delete"],
+    methods: ["select", "insert", "update", "delete"],
     required: true,
+    safe: true,
     sanitize: true,
     normalize: true,
     control: true,
@@ -102,8 +105,9 @@ const entity = new Entity("consumer", "consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    methods: ["get", "post", "put", "delete"],
+    methods: ["select", "insert", "update", "delete"],
     required: true,
+    safe: true,
     sanitize: true,
     normalize: true,
     control: true,
@@ -115,8 +119,7 @@ const entity = new Entity("consumer", "consumers", [
 
 req.body = entity.normalize(req.body);
 const check = entity.validate(req.body, req.method);
-
-
+const unsafeProps = entity.getUnsafeProps();
 
 ```
 
@@ -154,7 +157,7 @@ type Type = "boolean" |
             "node" |
             "object";
             
-type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
+type Operation = "select" | "insert" | "update" | "merge" | "delete";
 
 class Property {
   key: string;
@@ -162,8 +165,9 @@ class Property {
   min: number | Date;
   max: number | Date;
   required: boolean;
+  safe: true,
   typeCheck: boolean;
-  methods: Method[];
+  operations: Operation[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
@@ -173,14 +177,14 @@ class Property {
 };
 
 class Entity {
-  name: string;
   table: string;
-  cols: Record<Method, string>;
+  cols: Record<Operation, string>;
   properties: Property[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
-  validate(rows: Record<string, any>[], method: Method): string | null;
+  validate(rows: Record<string, any>[], operation: Operation): string | null;
   getTable(): string;
-  getCols(method: Method): string;
+  getCols(operation: Operation): string;
+  getUnsafeProps(): string[];
 }
 
 ```
@@ -193,17 +197,18 @@ Any of these can be passed into the options object for each function.
 | Name            | Type                      |               Description                         |  Default value  |  
 | :-------------- | :------------------------ | :------------------------------------------------ | :-------------- |
 | key             |  string                   | Name of the property                              |
-| type            |  Type                     | Type of the property                                  |
+| type            |  Type                     | Type of the property                              |
 | min             |  number                   | Minimum value                                     | 0
 | max             |  number                   | Maximum value                                     | 999999999
-| required        |  boolean                  | Is this property required for these methods       | false
+| required        |  boolean                  | Is this property required on insert               | false
+| safe            |  boolean                  | Is this property safe to send to the client       | true
 | typeCheck       |  boolean                  | Type is checked if true                           | false
-| methods         |  Method[]                 | REST Methods that use the property                | [ "GET", "PATCH", "PUT", "POST", "DELETE" ]
+| operations      |  Operation[]              | SQL DML operations concerned by the property      | [ "select", "insert", "update", "merge", "delete" ]
 | sanitize        |  boolean                  | Sanitize the property if true                     | true
 | normalize       |  boolean                  | Normalize the property if true                    | false
 | control         |  boolean                  | Control the property if true                      | true
-| sanitizer       |  ((v:any) => any) \| null  | Sanitizer function if sanitize is true            | null
-| normalizer      |  ((v:any) => any) \| null  | Normalizer function if normalize is true          | null
+| sanitizer       |  ((v:any) => any) \| null | Sanitizer function if sanitize is true            | null
+| normalizer      |  ((v:any) => any) \| null | Normalizer function if normalize is true          | null
 | controller      |  ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null  | Controller function if control is true            | null
 
 * *Min and max parameters are not used for boolean type*

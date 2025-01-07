@@ -2,65 +2,67 @@ import { isArray, isObject, isString, isIn } from '@dwtechs/checkard';
 import { Property } from './property';
 import { Messages } from './message';
 import { Types, Required } from './checks';
-import type { Type, Method } from './types';
+import type { Type, Operation } from './types';
 
 export class Entity {
-  name: string;
-  table: string;
-  cols: Record<Method, string>;
-  properties: Property[];
+  private table: string;
+  private cols: Record<Operation, string>;
+  private unsafeProps: string[];
+  private properties: Property[];
 
   constructor(
-    name: string,
     table: string,
     properties: Property[],
   ) {
-    this.name = name;
+
     this.table = table;
+    this.properties = [];
     this.cols = {
-      GET: "",
-      POST: "",
-      PUT: "",
-      PATCH: "",
-      DELETE: "",
-    }
-    this.properties = this.init(properties);
-  }
-
-  private init(properties: Property[]): Property[] {
-    const props = [];
+      select: "",
+      insert: "",
+      update: "",
+      merge: "",
+      delete: ""
+    };
+    this.unsafeProps = [];
     for (const p of properties) {
-      props.push(
-        new Property(
-          p.key,
-          p.type,
-          p.min,
-          p.max,
-          p.required,
-          p.typeCheck,
-          p.methods,
-          p.sanitize,
-          p.normalize,
-          p.control,
-          p.sanitizer,
-          p.normalizer,
-          p.controller, 
-        )
-      );
-      for (const m of p.methods) {
-        this.cols[m] += this.cols[m].length ? `, ${p.key}` : `${p.key}`;
+      const prop = new Property(
+        p.key,
+        p.type,
+        p.min,
+        p.max,
+        p.required,
+        p.safe,
+        p.typeCheck,
+        p.operations,
+        p.sanitize,
+        p.normalize,
+        p.control,
+        p.sanitizer,
+        p.normalizer,
+        p.controller, 
+      )
+      this.properties.push(prop);
+      
+      for (const o of p.operations) {
+        this.cols[o] += this.cols[o].length ? `, ${p.key}` : `${p.key}`;
       }
-    }
-    return props;
-  }
 
+      if (!prop.safe) this.unsafeProps.push(prop.key);
+
+    }
+  }
 
   public getTable() {
     return this.table;
   }
 
-  public getCols(method: Method): string {
-    return this.cols[method];
+  public getCols(operation: Operation): string {
+    return this.cols[operation];
+  }
+
+  public getUnsafeProps(): string[] {
+    return this.unsafeProps;
   }
 
   public normalize(rows: Record<string, any>[]): Record<string, any>[] {
@@ -85,7 +87,7 @@ export class Entity {
     return rows;
   }
   
-  public validate(rows: Record<string, any>[], method: Method): string | null {
+  public validate(rows: Record<string, any>[], operation: Operation): string | null {
     for (const r of rows) {
       for (const { 
         key, 
@@ -94,12 +96,12 @@ export class Entity {
         max,
         required,
         typeCheck,
-        methods,
+        operations,
         control,
         controller
       } of this.properties) {
         const v = r[key];
-        if (method && isIn(method, methods)) {
+        if (operation && isIn(operation, operations)) {
           if (required) {
             const rq = this.require(v, key);
             if (rq)

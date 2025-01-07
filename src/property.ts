@@ -6,9 +6,9 @@ import {
   isInteger,
   isBoolean,
   isFunction } from '@dwtechs/checkard';
-import { Methods } from './methods';
+import { Operations } from './operations';
 import { Types } from './checks';
-import type { Type, Method } from './types';
+import type { Type, Operation } from './types';
 
 export class Property {
   key: string;
@@ -16,8 +16,9 @@ export class Property {
   min: number;
   max: number;
   required: boolean;
+  safe: boolean;
   typeCheck: boolean;
-  methods: Method[];
+  operations: Operation[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
@@ -31,8 +32,9 @@ export class Property {
     min: number | Date,
     max: number | Date,
     required: boolean,
+    safe: boolean,
     typeCheck: boolean,
-    methods: Method[],
+    operations: Operation[],
     sanitize: boolean,
     normalize: boolean,
     control: boolean,
@@ -42,13 +44,13 @@ export class Property {
   ) {
 
     if (!isString(key, true)) 
-      throw new Error(`Property key must be a string. Received ${key}`);
+      throw new Error(`Property"key" must be a string. Received ${key}`);
     if (!isProperty(type, Types))
-      throw new Error(`Property type must be a valid type. Received ${type}`);
-    if (isArray(methods)){
-      for (const m of methods) {
-        if (!isIn(m, Methods as unknown as any[]))
-          throw new Error(`Property methods must be an array of REST Methods. Received ${m}`);
+      throw new Error(`Property "type" must be a valid type. Received ${type}`);
+    if (isArray(operations)){
+      for (const o of operations) {
+        if (!isIn(o, Operations as unknown as any[]))
+          throw new Error(`Property "operations" must be an array of SQL operations. Received ${o}`);
       }
     }
 
@@ -57,8 +59,9 @@ export class Property {
     this.min = isInteger(min, true) ? min : 0;
     this.max = isInteger(max, true) ? max : 999999999;
     this.required = isBoolean(required) ? required : false;
+    this.safe = isBoolean(safe) ? safe : true;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-    this.methods = methods || Methods;
+    this.operations = operations || Operations;
     this.sanitize = isBoolean(sanitize) ? sanitize : true;
     this.normalize = isBoolean(normalize) ? normalize : false;
     this.control = isBoolean(control) ? control : true;

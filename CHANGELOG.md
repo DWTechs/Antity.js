@@ -1,3 +1,10 @@
+# 0.4.0 (Jan 08th 2025)
+
+- add safe parameter to check if a property can be sent to the requester or not
+- add getUnsafeProps() method to get an unsafe properties array
+- replace REST methods by SQL operations
+- delete "name" property
+
 # 0.3.0 (Dec 30th 2024)
 
 - add getTable() method

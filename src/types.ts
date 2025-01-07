@@ -1,4 +1,4 @@
-import type { Methods } from "./methods";
+import type { Operations } from "./operations";
 
 export type Type =  
   "boolean" | 
@@ -29,4 +29,4 @@ export type Type =
   "node" |
   "object";
 
-export type Method = typeof Methods[number];
+export type Operation = typeof Operations[number];
