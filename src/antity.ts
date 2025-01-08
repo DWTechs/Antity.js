@@ -25,6 +25,7 @@ export class Entity {
       delete: ""
     };
     this.unsafeProps = [];
+    let i = 0;
     for (const p of properties) {
       const prop = new Property(
         p.key,
@@ -45,12 +46,17 @@ export class Entity {
       this.properties.push(prop);
       
       for (const o of p.operations) {
+        if (o === "insert") {
+          this.cols[o] += i ? `, ${p.key} = ${i+1}` : `${p.key}`; 
+          i++; 
+        }
         this.cols[o] += this.cols[o].length ? `, ${p.key}` : `${p.key}`;
       }
 
       if (!prop.safe) this.unsafeProps.push(prop.key);
 
     }
+
   }
 
   public getTable() {
