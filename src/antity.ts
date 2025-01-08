@@ -46,10 +46,10 @@ export class Entity {
       this.properties.push(prop);
       
       for (const o of p.operations) {
-        if (o === "update") {
+        if (o === "update")
           this.cols[o].push(`${p.key} = $${this.cols[o].length+1}`); 
-        }
-        this.cols[o].push(p.key);
+        else
+          this.cols[o].push(p.key);
       }
 
       if (!prop.safe) this.unsafeProps.push(prop.key);

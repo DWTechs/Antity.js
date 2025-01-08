@@ -464,18 +464,21 @@ class Entity {
         this.table = table;
         this.properties = [];
         this.cols = {
-            select: "",
-            insert: "",
-            update: "",
-            merge: "",
-            delete: ""
+            select: [],
+            insert: [],
+            update: [],
+            merge: [],
+            delete: []
         };
         this.unsafeProps = [];
         for (const p of properties) {
             const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.operations, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller);
             this.properties.push(prop);
             for (const o of p.operations) {
-                this.cols[o] += this.cols[o].length ? `, ${p.key}` : `${p.key}`;
+                if (o === "update")
+                    this.cols[o].push(`${p.key} = $${this.cols[o].length + 1}`);
+                else
+                    this.cols[o].push(p.key);
             }
             if (!prop.safe)
                 this.unsafeProps.push(prop.key);
@@ -484,8 +487,9 @@ class Entity {
     getTable() {
         return this.table;
     }
-    getCols(operation) {
-        return this.cols[operation];
+    getCols(operation, stringify, pagination) {
+        const cols = pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
+        return stringify ? cols.join(', ') : cols;
     }
     getUnsafeProps() {
         return this.unsafeProps;

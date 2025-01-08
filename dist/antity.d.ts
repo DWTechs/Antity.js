@@ -58,7 +58,7 @@ type Type =
 declare const Operations: readonly [ "select", "insert", "update", "merge", "delete" ];
 
 declare const Types: Record<Type, {
-  validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
+  validate: (v: any, min: number | Date | null, max: number | Date | null, typeCheck: boolean) => boolean;
 }>;
 
 declare const Required: {
@@ -67,11 +67,11 @@ declare const Required: {
 
 declare class Entity {
   table: string;
-  cols: Record<Operation, string>;
+  cols: Record<Operation, string[]>;
   properties: Property[];
   constructor(table: string, properties: Property[]);
   getTable(): string;
-  getCols(operation: Operation): string;
+  getCols(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
   getUnsafeProps(): string[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
   validate(rows: Record<string, any>[], operation: Operation): string | null;
