@@ -63,7 +63,7 @@ export class Entity {
   }
 
   public getCols(operation: Operation, pagination?: boolean): string[] {
-    return pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation]);
+    return pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
   }
 
   public getUnsafeProps(): string[] {
