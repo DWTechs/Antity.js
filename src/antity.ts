@@ -46,7 +46,7 @@ export class Entity {
       this.properties.push(prop);
       
       for (const o of p.operations) {
-        if (o === "insert") {
+        if (o === "update") {
           this.cols[o].push(`${p.key} = $${this.cols[o].length+1}`); 
         }
         this.cols[o].push(p.key);
@@ -62,8 +62,9 @@ export class Entity {
     return this.table;
   }
 
-  public getCols(operation: Operation, pagination?: boolean): string[] {
-    return pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
+  public getCols(operation: Operation, stringify?: boolean, pagination?: boolean, ): string[] | string {
+    const cols = pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
+    return stringify ? cols.join(', ') : cols;
   }
 
   public getUnsafeProps(): string[] {

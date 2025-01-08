@@ -45,7 +45,7 @@ declare class Entity {
   properties: Property[];
   constructor(table: string, properties: Property[]);
   getTable(): string;
-  getCols(operation: Operation): string;
+  getCols(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
   getUnsafeProps(): string[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
   validate(rows: Record<string, any>[], operation: Operation): string | null;

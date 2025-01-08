@@ -40,13 +40,23 @@ describe('Entity', () => {
   });
   
   test('should return proper cols for select', () => {
-    const cols = entity.getCols("select");
+    const cols = entity.getCols("select", true);
     expect(cols).toBe('name, age');
   });
 
   test('should return proper cols for delect with pagination', () => {
-    const cols = entity.getCols("select", true);
+    const cols = entity.getCols("select", true, true);
     expect(cols).toBe('name, age, COUNT(*) OVER () AS total');
+  });
+
+  test('should return proper cols for insert', () => {
+    const cols = entity.getCols("insert", true);
+    expect(cols).toBe('name, age');
+  });
+
+  test('should return proper cols for update', () => {
+    const cols = entity.getCols("update", true);
+    expect(cols).toBe('name = $1, age = $2');
   });
 
 });
