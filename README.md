@@ -183,7 +183,8 @@ class Entity {
   normalize(rows: Record<string, any>[]): Record<string, any>[];
   validate(rows: Record<string, any>[], operation: Operation): string | null;
   getTable(): string;
-  getCols(operation: Operation): string;
+  // if pagination is true for a select operation, it will return cols + a total column 
+  getCols(operation: Operation, pagination?: boolean): string;
   getUnsafeProps(): string[];
 }
 

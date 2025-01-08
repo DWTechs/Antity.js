@@ -1,4 +1,3 @@
-import { isJWT } from "@dwtechs/checkard";
 import { Entity } from '../dist/antity.js';
 
 describe('Entity', () => {

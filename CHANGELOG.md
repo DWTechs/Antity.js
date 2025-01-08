@@ -4,6 +4,7 @@
 - add getUnsafeProps() method to get an unsafe properties array
 - replace REST methods by SQL operations
 - delete "name" property
+- add pagination property to getCols() method to add a total count in a select query  
 
 # 0.3.0 (Dec 30th 2024)
 
