@@ -118,7 +118,7 @@ const entity = new Entity("consumers", [
 ]);
 
 req.body = entity.normalize(req.body);
-const check = entity.validate(req.body, req.method);
+const check = entity.validate(req.body, "select");
 const unsafeProps = entity.getUnsafeProps();
 
 ```
