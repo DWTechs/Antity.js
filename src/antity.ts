@@ -6,7 +6,7 @@ import type { Type, Operation } from './types';
 
 export class Entity {
   private table: string;
-  private cols: Record<Operation, string>;
+  private cols: Record<Operation, string[]>;
   private unsafeProps: string[];
   private properties: Property[];
 
@@ -18,14 +18,14 @@ export class Entity {
     this.table = table;
     this.properties = [];
     this.cols = {
-      select: "",
-      insert: "",
-      update: "",
-      merge: "",
-      delete: ""
+      select: [],
+      insert: [],
+      update: [],
+      merge: [],
+      delete: []
     };
     this.unsafeProps = [];
-    let i = 0;
+
     for (const p of properties) {
       const prop = new Property(
         p.key,
@@ -47,10 +47,9 @@ export class Entity {
       
       for (const o of p.operations) {
         if (o === "insert") {
-          this.cols[o] += i ? `, ${p.key} = ${i+1}` : `${p.key}`; 
-          i++; 
+          this.cols[o].push(`${p.key} = $${this.cols[o].length+1}`); 
         }
-        this.cols[o] += this.cols[o].length ? `, ${p.key}` : `${p.key}`;
+        this.cols[o].push(p.key);
       }
 
       if (!prop.safe) this.unsafeProps.push(prop.key);
