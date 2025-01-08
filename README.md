@@ -199,8 +199,8 @@ Any of these can be passed into the options object for each function.
 | :-------------- | :------------------------ | :------------------------------------------------ | :-------------- |
 | key             |  string                   | Name of the property                              |
 | type            |  Type                     | Type of the property                              |
-| min             |  number | Date |          | Minimum value                                     | 0
-| max             |  number | Date            | Maximum value                                     | 999999999
+| min             |  number \| Date           | Minimum value                                     | 0
+| max             |  number \| Date           | Maximum value                                     | 999999999
 | required        |  boolean                  | Is this property required on insert               | false
 | safe            |  boolean                  | Is this property safe to send to the client       | true
 | typeCheck       |  boolean                  | Type is checked if true                           | false
