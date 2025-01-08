@@ -162,8 +162,8 @@ type Operation = "select" | "insert" | "update" | "merge" | "delete";
 class Property {
   key: string;
   type: Type;
-  min: number | Date;
-  max: number | Date;
+  min: number | Date | null;
+  max: number | Date | null;
   required: boolean;
   safe: true,
   typeCheck: boolean;
@@ -178,13 +178,13 @@ class Property {
 
 class Entity {
   table: string;
-  cols: Record<Operation, string>;
+  cols: Record<Operation, string[]>;
   properties: Property[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
   validate(rows: Record<string, any>[], operation: Operation): string | null;
   getTable(): string;
   // if pagination is true for a select operation, it will return cols + a total column 
-  getCols(operation: Operation, pagination?: boolean): string;
+  getCols(operation: Operation, pagination?: boolean): string[];
   getUnsafeProps(): string[];
 }
 
