@@ -30,7 +30,7 @@ import {
   isObject
 } from '@dwtechs/checkard';
 
-const Types: Record<Type, { validate: (v: any, min: number | Date | null, max: number | Date | null, typeCheck: boolean) => boolean }> = {
+const Types: Record<Type, { validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean }> = {
   boolean: {
     validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => 
       isBoolean(v)

@@ -32,7 +32,7 @@ type Type =
 declare const Operations: readonly [ "select", "insert", "update", "merge", "delete" ];
 
 declare const Types: Record<Type, {
-  validate: (v: any, min: number | Date | null, max: number | Date | null, typeCheck: boolean) => boolean;
+  validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
 }>;
 
 declare const Required: {

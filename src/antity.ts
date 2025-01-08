@@ -132,8 +132,8 @@ export class Entity {
     v: any,
     key: string,
     type: Type,
-    min: number | Date | null,
-    max: number | Date | null,
+    min: number | Date,
+    max: number | Date,
     typeCheck: boolean,
     cb: ((v:any) => any) | null
   ): any {
