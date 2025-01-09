@@ -207,9 +207,9 @@ examples :
 
 ```javascript
 
-entity.validate(req.body, "GET"); // will become "select"
-entity.validate(req.body, "PUT"); // will become "update"
-entity.validate(req.body, "DELETE"); // will become "delete"
+entity.validate(req.body, "GET"); // will validate "select" properties
+entity.validate(req.body, "PUT"); // will validate "update" properties
+entity.validate(req.body, "DELETE"); // will validate "delete" properties
 
 ```
 
