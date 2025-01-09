@@ -158,6 +158,7 @@ type Type = "boolean" |
             "object";
             
 type Operation = "select" | "insert" | "update" | "merge" | "delete";
+type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
 
 class Property {
   key: string;
@@ -181,7 +182,7 @@ class Entity {
   cols: Record<Operation, string[]>;
   properties: Property[];
   normalize(rows: Record<string, any>[]): Record<string, any>[]; // will also sanitize if true
-  validate(rows: Record<string, any>[], operation: Operation): string | null;
+  validate(rows: Record<string, any>[], operation: Operation | Method): string | null;
   getTable(): string;
   // if pagination is true for a select operation, it will return cols + a total column 
   getCols(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
@@ -189,6 +190,16 @@ class Entity {
 }
 
 ```
+
+### REST Methods mapping
+
+| REST method | SQL operation |
+| :---------- | :------------ |
+| GET         | select        |
+| PATCH       | update        |
+| PUT         | update        |
+| POST        | insert        |
+| DELETE      | delete        |
 
 
 ### Available options for a property
