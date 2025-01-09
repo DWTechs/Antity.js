@@ -1,4 +1,5 @@
 import { isArray, isObject, isString, isIn } from '@dwtechs/checkard';
+import { log } from "@dwtechs/winstan";
 import { Property } from './property';
 import { Messages } from './message';
 import { Types, Required } from './checks';
@@ -55,7 +56,6 @@ export class Entity {
       if (!prop.safe) this.unsafeProps.push(prop.key);
 
     }
-
   }
 
   public getTable() {
@@ -75,6 +75,7 @@ export class Entity {
     for (const r of rows) {
       for (const { 
         key, 
+        type,
         sanitize,
         normalize,
         sanitizer,
@@ -82,10 +83,14 @@ export class Entity {
       } of this.properties) {
         let v = r[key];
         if (v) {
-          if (sanitize)
+          if (sanitize) {
+            log.debug(`sanitize ${key}: ${type} = ${v}`);
             v = this.sanitize(v, sanitizer);
-          if (normalize && normalizer)
+          }
+          if (normalize && normalizer) {
+            log.debug(`normalize ${key}: ${type} = ${v}`);
             v = normalizer(v);
+          }
           r[key] = v;
         }
       }
@@ -109,7 +114,7 @@ export class Entity {
         const v = r[key];
         if (operation && isIn(operation, operations)) {
           if (required) {
-            const rq = this.require(v, key);
+            const rq = this.require(v, key, type);
             if (rq)
               return rq;
           }
@@ -124,7 +129,8 @@ export class Entity {
     return null;
   }
     
-  private require(v: any, key: string): any {
+  private require(v: any, key: string, type: Type): any {
+    log.debug(`require ${key}: ${type} = ${v}`);	
     return Required.validate(v) ? null : Messages.missing(key);
   }
 
@@ -137,6 +143,7 @@ export class Entity {
     typeCheck: boolean,
     cb: ((v:any) => any) | null
   ): any {
+    log.debug(`control ${key}: ${type} = ${v}`);
     if (cb)
       return cb(v) ? null : Messages.invalid(key, type);
     return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);

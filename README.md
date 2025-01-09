@@ -162,8 +162,8 @@ type Operation = "select" | "insert" | "update" | "merge" | "delete";
 class Property {
   key: string;
   type: Type;
-  min: number | Date | null;
-  max: number | Date | null;
+  min: number | Date;
+  max: number | Date;
   required: boolean;
   safe: boolean,
   typeCheck: boolean;

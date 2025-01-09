@@ -35,7 +35,8 @@
     "dist/"
   ],
   "dependencies": {
-    "@dwtechs/checkard": "2.29.2"
+    "@dwtechs/checkard": "2.29.2",
+    "@dwtechs/winstan": "0.2.1"
   },
   "devDependencies": {
     "@babel/core": "7.26.0",
