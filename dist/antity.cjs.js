@@ -459,6 +459,8 @@ const Messages = {
     invalid: (key, type) => `Invalid ${key}, must be of type ${type}`,
 };
 
+const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
+
 class Entity {
     constructor(table, properties) {
         this.table = table;
@@ -499,10 +501,12 @@ class Entity {
             for (const { key, sanitize, normalize, sanitizer, normalizer, } of this.properties) {
                 let v = r[key];
                 if (v) {
-                    if (sanitize)
+                    if (sanitize) {
                         v = this.sanitize(v, sanitizer);
-                    if (normalize && normalizer)
+                    }
+                    if (normalize && normalizer) {
                         v = normalizer(v);
+                    }
                     r[key] = v;
                 }
             }
@@ -510,10 +514,12 @@ class Entity {
         return rows;
     }
     validate(rows, operation) {
+        if (isIn(operation, Methods))
+            operation = this.mapMethods(operation);
         for (const r of rows) {
             for (const { key, type, min, max, required, typeCheck, operations, control, controller } of this.properties) {
                 const v = r[key];
-                if (operation && isIn(operation, operations)) {
+                if (isIn(operation, operations)) {
                     if (required) {
                         const rq = this.require(v, key);
                         if (rq)
@@ -561,6 +567,20 @@ class Entity {
                     }
                 }
             return v;
+        }
+    }
+    mapMethods(method) {
+        switch (method) {
+            case "GET":
+                return Operations[0];
+            case "PATCH":
+                return Operations[2];
+            case "PUT":
+                return Operations[2];
+            case "POST":
+                return Operations[1];
+            case "DELETE":
+                return Operations[4];
         }
     }
 }

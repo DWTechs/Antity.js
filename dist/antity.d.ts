@@ -26,6 +26,8 @@ https://github.com/DWTechs/Antity.js
 
 
 type Operation = typeof Operations[number];
+type Method = typeof Methods[number];
+
 type Type = 
   "boolean" |
   "string" |
@@ -56,6 +58,7 @@ type Type =
   "object";
 
 declare const Operations: readonly [ "select", "insert", "update", "merge", "delete" ];
+declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
 
 declare const Types: Record<Type, {
   validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
@@ -74,7 +77,7 @@ declare class Entity {
   getCols(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
   getUnsafeProps(): string[];
   normalize(rows: Record<string, any>[]): Record<string, any>[];
-  validate(rows: Record<string, any>[], operation: Operation): string | null;
+  validate(rows: Record<string, any>[], operation: Operation | Method): string | null;
   private require;
   private control;
   private sanitize;
@@ -89,8 +92,8 @@ declare const Messages: {
 declare class Property {
   key: string;
   type: Type;
-  min: number | Date | null;
-  max: number | Date | null;
+  min: number | Date;
+  max: number | Date;
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
@@ -103,8 +106,8 @@ declare class Property {
   controller: ((v: any) => any) | null;
   constructor(key: string,
     type: Type,
-    min: number | Date | null,
-    max: number | Date | null,
+    min: number | Date,
+    max: number | Date,
     required: boolean,
     safe: boolean,
     typeCheck: boolean,
@@ -118,7 +121,7 @@ declare class Property {
   );
 }
 
-export type { Type, Operation };
+export type { Type, Operation, Method };
 export { 
   Entity,
   Property,

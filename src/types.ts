@@ -1,5 +1,4 @@
 import type { Operations } from "./operations";
-import type { Methods } from "./methods";
 
 export type Type =  
   "boolean" | 
@@ -31,4 +30,4 @@ export type Type =
   "object";
 
 export type Operation = typeof Operations[number];
-export type Method = typeof Methods[number];
+export type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";

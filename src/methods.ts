@@ -1,4 +1,4 @@
 
-const Methods = [ "GET", "PATCH", "PUT", "POST", "DELETE" ] as const;
+const Methods = [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
 
 export { Methods };
