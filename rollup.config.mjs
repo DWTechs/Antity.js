@@ -7,7 +7,7 @@ const config =  {
     format: "es"
   },
   external: [
-    "@dwtechs/checkard",
+    "@dwtechs/checkard", "@dwtechs/winstan"
   ],
   plugins: []
 };
