@@ -166,7 +166,7 @@ class Property {
   min: number | Date;
   max: number | Date;
   required: boolean;
-  safe: boolean,
+  safe: boolean;
   typeCheck: boolean;
   operations: Operation[];
   sanitize: boolean;
