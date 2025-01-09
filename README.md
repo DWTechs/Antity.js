@@ -193,6 +193,8 @@ class Entity {
 
 ### REST Methods mapping
 
+When validating request inputs, you can use REST methods or SQL operations as second parameter 
+
 | REST method | SQL operation |
 | :---------- | :------------ |
 | GET         | select        |
@@ -200,6 +202,16 @@ class Entity {
 | PUT         | update        |
 | POST        | insert        |
 | DELETE      | delete        |
+
+examples : 
+
+```javascript
+
+entity.validate(req.body, "GET"); // will become "select"
+entity.validate(req.body, "PUT"); // will become "update"
+entity.validate(req.body, "DELETE"); // will become "delete"
+
+```
 
 
 ### Available options for a property
