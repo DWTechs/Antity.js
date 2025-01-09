@@ -8,6 +8,7 @@ import { Operations } from './operations';
 import type { Type, Operation, Method } from './types';
 
 export class Entity {
+  // private db: any;
   private table: string;
   private cols: Record<Operation, string[]>;
   private unsafeProps: string[];
