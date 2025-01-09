@@ -6,7 +6,6 @@
 - delete "name" property
 - add stringify property to getCols() method to tell whether to return columns as string or array.
 - add pagination property to getCols() method to add a total count in a select query 
-- add logs using @dwtechs/winstan library
 
 # 0.3.0 (Dec 30th 2024)
 
