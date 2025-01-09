@@ -3,7 +3,9 @@ import { log } from "@dwtechs/winstan";
 import { Property } from './property';
 import { Messages } from './message';
 import { Types, Required } from './checks';
-import type { Type, Operation } from './types';
+import { Methods } from './methods';
+import { Operations } from './operations';
+import type { Type, Operation, Method } from './types';
 
 export class Entity {
   private table: string;
@@ -98,7 +100,10 @@ export class Entity {
     return rows;
   }
   
-  public validate(rows: Record<string, any>[], operation: Operation): string | null {
+  public validate(rows: Record<string, any>[], operation: Operation | Method): string | null {
+    if (isIn(operation, Methods))
+      operation = this.mapMethods(operation as Method);
+    
     for (const r of rows) {
       for (const { 
         key, 
@@ -112,7 +117,7 @@ export class Entity {
         controller
       } of this.properties) {
         const v = r[key];
-        if (operation && isIn(operation, operations)) {
+        if (isIn(operation, operations)) {
           if (required) {
             const rq = this.require(v, key, type);
             if (rq)
@@ -174,6 +179,21 @@ export class Entity {
           }
         }
       return v;
+    }
+  }
+
+  private mapMethods(method: Method): Operation {
+    switch (method) {
+      case "GET": 
+        return Operations[0];
+      case "PATCH":
+        return Operations[2];
+      case "PUT":
+        return Operations[2];
+      case "POST":
+        return Operations[1];
+      case "DELETE":
+        return Operations[4];
     }
   }
 }

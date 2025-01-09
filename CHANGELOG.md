@@ -2,7 +2,7 @@
 
 - add safe parameter to check if a property can be sent to the requester or not
 - add getUnsafeProps() method to get an unsafe properties array
-- replace REST methods by SQL operations
+- update operation parameter possible values to the validate() method with SQL operations and REST methods to validate proper properties depending on the current action 
 - delete "name" property
 - add stringify property to getCols() method to tell whether to return columns as string or array.
 - add pagination property to getCols() method to add a total count in a select query 

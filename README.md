@@ -117,7 +117,7 @@ const entity = new Entity("consumers", [
   },
 ]);
 
-req.body = entity.normalize(req.body);
+req.body = entity.normalize(req.body); // will also sanitize if true
 const check = entity.validate(req.body, "select");
 const unsafeProps = entity.getUnsafeProps();
 
@@ -180,7 +180,7 @@ class Entity {
   table: string;
   cols: Record<Operation, string[]>;
   properties: Property[];
-  normalize(rows: Record<string, any>[]): Record<string, any>[];
+  normalize(rows: Record<string, any>[]): Record<string, any>[]; // will also sanitize if true
   validate(rows: Record<string, any>[], operation: Operation): string | null;
   getTable(): string;
   // if pagination is true for a select operation, it will return cols + a total column 
