@@ -25,6 +25,7 @@ https://github.com/DWTechs/Antity.js
 */
 
 import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isValidFloat, isEven, isOdd, isPositive, isNegative, isPowerOfTwo, isAscii, isArrayOfLength, isEmail, isRegex, isJson, isJWT, isSymbol, isIpAddress, isSlug, isHexadecimal, isValidDate, isValidTimestamp, isFunction, isHtmlElement, isHtmlEventAttribute, isNode, isObject, isNil, isString, isProperty, isArray, isIn, isDate, isInteger } from '@dwtechs/checkard';
+import { log } from '@dwtechs/winstan';
 
 const Operations = ["select", "insert", "update", "merge", "delete"];
 
@@ -193,13 +194,15 @@ class Entity {
     }
     normalize(rows) {
         for (const r of rows) {
-            for (const { key, sanitize, normalize, sanitizer, normalizer, } of this.properties) {
+            for (const { key, type, sanitize, normalize, sanitizer, normalizer, } of this.properties) {
                 let v = r[key];
                 if (v) {
                     if (sanitize) {
+                        log.debug(`sanitize ${key}: ${type} = ${v}`);
                         v = this.sanitize(v, sanitizer);
                     }
                     if (normalize && normalizer) {
+                        log.debug(`normalize ${key}: ${type} = ${v}`);
                         v = normalizer(v);
                     }
                     r[key] = v;
@@ -216,7 +219,7 @@ class Entity {
                 const v = r[key];
                 if (isIn(operation, operations)) {
                     if (required) {
-                        const rq = this.require(v, key);
+                        const rq = this.require(v, key, type);
                         if (rq)
                             return rq;
                     }
@@ -230,10 +233,12 @@ class Entity {
         }
         return null;
     }
-    require(v, key) {
+    require(v, key, type) {
+        log.debug(`require ${key}: ${type} = ${v}`);
         return Required.validate(v) ? null : Messages.missing(key);
     }
     control(v, key, type, min, max, typeCheck, cb) {
+        log.debug(`control ${key}: ${type} = ${v}`);
         if (cb)
             return cb(v) ? null : Messages.invalid(key, type);
         return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);

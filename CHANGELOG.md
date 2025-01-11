@@ -1,3 +1,7 @@
+# 0.5.0 (Jan 11th 2025)
+
+- add debug logs using @dwtechs/winstan library
+
 # 0.4.0 (Jan 08th 2025)
 
 - add safe parameter to check if a property can be sent to the requester or not
