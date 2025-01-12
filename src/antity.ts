@@ -7,6 +7,14 @@ import { Methods } from './methods';
 import { Operations } from './operations';
 import type { Type, Operation, Method } from './types';
 
+class CustomError extends Error {
+  private status: number
+  constructor(status: number, msg: string, ) {
+    super(msg);
+    this.status = status;
+  }
+}
+
 export class Entity {
   // private db: any;
   private table: string;
@@ -134,6 +142,59 @@ export class Entity {
     }
     return null;
   }
+
+  // public select(conds: string, args: string[]): Promise<any> {
+
+  //   const rb = req.body;
+  //   const first = rb.first ?? 0;
+  //   const rows = rb.rows ? Math.min(rb.rows, 50) : null;
+  //   const sortOrder = rb.sortOrder && rb.sortOrder === -1 ? "DESC" : "ASC";
+  //   const sortField = rb.sortField || null;
+  //   const filters = req.filters || null;
+
+  //   log.debug(
+  //     `get(first='${first}', rows='${rows}', 
+  //     sortOrder='${sortOrder}', sortField='${sortField}', 
+  //     filters=${JSON.stringify(filters)}`,
+  //   );
+
+  //   // Builds the Where clause
+  //   const { conds, args } = where.clause(
+  //     first,
+  //     rows,
+  //     sortOrder,
+  //     sortField,
+  //     filters,
+  //   );
+
+  //   return pgsql.select(this.table, this.getCols("select", true, true), conds, args)
+  //     .then((r) => {
+  //       if (!r.rowCount) throw new CustomError(404, "Resource not found");
+
+  //       const firstRow = r.rows[0];
+  //       res.rows = r.rows;
+  //       if (firstRow.total) {
+  //         res.total = firstRow.total; // total number of rows without first and rows limits. Useful for pagination. Do not confuse with rowcount
+  //         res.rows = deleteProps(res.rows, ["total"]);
+  //       }
+  //       next();
+  //     })
+  //     .catch((err) => next(err));;
+  // }
+
+  // public insert(values: string, args: string[], rtn: string, client: any): Promise<any> {
+  //   const rtnQuery = rtn ? `RETURNING ${rtn}` : "";
+  //   const query = `INSERT INTO "${this.table}" (${this.getCols("insert", true, false)}) VALUES ${values} ${rtnQuery}`;
+  //   return execute(query, args, client);
+  // }
+
+  // public update(queries: string[], args: string[], client: any): Promise<any> {
+  //   let query = "";
+  //   for (const q of queries) {
+  //     query += `UPDATE "${this.table}" SET ${q};`;
+  //   }
+  //   return execute(query, args, client);
+  // }
     
   private require(v: any, key: string, type: Type): any {
     log.debug(`require ${key}: ${type} = ${v}`);	

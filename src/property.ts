@@ -45,7 +45,7 @@ export class Property {
   ) {
 
     if (!isString(key, true)) 
-      throw new Error(`Property"key" must be a string. Received ${key}`);
+      throw new Error(`Property "key" must be a string. Received ${key}`);
     if (!isProperty(type, Types))
       throw new Error(`Property "type" must be a valid type. Received ${type}`);
     if (isArray(operations)){
