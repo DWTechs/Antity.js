@@ -50,14 +50,7 @@ function clause(
         newCond = ` ${conditions.toString()} `;
     } else {
       const { value, subProps, matchMode } = filter ?? {};
-      
-      // Value is null
-      if (!isNil(value))
-        newCond = buildCondition(prop, value, subProps, matchMode, args);
-      else if (matchMode === "equals")
-        newCond = prepare.nil(prop, "NULL", args);
-      else if (matchMode === "notEquals")
-        newCond = prepare.nil(prop, "NOT NULL", args);
+      newCond = buildCondition(prop, value, subProps, matchMode, args);
     }
     conds += newCond.trim() ? `${newCond} ${defaultOperator}` : "";
   }
@@ -105,7 +98,7 @@ function buildCondition(prop: string, val: any, subProps: any, matchMode: MatchM
     // geom
     if (prop === '"geom"') condition = prepare.geometry(val);
     // null
-    else if (isNil(val)) condition = prepare.nil(prop, val, args);
+    else if (isNil(val)) condition = prepare.nil(prop, matchMode);
     // bool
     else if (isBoolean(val)) condition = prepare.boolean(prop, val);
     // number

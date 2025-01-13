@@ -1,10 +1,12 @@
 import { isArray, isObject, isString, isIn } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
+import { deleteProps, chunk } from "@dwtechs/sparray";
 import { Property } from './property';
 import { Messages } from './message';
 import { Types, Required } from './checks';
 import { Methods } from './methods';
 import { Operations } from './operations';
+import where from './where';
 import type { Type, Operation, Method } from './types';
 
 class CustomError extends Error {
@@ -13,6 +15,24 @@ class CustomError extends Error {
     super(msg);
     this.status = status;
   }
+}
+
+type RequestBody = {
+  first?: number;
+  rows?: number;
+  sortOrder?: -1 | 1;
+  sortField?: string;
+  filters?: any;
+}
+
+type ResponseBody = {
+  rows: any[]
+  total?: number;
+}
+
+type Consumer = {
+  id: number;
+  name: string;
 }
 
 export class Entity {
@@ -143,49 +163,85 @@ export class Entity {
     return null;
   }
 
-  // public select(conds: string, args: string[]): Promise<any> {
+  public select(req: RequestBody): Promise<any> {
 
-  //   const rb = req.body;
-  //   const first = rb.first ?? 0;
-  //   const rows = rb.rows ? Math.min(rb.rows, 50) : null;
-  //   const sortOrder = rb.sortOrder && rb.sortOrder === -1 ? "DESC" : "ASC";
-  //   const sortField = rb.sortField || null;
-  //   const filters = req.filters || null;
+    const first = req.first ?? 0;
+    const rows = req.rows ? Math.min(req.rows, 50) : null;
+    const sortOrder = req.sortOrder && req.sortOrder === -1 ? "DESC" : "ASC";
+    const sortField = req.sortField || null;
+    const filters = req.filters || null;
 
-  //   log.debug(
-  //     `get(first='${first}', rows='${rows}', 
-  //     sortOrder='${sortOrder}', sortField='${sortField}', 
-  //     filters=${JSON.stringify(filters)}`,
-  //   );
+    log.debug(
+      `get ${this.table} : first='${first}', rows='${rows}', 
+      sortOrder='${sortOrder}', sortField='${sortField}', 
+      filters=${JSON.stringify(filters)}`,
+    );
 
-  //   // Builds the Where clause
-  //   const { conds, args } = where.clause(
-  //     first,
-  //     rows,
-  //     sortOrder,
-  //     sortField,
-  //     filters,
-  //   );
+    // Builds the Where clause
+    const { conds, args } = where.clause(
+      first,
+      rows,
+      sortOrder,
+      sortField,
+      filters,
+    );
 
-  //   return pgsql.select(this.table, this.getCols("select", true, true), conds, args)
-  //     .then((r) => {
-  //       if (!r.rowCount) throw new CustomError(404, "Resource not found");
+    return pgsql.select(this.table, this.getCols("select", true, true), conds, args)
+      .then((r: PGSQLResponseBody) => {
+        if (!r.rowCount) throw new CustomError(404, "Resource not found");
 
-  //       const firstRow = r.rows[0];
-  //       res.rows = r.rows;
-  //       if (firstRow.total) {
-  //         res.total = firstRow.total; // total number of rows without first and rows limits. Useful for pagination. Do not confuse with rowcount
-  //         res.rows = deleteProps(res.rows, ["total"]);
+        const firstRow = r.rows[0];
+        r.total = 0;
+        if (firstRow.total) {
+          r.total = firstRow.total; // total number of rows without first and rows limits. Useful for pagination. Do not confuse with rowcount
+          r.rows = deleteProps(r.rows, ["total"]);
+        }
+        return r;
+      });
+  }
+
+  // public insert(req: RequestBody, args: string[], rtn: string, client: any, consumer: Consumer): Promise<any> {
+  //   const chunks = chunk(body.rows);
+  //   // const consumerId = req.consumerId;
+  //   // const consumerName = req.consumerName;
+
+  //   const props = this.getCols("insert", false, false);
+
+  //   log.debug(`add ${this.table}`);
+    
+  //   const chunkedArgs = [];
+  //   for (const c of chunks) {
+  //     const args = [];
+  //     for (const r of rows) {
+  //       for (const p of props) {
+  //         if (r.hasOwnProperty(p)) {
+  //           args.push(r[p]);
+  //         }
   //       }
-  //       next();
-  //     })
-  //     .catch((err) => next(err));;
-  // }
+  //       // const roles = r.rolesArrayAgg.length
+  //       // ? r.rolesArrayAgg.toString()
+  //       // : roleSvc.getDefaultRoleId();
 
-  // public insert(values: string, args: string[], rtn: string, client: any): Promise<any> {
-  //   const rtnQuery = rtn ? `RETURNING ${rtn}` : "";
-  //   const query = `INSERT INTO "${this.table}" (${this.getCols("insert", true, false)}) VALUES ${values} ${rtnQuery}`;
-  //   return execute(query, args, client);
+  //       // args.push(
+  //       //   r.firstName,
+  //       //   r.lastName,
+  //       //   r.nickname,
+  //       //   r.street,
+  //       //   r.zipCode,
+  //       //   r.city,
+  //       //   r.country,
+  //       //   r.email,
+  //       //   r.phone,
+  //       //   r.encryptedPwd,
+  //       //   `{${roles}}::integer[]`, 
+  //       //   consumerId, 
+  //       //   consumerName,
+  //       );
+  //     }
+  //     chunkedArgs.push( c, consumer));
+  //   }
+  //   pgsql.addMany(this.table, this.getCols("insert", true, false),
+  
   // }
 
   // public update(queries: string[], args: string[], client: any): Promise<any> {

@@ -5,13 +5,35 @@ function boolean(prop: string, val: boolean): string {
   return ` ${prop} IS ${val} `;
 }
 
-function nil(prop: string, val: string): string {
-  
-  return ` ${prop} IS ${val} `;
+function nil(prop: string, matchMode: MatchMode): string {
+  if (matchMode === "equals")
+    return ` ${prop} IS NULL`;
+  if (matchMode === "notEquals")
+    return ` ${prop} IS NOT NULL `;
+  return "";
 }
 
-function number(prop: string, val: number): string {
-  return ` ${prop} = ${val}`;
+function number(prop: string, val: number, args: any[], matchMode: MatchMode, i: number): string {
+  switch (matchMode) {
+    case "equals":
+      args.push(val);
+      return ` ${prop} = ${i}`;
+    case "notEquals":
+      args.push(val);
+      return ` ${prop} <> ${i}`;
+    case "lt":
+      args.push(val);
+      return ` ${prop} < ${i}`;
+    case "lte":
+      args.push(val);
+      return ` ${prop} <= ${i}`;
+    case "gt":
+      args.push(val);
+      return ` ${prop} > ${i}`;
+    case "gte":
+      args.push(val);
+      return ` ${prop} >= ${i}`;   
+  }
 }
 
 function string(prop: string, val: string, args: any[], matchMode: MatchMode, i: number): string {
