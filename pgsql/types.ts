@@ -1,5 +1,7 @@
 import type { MatchModes } from "./matchmodes";
+import type { Comparators } from "./comparators";
 
+export type Comparator = typeof Comparators[number];
 export type MatchMode = typeof MatchModes[number];
 
 export type Clause = {

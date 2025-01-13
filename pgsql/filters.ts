@@ -1,5 +1,6 @@
 import { isString, isNumber, isBoolean, isArray, isObject, isInteger } from "@dwtechs/checkard";
-import type { MatchMode, Geometry } from "./types";
+import type { MatchMode, Geometry, Comparator } from "./types";
+import { Comparators } from "./comparators";
 
 function boolean(prop: string, val: boolean): string {
   return ` ${prop} IS ${val} `;
@@ -225,6 +226,23 @@ function geometry(val: Geometry): string {
     ST_GeogFromtext('SRID=4326;POINT(${lng} ${lat})'),
     ${radius}
   ) `;
+}
+
+function mapMatchModes(matchMode: MatchMode): Comparator {
+  switch (matchMode) {
+    case "equals": 
+      return Comparators[0];
+    case "notEquals":
+      return Comparators[5];
+    case "lt":
+      return Comparators[1];
+    case "lte":
+      return Comparators[3];
+    case "gt":
+      return Comparators[2];
+    case "gte":
+      return Comparators[4];
+  }
 }
 
 export default {

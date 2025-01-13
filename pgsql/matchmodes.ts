@@ -7,15 +7,15 @@ const MatchModes = [
   "equals",
   "notEquals",
   "between",
+  "in",
   "lt",
   "lte",
   "gt",
   "gte",
-  "dateIs",
-  "dateRange",
-  "dateIsNot",
-  "dateBefore",
-  "dateAfter"
+  "is",
+  "isNot",
+  "before",
+  "after"
 ] as const;
 
 export { MatchModes };
