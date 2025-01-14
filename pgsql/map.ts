@@ -2,10 +2,20 @@ import type { MatchMode, Comparator, Type } from "./types";
 
 function mapMatchModes(matchMode: MatchMode): Comparator| null {
   switch (matchMode) {
+    case "startsWith":
+      return "LIKE";
+    case "endsWith":
+      return "LIKE";
+    case "contains":
+      return "LIKE";
+    case "notContains":
+      return "NOT LIKE";
     case "equals": 
       return "=";
     case "notEquals":
       return "<>";
+    case "in":
+      return "IN";
     case "lt":
       return "<";
     case "lte":
@@ -18,6 +28,10 @@ function mapMatchModes(matchMode: MatchMode): Comparator| null {
       return "IS";
     case "isNot":
       return "IS NOT";
+    case "before":
+      return "<";
+    case "after":
+      return ">";
     default:
       return null;
   }
