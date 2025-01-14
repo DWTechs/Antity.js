@@ -72,7 +72,9 @@ function buildConditions(prop: string, arrayVal: any[], args: any[]): any[] {
   return conds;
 }
 
-function buildCondition(prop: string, val: any, subProps: any, matchMode: MatchMode, args: any[]): string {
+function buildCondition(propName: string, propType: any, val: any, subProps: any, matchMode: MatchMode, args: any[]): string {
+
+  
   let condition = "";
   // if aggregated column name ends with "JsonAgg"
   // it is an aggregate of json objects

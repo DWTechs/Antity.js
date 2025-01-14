@@ -15,7 +15,9 @@ const MatchModes = [
   "is",
   "isNot",
   "before",
-  "after"
+  "after",
+  "st_contains",
+  "st_dwithin",
 ] as const;
 
 export { MatchModes };

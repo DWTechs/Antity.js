@@ -1,40 +1,22 @@
 import { isString, isNumber, isBoolean, isArray, isObject, isInteger } from "@dwtechs/checkard";
-import type { MatchMode, Geometry, Comparator } from "./types";
-import { Comparators } from "./comparators";
+import type { MatchMode, Geometry, Comparator, Type } from "./types";
+import { mapMatchModes, mapTypes } from "./map";
 
-function boolean(prop: string, val: boolean): string {
-  return ` ${prop} IS ${val} `;
-}
+// function nil(prop: string, matchMode: MatchMode): string {
+//   if (matchMode === "equals")
+//     return ` ${prop} IS NULL`;
+//   if (matchMode === "notEquals")
+//     return ` ${prop} IS NOT NULL `;
+//   return "";
+// }
 
-function nil(prop: string, matchMode: MatchMode): string {
-  if (matchMode === "equals")
-    return ` ${prop} IS NULL`;
-  if (matchMode === "notEquals")
-    return ` ${prop} IS NOT NULL `;
-  return "";
-}
-
-function number(prop: string, val: number, args: any[], matchMode: MatchMode, i: number): string {
-  switch (matchMode) {
-    case "equals":
-      args.push(val);
-      return ` ${prop} = ${i}`;
-    case "notEquals":
-      args.push(val);
-      return ` ${prop} <> ${i}`;
-    case "lt":
-      args.push(val);
-      return ` ${prop} < ${i}`;
-    case "lte":
-      args.push(val);
-      return ` ${prop} <= ${i}`;
-    case "gt":
-      args.push(val);
-      return ` ${prop} > ${i}`;
-    case "gte":
-      args.push(val);
-      return ` ${prop} >= ${i}`;   
+function compare(prop: string, val: number, args: any[], matchMode: MatchMode, i: number): string | null {
+  const c = mapMatchModes(matchMode);
+  if (c) {
+    args.push(val);
+    return ` ${prop} ${c} $${i}`;
   }
+  return null;
 }
 
 function string(prop: string, val: string, args: any[], matchMode: MatchMode, i: number): string {
@@ -57,37 +39,19 @@ function string(prop: string, val: string, args: any[], matchMode: MatchMode, i:
       args.push(`%${v}%`);
       f += " NOT LIKE";
       break;
-    case "equals":
-      args.push(v);
-      f += " =";
-      break;
-    case "notEquals":
-      args.push(v);
-      f += " <>";
-      break;
   }
   return f += ` $${i}`;
 }
 
-function dateAdvanced(prop: string, val: any, matchMode: MatchMode, args: any[], i: number): string {
-  args.push(val);
-  if (matchMode === "dateIs")
-    return ` ${prop} >= $${i}::date AND ${prop} < $${i+1}::date + '1 day'::interval`;
-  if (matchMode === "dateBefore") return ` ${prop} < $${i} `;
-  if (matchMode === "dateAfter") return ` ${prop} > $${i} `;
-  if (matchMode === "dateIsNot") return ` ${prop} <> $${i} `;
-  return "";
-}
-
-function lte(prop: string, val: any, args: any[], i: number): string {
-  args.push(val);
-  return ` ${prop} <= $${i} `;
-}
-
-function gte(prop: string, val: any, args: any[], i: number): string {
-  args.push(val);
-  return ` ${prop} >= $${i} `;
-}
+// function dateAdvanced(prop: string, val: any, matchMode: MatchMode, args: any[], i: number): string {
+//   args.push(val);
+//   if (matchMode === "dateIs")
+//     return ` ${prop} >= $${i}::date AND ${prop} < $${i+1}::date + '1 day'::interval`;
+//   if (matchMode === "dateBefore") return ` ${prop} < $${i} `;
+//   if (matchMode === "dateAfter") return ` ${prop} > $${i} `;
+//   if (matchMode === "dateIsNot") return ` ${prop} <> $${i} `;
+//   return "";
+// }
 
 function interval(prop: string, val: any, args: any[], i: number): string {
   // value must be an array of length 2
@@ -185,7 +149,7 @@ function jsonAgg(prop: string, subProps: any, val: any, args: any[], matchMode: 
         const p = ps[j];
         const v = isArray(val) ? val[i + j] : val;
         // bool
-        if (isBoolean(v)) cond += boolean(`CAST(${p} AS boolean)`, v);
+        if (isBoolean(v)) cond += compare(`CAST(${p} AS boolean)`, v, args, matchMode);
         // number
         else if (isNumber(v, false)) cond += number(p, `${v}::text`);
         // string
@@ -212,9 +176,9 @@ function jsonAgg(prop: string, subProps: any, val: any, args: any[], matchMode: 
     : "";
 }
 
-function geometry(val: Geometry): string {
+function geometry(val: Geometry, matchMode: MatchMode | null): string {
   const { lng, lat, radius, bounds } = val || {};
-  if (bounds) {
+  if (isObject(bounds) && (!matchMode || matchMode === "st_contains")) {
     const { minLng, minLat, maxLng, maxLat } = bounds;
     return ` ST_Contains(
       ST_MakeEnvelope(${minLng}, ${minLat}, ${maxLng}, ${maxLat}),
@@ -228,31 +192,9 @@ function geometry(val: Geometry): string {
   ) `;
 }
 
-function mapMatchModes(matchMode: MatchMode): Comparator {
-  switch (matchMode) {
-    case "equals": 
-      return Comparators[0];
-    case "notEquals":
-      return Comparators[5];
-    case "lt":
-      return Comparators[1];
-    case "lte":
-      return Comparators[3];
-    case "gt":
-      return Comparators[2];
-    case "gte":
-      return Comparators[4];
-  }
-}
-
 export default {
-  nil,
-  boolean,
-  number,
+  compare,
   string,
-  dateAdvanced,
-  lte,
-  gte,
   interval,
   date,
   array,
