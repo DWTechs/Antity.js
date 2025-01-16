@@ -1,5 +1,9 @@
+export type Filters = {
+  [key: string]: Filter;
+}
+
 export type Filter = {
-  value: any;
+  value: string | number | boolean | Date | number[];
   subProps?: string[];
   matchMode?: MatchMode;
 }

@@ -149,23 +149,6 @@ function isDateMatchMode(matchMode: MatchMode): boolean {
   return ["dateIs", "dateIsNot", "dateBefore", "dateAfter"].includes(matchMode);
 }
 
-// Builds where clause
-function where(conds: string): string {
-  return conds
-    ? ` WHERE ${conds.slice(0, -(defaultOperator.length + 1)).trim()}`
-    : "";
-}
-
-// Adds order by clause
-function orderBy(sortField: string, sortOrder: string): string {
-  return sortField ? ` ORDER BY "${sortField}" ${sortOrder}` : "";
-}
-
-// Adds limit clause
-function limit(rows: number, first: number): string {
-  return rows ? ` LIMIT ${rows} OFFSET ${first}` : "";
-}
-
 export default {
   clause,
 };

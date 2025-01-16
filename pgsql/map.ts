@@ -1,22 +1,22 @@
 import type { MatchMode, Comparator, Type } from "./types";
 
-function mapValue(value: any, matchMode: MatchMode): any {
+function mapIndex(i: number, matchMode: MatchMode | undefined): any {
   switch (matchMode) {
     case "startsWith":
-      return `${value}%`;
+      return `$${i}%`;
     case "endsWith":
-      return `%${value}`;
+      return `%$${i}`;
     case "contains":
-      return `%${value}%`;
+      return `%$${i}%`;
     case "notContains":
-      return `%${value}%`;
+      return `%$${i}%`;
     default:
-      return value;
+      return `$${i}`;
   }
 }
 
 
-function mapComparator(matchMode: MatchMode): Comparator| null {
+function mapComparator(matchMode: MatchMode | undefined): Comparator| null {
   switch (matchMode) {
     case "startsWith":
       return "LIKE";
@@ -110,7 +110,7 @@ function mapType(type: Type): Type {
 }
 
 export {
-  mapValue,
+  mapIndex,
   mapComparator,
   mapType,
 };
