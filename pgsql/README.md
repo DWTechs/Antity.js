@@ -30,8 +30,8 @@ List of compatible match modes for each property types
 | Name        | Match modes             |
 | :---------- | :---------------------- | 
 | string      | startsWith,<br>contains,<br>endsWith,<br>notContains,<br>equals,<br>notEquals,<br>lt,<br>lte,<br>gt,<br>gte |
-| number      | equals,<br>notEquals,<br>lt,<br>lte,<br>gt,<br>gte |                  |
-| date        | is,<br>isNot,<br>before,<br>after |                   |
+| number      | equals,<br>notEquals,<br>lt,<br>lte,<br>gt,<br>gte |
+| date        | is,<br>isNot,<br>before,<br>after |
 | boolean     | is,<br>isNot            |
 | string[]    | in                      |
 | number[]    | in,<br>between          |
