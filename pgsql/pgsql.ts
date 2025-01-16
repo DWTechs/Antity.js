@@ -1,19 +1,92 @@
 import pool from "./pool";
 import { log } from "@dwtechs/winstan";
+import { Entity } from "@dwtechs/antity";
+import { mapType, mapComparator, mapValue } from "./map";
+import { checkMatchMode } from "./check";
+import type { Clause, MatchMode, Type, Filter } from "./types";
 
-/**
- * Executes a SELECT query on the specified table with the given columns, conditions, and arguments.
- *
- * @param {string} table - The name of the table to select from.
- * @param {string} cols - The columns to select.
- * @param {string} conds - The conditions for the selection.
- * @param {Array} args - The arguments for the query.
- * @return {Promise} A promise that resolves with the query result.
- */
-function select(table: string, cols: string, conds: string, args: string[]): Promise<any> {
-  const query = `SELECT ${cols} FROM ${table} ${conds}`;
-  return execute(query, args, null);
+export class SQLEntity extends Entity {
+  private table: string;
+  private cols: Record<Operation, string[]>;
+  private unsafeProps: string[];
+  private properties: Property[];
+  private defaultOperator = "AND";
+
+  constructor(table: string, properties: Property[]) {
+    super(table, properties); // Call the constructor of the base class
+  }
+
+  public select( 
+    first: number,
+    rows: number,
+    sortOrder: string,
+    sortField: string,
+    filters: any,
+  ): Promise<any> {
+
+    let conditions = "";
+    let i = 1;
+    const args = [];
+  
+    if (filters) {
+      for (const key in filters) {
+        const propType = this.getPropertyType(key);
+        
+        if (!propType){
+          log.info(`Skipping unknown property: ${key}`);
+          continue;
+        }
+        
+        const type = mapType(propType); // transform from entity type to valid sql filter type
+        const filter = filters[key];
+        let newCondition: string | null = null;
+        const sqlKey = `\"${key}\"`; // escaped property name for sql query
+        const { value, subProps, matchMode } = filter;
+        
+        if (matchMode && !checkMatchMode(type, matchMode)) { // check if match mode is compatible with sql type
+          log.info(`Skipping invalid match mode: ${matchMode} for type: ${type} at property: ${key}`);
+          continue;
+        }
+
+        newCondition = this.addCondition(sqlKey, value, subProps, matchMode, args, i);
+        if (newCondition) {
+          conditions += `${newCondition} ${this.defaultOperator}`;
+          i++;
+        }
+      }
+    }
+    this.getPropertyType(propName)
+    const query = `SELECT ${cols} FROM ${table} ${conds}`;
+    return execute(query, args, null);
+  }
+
+  private getPropertyType(propName: string): Type {
+    return this.properties[propName]?.type || null;
+  }
+
+  private addCondition(propName: string, propType: Type, val: any, subProps: any, matchMode: MatchMode, args: any[]): string | null {
+  
+    const type = mapType(propType);
+    
+    if (!checkMatchMode(type, matchMode)) {
+      log.info(`Invalid match mode: ${matchMode} for type: ${type} at property: ${propName}`);
+      return null;
+    }
+  
+    const comparator = mapComparator(matchMode);
+    if (comparator) {
+      const mappedValue = mapValue(val, matchMode);
+      args.push(mappedValue);
+      return `${propName} ${comparator} $${i++}`;
+    }
+  
+    return null;
 }
+
+
+
+
+
 
 /**
  * Inserts data into a specified table with the given columns, values, and optional return column.

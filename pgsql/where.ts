@@ -1,4 +1,4 @@
-import { isNil, isString, isNumber, isBoolean, isArray, isObject } from "@dwtechs/checkard";
+import { isProperty, isNil, isString, isNumber, isBoolean, isArray, isObject } from "@dwtechs/checkard";
 import { log } from "@dwtechs/winstan";
 import type { Clause, MatchMode, Type, Filter } from "./types";
 import { mapType, mapComparator, mapValue } from "./map";
@@ -22,13 +22,14 @@ import { checkMatchMode } from "./check";
 
 const defaultOperator = "AND";
 
+
 // returns filters as string in a where clause and the associated array of arguments
 function clause(
   first: number,
   rows: number,
   sortOrder: string,
   sortField: string,
-  filters: any
+  filters: any,
 ): Clause {
 
   let conditions = "";
@@ -43,6 +44,18 @@ function clause(
     let newCondition: string | null = null;
     // prepare property name for sql query
     const sqlKey = `\"${key}\"`;
+    const { value, subProps, matchMode } = filter;
+    
+    const type = mapType(propType);
+    if (!checkMatchMode(type, matchMode)) {
+      log.info(`Invalid match mode: ${matchMode} for type: ${type} at property: ${propName}`);
+      return null;
+    }
+
+    newCondition = addCondition(sqlKey, value, subProps, matchMode, args, i);
+    if (newCondition)
+      conditions += `${newCondition} ${defaultOperator}`;
+
     // if (isArray(filter)) {
     //   const conditions = buildConditions(p, filter, args);
     //   if (conditions.length > 1) {
@@ -51,10 +64,7 @@ function clause(
     //   } else
     //     newCond = ` ${conditions.toString()} `;
     // } else {
-    const { value, subProps, matchMode } = filter;
-      newCondition = addCondition(sqlKey, value, subProps, matchMode, args, i);
-    if (newCondition)
-      conditions += `${newCondition} ${defaultOperator}`;
+    
   }
 
   conditions = where(conditions);
@@ -79,7 +89,7 @@ function addCondition(propName: string, propType: Type, val: any, subProps: any,
   const type = mapType(propType);
   
   if (!checkMatchMode(type, matchMode)) {
-    log.info(`Invalid match mode: ${matchMode} for type: ${type}`);
+    log.info(`Invalid match mode: ${matchMode} for type: ${type} at property: ${propName}`);
     return null;
   }
 
