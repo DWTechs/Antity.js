@@ -8,7 +8,7 @@ import {
   isBoolean,
   isFunction } from '@dwtechs/checkard';
 import { Operations } from './operations';
-import { Types } from './checks';
+import { Types } from './check';
 import type { Type, Operation } from './types';
 
 export class Property {

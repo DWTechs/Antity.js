@@ -1,12 +1,10 @@
 import { isArray, isObject, isString, isIn } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
-import { deleteProps, chunk } from "@dwtechs/sparray";
 import { Property } from './property';
 import { Messages } from './message';
-import { Types, Required } from './checks';
+import { Types, Required } from './check';
 import { Methods } from './methods';
-import { Operations } from './operations';
-import where from './where';
+import map from './map';
 import type { Type, Operation, Method } from './types';
 
 class CustomError extends Error {
@@ -36,7 +34,6 @@ type Consumer = {
 }
 
 export class Entity {
-  // private db: any;
   private table: string;
   private cols: Record<Operation, string[]>;
   private unsafeProps: string[];
@@ -131,7 +128,7 @@ export class Entity {
   
   public validate(rows: Record<string, any>[], operation: Operation | Method): string | null {
     if (isIn(operation, Methods))
-      operation = this.mapMethods(operation as Method);
+      operation = map.method(operation as Method);
     
     for (const r of rows) {
       for (const { 
@@ -163,42 +160,42 @@ export class Entity {
     return null;
   }
 
-  public select(req: RequestBody): Promise<any> {
+  // public select(req: RequestBody): Promise<any> {
 
-    const first = req.first ?? 0;
-    const rows = req.rows ? Math.min(req.rows, 50) : null;
-    const sortOrder = req.sortOrder && req.sortOrder === -1 ? "DESC" : "ASC";
-    const sortField = req.sortField || null;
-    const filters = req.filters || null;
+  //   const first = req.first ?? 0;
+  //   const rows = req.rows ? Math.min(req.rows, 50) : null;
+  //   const sortOrder = req.sortOrder && req.sortOrder === -1 ? "DESC" : "ASC";
+  //   const sortField = req.sortField || null;
+  //   const filters = req.filters || null;
 
-    log.debug(
-      `get ${this.table} : first='${first}', rows='${rows}', 
-      sortOrder='${sortOrder}', sortField='${sortField}', 
-      filters=${JSON.stringify(filters)}`,
-    );
+  //   log.debug(
+  //     `get ${this.table} : first='${first}', rows='${rows}', 
+  //     sortOrder='${sortOrder}', sortField='${sortField}', 
+  //     filters=${JSON.stringify(filters)}`,
+  //   );
 
-    // Builds the Where clause
-    const { conds, args } = where.clause(
-      first,
-      rows,
-      sortOrder,
-      sortField,
-      filters,
-    );
+  //   // Builds the Where clause
+  //   const { conds, args } = where.clause(
+  //     first,
+  //     rows,
+  //     sortOrder,
+  //     sortField,
+  //     filters,
+  //   );
 
-    return pgsql.select(this.table, this.getCols("select", true, true), conds, args)
-      .then((r: PGSQLResponseBody) => {
-        if (!r.rowCount) throw new CustomError(404, "Resource not found");
+  //   return pgsql.select(this.table, this.getCols("select", true, true), conds, args)
+  //     .then((r: PGSQLResponseBody) => {
+  //       if (!r.rowCount) throw new CustomError(404, "Resource not found");
 
-        const firstRow = r.rows[0];
-        r.total = 0;
-        if (firstRow.total) {
-          r.total = firstRow.total; // total number of rows without first and rows limits. Useful for pagination. Do not confuse with rowcount
-          r.rows = deleteProps(r.rows, ["total"]);
-        }
-        return r;
-      });
-  }
+  //       const firstRow = r.rows[0];
+  //       r.total = 0;
+  //       if (firstRow.total) {
+  //         r.total = firstRow.total; // total number of rows without first and rows limits. Useful for pagination. Do not confuse with rowcount
+  //         r.rows = deleteProps(r.rows, ["total"]);
+  //       }
+  //       return r;
+  //     });
+  // }
 
   // public insert(req: RequestBody, args: string[], rtn: string, client: any, consumer: Consumer): Promise<any> {
   //   const chunks = chunk(body.rows);
@@ -300,19 +297,5 @@ export class Entity {
     }
   }
 
-  private mapMethods(method: Method): Operation {
-    switch (method) {
-      case "GET": 
-        return Operations[0];
-      case "PATCH":
-        return Operations[2];
-      case "PUT":
-        return Operations[2];
-      case "POST":
-        return Operations[1];
-      case "DELETE":
-        return Operations[4];
-    }
-  }
 }
   
