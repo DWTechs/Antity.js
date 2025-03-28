@@ -27,8 +27,8 @@ export type Type =
   "htmlElement" |
   "htmlEventAttribute" |
   "node" |
-  "object" |
-  "geometry";
+  "object";
+  // "geometry";
 
 export type Operation = typeof Operations[number];
 export type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";

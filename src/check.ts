@@ -7,7 +7,6 @@ import {
   isValidInteger,
   isValidFloat,
   isValidNumber,
-  isNil,
   isEmail,
   isRegex,
   isJson,
@@ -141,9 +140,5 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   }
 };
 
-const Required = {
-  validate: (v: any) => !isNil(v)
-};
-
-export { Types, Required };
+export { Types };
   

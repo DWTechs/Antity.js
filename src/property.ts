@@ -1,5 +1,6 @@
 import { 
   isString,
+  isNumber,
   isArray,
   isDate,
   isIn,
@@ -44,13 +45,13 @@ export class Property {
     controller: ((v:any) => any) | null,
   ) {
 
-    if (!isString(key, true)) 
+    if (!isString(key, "!0")) 
       throw new Error(`Property "key" must be a string. Received ${key}`);
-    if (!isProperty(type, Types))
+    if (!isProperty(Types, type))
       throw new Error(`Property "type" must be a valid type. Received ${type}`);
     if (isArray(operations)){
       for (const o of operations) {
-        if (!isIn(o, Operations as unknown as any[]))
+        if (!isIn(Operations as unknown as unknown[], o))
           throw new Error(`Property "operations" must be an array of SQL operations. Received ${o}`);
       }
     }
@@ -58,7 +59,7 @@ export class Property {
     this.key = key;
     this.type = type;
     this.min = this.interval(min, type, 0, "1900-01-01T00:00:00Z");
-    this.max = this.interval(max, type,999999999, "2200-12-31T00:00:00Z");
+    this.max = this.interval(max, type, 999999999, "2200-12-31T00:00:00Z");
     this.required = isBoolean(required) ? required : false;
     this.safe = isBoolean(safe) ? safe : true;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
@@ -86,7 +87,7 @@ export class Property {
   ): number | Date {
     if (type === "date")
       return isDate(val) ? val : new Date(dateDefault);
-    return isInteger(val, true) ? val : integerDefault;
+    return (isNumber(val, true) && isInteger(val, true)) ? val : integerDefault;
   }
 
 }

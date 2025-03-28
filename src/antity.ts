@@ -1,37 +1,11 @@
-import { isArray, isObject, isString, isIn } from '@dwtechs/checkard';
+import { isArray, isObject, isString, isIn, isNil } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Property } from './property';
 import { Messages } from './message';
-import { Types, Required } from './check';
+import { Types } from './check';
 import { Methods } from './methods';
 import map from './map';
 import type { Type, Operation, Method } from './types';
-
-class CustomError extends Error {
-  private status: number
-  constructor(status: number, msg: string, ) {
-    super(msg);
-    this.status = status;
-  }
-}
-
-type RequestBody = {
-  first?: number;
-  rows?: number;
-  sortOrder?: -1 | 1;
-  sortField?: string;
-  filters?: any;
-}
-
-type ResponseBody = {
-  rows: any[]
-  total?: number;
-}
-
-type Consumer = {
-  id: number;
-  name: string;
-}
 
 export class Entity {
   private table: string;
@@ -90,7 +64,11 @@ export class Entity {
     return this.table;
   }
 
-  public getCols(operation: Operation, stringify?: boolean, pagination?: boolean, ): string[] | string {
+  public getCols(
+    operation: Operation, 
+    stringify?: boolean, 
+    pagination?: boolean, 
+  ): string[] | string {
     const cols = pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
     return stringify ? cols.join(', ') : cols;
   }
@@ -99,7 +77,11 @@ export class Entity {
     return this.unsafeProps;
   }
 
-  public normalize(rows: Record<string, any>[]): Record<string, any>[] {
+  protected getPropertyType(key: string): Type | null {
+    return this.properties.find(p => p.key === key)?.type || null;
+  }
+
+  public normalize(rows: Record<string, unknown>[]): Record<string, unknown>[] {
     for (const r of rows) {
       for (const { 
         key, 
@@ -126,9 +108,15 @@ export class Entity {
     return rows;
   }
   
-  public validate(rows: Record<string, any>[], operation: Operation | Method): string | null {
-    if (isIn(operation, Methods))
-      operation = map.method(operation as Method);
+  public validate(
+    rows: Record<string, unknown>[], 
+    operation: Operation | Method,
+  ): string | null {
+    
+    if (!isIn(Methods, operation))
+      return null;
+      
+    const o = map.method(operation as Method);
     
     for (const r of rows) {
       for (const { 
@@ -143,7 +131,7 @@ export class Entity {
         controller
       } of this.properties) {
         const v = r[key];
-        if (isIn(operation, operations)) {
+        if (isIn(operations, o)) {
           if (required) {
             const rq = this.require(v, key, type);
             if (rq)
@@ -159,117 +147,38 @@ export class Entity {
     }
     return null;
   }
-
-  // public select(req: RequestBody): Promise<any> {
-
-  //   const first = req.first ?? 0;
-  //   const rows = req.rows ? Math.min(req.rows, 50) : null;
-  //   const sortOrder = req.sortOrder && req.sortOrder === -1 ? "DESC" : "ASC";
-  //   const sortField = req.sortField || null;
-  //   const filters = req.filters || null;
-
-  //   log.debug(
-  //     `get ${this.table} : first='${first}', rows='${rows}', 
-  //     sortOrder='${sortOrder}', sortField='${sortField}', 
-  //     filters=${JSON.stringify(filters)}`,
-  //   );
-
-  //   // Builds the Where clause
-  //   const { conds, args } = where.clause(
-  //     first,
-  //     rows,
-  //     sortOrder,
-  //     sortField,
-  //     filters,
-  //   );
-
-  //   return pgsql.select(this.table, this.getCols("select", true, true), conds, args)
-  //     .then((r: PGSQLResponseBody) => {
-  //       if (!r.rowCount) throw new CustomError(404, "Resource not found");
-
-  //       const firstRow = r.rows[0];
-  //       r.total = 0;
-  //       if (firstRow.total) {
-  //         r.total = firstRow.total; // total number of rows without first and rows limits. Useful for pagination. Do not confuse with rowcount
-  //         r.rows = deleteProps(r.rows, ["total"]);
-  //       }
-  //       return r;
-  //     });
-  // }
-
-  // public insert(req: RequestBody, args: string[], rtn: string, client: any, consumer: Consumer): Promise<any> {
-  //   const chunks = chunk(body.rows);
-  //   // const consumerId = req.consumerId;
-  //   // const consumerName = req.consumerName;
-
-  //   const props = this.getCols("insert", false, false);
-
-  //   log.debug(`add ${this.table}`);
     
-  //   const chunkedArgs = [];
-  //   for (const c of chunks) {
-  //     const args = [];
-  //     for (const r of rows) {
-  //       for (const p of props) {
-  //         if (r.hasOwnProperty(p)) {
-  //           args.push(r[p]);
-  //         }
-  //       }
-  //       // const roles = r.rolesArrayAgg.length
-  //       // ? r.rolesArrayAgg.toString()
-  //       // : roleSvc.getDefaultRoleId();
-
-  //       // args.push(
-  //       //   r.firstName,
-  //       //   r.lastName,
-  //       //   r.nickname,
-  //       //   r.street,
-  //       //   r.zipCode,
-  //       //   r.city,
-  //       //   r.country,
-  //       //   r.email,
-  //       //   r.phone,
-  //       //   r.encryptedPwd,
-  //       //   `{${roles}}::integer[]`, 
-  //       //   consumerId, 
-  //       //   consumerName,
-  //       );
-  //     }
-  //     chunkedArgs.push( c, consumer));
-  //   }
-  //   pgsql.addMany(this.table, this.getCols("insert", true, false),
-  
-  // }
-
-  // public update(queries: string[], args: string[], client: any): Promise<any> {
-  //   let query = "";
-  //   for (const q of queries) {
-  //     query += `UPDATE "${this.table}" SET ${q};`;
-  //   }
-  //   return execute(query, args, client);
-  // }
-    
-  private require(v: any, key: string, type: Type): any {
+  private require(v: unknown, key: string, type: Type): string | null {
     log.debug(`require ${key}: ${type} = ${v}`);	
-    return Required.validate(v) ? null : Messages.missing(key);
+    return isNil(v) ? Messages.missing(key) : null ;
   }
 
   private control(
-    v: any,
+    v: unknown,
     key: string,
     type: Type,
     min: number | Date,
     max: number | Date,
     typeCheck: boolean,
-    cb: ((v:any) => any) | null
-  ): any {
+    cb: ((v:unknown) => unknown) | null
+  ): string | null {
     log.debug(`control ${key}: ${type} = ${v}`);
     if (cb)
       return cb(v) ? null : Messages.invalid(key, type);
     return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);
   }
 
-  private sanitize(v: any, cb: ((v:any) => any) | null): any {
+  /**
+   * Sanitizes the input value by applying a callback function if provided,
+   * or by trimming the value if it is an array or a single value.
+   *
+   * @param v - The value to be sanitized. It can be of any type.
+   * @param cb - An optional callback function to apply to the value.
+   *             If provided, the callback function will be used to sanitize the value.
+   * @returns The sanitized value. If a callback function is provided, the result of the callback is returned.
+   *          If the value is an array, each element is trimmed. Otherwise, the trimmed value is returned.
+   */
+  private sanitize(v: unknown, cb: ((v:unknown) => unknown) | null): unknown {
     if (cb)
       return cb(v);
     if (isArray(v, null, null)) {
@@ -281,20 +190,26 @@ export class Entity {
     return this.trim(v);
   }
 
-  private trim(v: any): any {
-    if (isString(v, true))
+  /**
+   * Trims whitespace from a string or recursively trims all string properties of an object.
+   *
+   * @param v - The value to be trimmed. Can be a string or an object.
+   * @returns The trimmed value. If the input is a string, returns the trimmed string.
+   *          If the input is an object, returns the object with all string properties trimmed.
+   */
+  private trim(v: unknown): unknown {
+    if (isString(v, "!0"))
       return v.trim();
     if (isObject(v, true)) {
-      if (v.has)
-        for (const p in v) {
-          if (v.prototype.hasOwnProperty.call(p)) {
-            let o = v[p];
-            if (isString(o, true))
-              o = o.trim();
-          }
+      for (const k in v) {
+        if (Object.prototype.hasOwnProperty.call(v, k)) {
+          let o = (v as Record<string, unknown>)[k];
+          if (isString(o, "!0"))
+            o = o.trim();
         }
-      return v;
+      }
     }
+    return v;
   }
 
 }

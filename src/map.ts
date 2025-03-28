@@ -1,3 +1,5 @@
+import { Operations } from "./operations";
+import { Method, Operation } from "./types";
 
 function method(method: Method): Operation {
   switch (method) {
