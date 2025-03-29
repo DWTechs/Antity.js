@@ -60,7 +60,12 @@ declare const Operations: readonly [ "select", "insert", "update", "merge", "del
 declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
 
 declare const Types: Record<Type, {
-  validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => boolean;
+  validate: (
+    v: any, 
+    min: number | Date, 
+    max: number | Date, 
+    typeCheck: boolean
+  ) => boolean;
 }>;
 
 declare const Required: {
@@ -78,13 +83,9 @@ declare class Entity {
   get cols(): Record<Operation, string[]>;
   get properties(): Property[];
   getColsByOp(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
-  getProperty(key: string): Property | undefined;
+  getProp(key: string): Property | undefined;
   normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
   validate(rows: Record<string, unknown>[], operation: Operation | Method): string | null;
-  private require;
-  private control;
-  private sanitize;
-  private trim;
 }
 
 declare const Messages: {

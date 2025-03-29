@@ -1,3 +1,10 @@
+# 0.6.0 (Mar 29th 2025)
+
+- Add getters for table, unsafeProps, cols, properties
+- Delete getTabe(), getCols() and getUnsafeProps() methods
+- Add getColsByOp() method to get cols for a specific operation
+- Add getProp() method to retreive a property with its key
+
 # 0.5.0 (Jan 11th 2025)
 
 - add debug logs using @dwtechs/winstan library

@@ -215,7 +215,7 @@ class Entity {
             : this.cols[operation];
         return stringify ? cols.join(', ') : cols;
     }
-    getProperty(key) {
+    getProp(key) {
         return this.properties.find(p => p.key === key);
     }
     normalize(rows) {

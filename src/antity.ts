@@ -79,6 +79,21 @@ export class Entity {
     return this._properties;
   }
 
+  /**
+   * Retrieves the columns associated with a specific database operation, with optional
+   * stringification and pagination handling.
+   *
+   * @param {Operation} operation - The database operation (e.g., "select", "insert", etc.)
+   *                                for which to retrieve the columns.
+   * @param {boolean} [stringify] - Optional. If `true`, the columns will be returned as a 
+   *                                comma-separated string. Defaults to `false`.
+   * @param {boolean} [pagination] - Optional. If `true` and the operation is "select", 
+   *                                 adds a "COUNT(*) OVER () AS total" column for pagination.
+   *                                 Defaults to `false`.
+   * @returns {string[] | string} - The columns for the specified operation. Returns an array
+   *                                of column names by default, or a comma-separated string
+   *                                if `stringify` is `true`.
+   */
   public getColsByOp(
     operation: Operation, 
     stringify?: boolean, 
@@ -90,7 +105,13 @@ export class Entity {
     return stringify ? cols.join(', ') : cols;
   }
 
-  public getProperty(key: string): Property | undefined {
+  /**
+   * Retrieves a property from the `properties` array that matches the specified key.
+   *
+   * @param {string} key - The key of the property to retrieve.
+   * @returns {Property | undefined} - The property object if found, otherwise `undefined`.
+   */
+  public getProp(key: string): Property | undefined {
     return this.properties.find(p => p.key === key);
   }
   
