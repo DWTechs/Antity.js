@@ -27,35 +27,7 @@ https://github.com/DWTechs/Antity.js
 
 type Operation = typeof Operations[number];
 type Method = typeof Methods[number];
-
-type Type = 
-  "boolean" |
-  "string" |
-  "number" |
-  "integer" |
-  "float" |
-  "even" |
-  "odd" |
-  "positive" |
-  "negative" |
-  "powerOfTwo" |
-  "ascii" |
-  "array" |
-  "jwt" |
-  "symbol" |
-  "email" |
-  "regex" |
-  "json" |
-  "ipAddress" |
-  "slug" |
-  "hexadecimal" |
-  "date" |
-  "timestamp" |
-  "function" |
-  "htmlElement" |
-  "htmlEventAttribute" |
-  "node" |
-  "object";
+type Type = "boolean" | "string" | "number" | "integer" | "float" | "even" | "odd" | "positive" | "negative" | "powerOfTwo" | "ascii" | "array" | "jwt" | "symbol" | "email" | "regex" | "json" | "ipAddress" | "slug" | "hexadecimal" | "date" | "timestamp" | "function" | "htmlElement" | "htmlEventAttribute" | "node" | "object";
 
 declare const Operations: readonly [ "select", "insert", "update", "merge", "delete" ];
 declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
@@ -69,15 +41,17 @@ declare const Required: {
 };
 
 declare class Entity {
-  private table;
-  private cols;
-  private unsafeProps;
-  private properties;
+  private _table;
+  private _cols;
+  private _unsafeProps;
+  private _properties;
   constructor(table: string, properties: Property[]);
-  getTable(): string;
-  getCols(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
-  getUnsafeProps(): string[];
-  protected getPropertyType(key: string): Type | null;
+  get table(): string;
+  get unsafeProps(): string[];
+  get cols(): Record<Operation, string[]>;
+  get properties(): Property[];
+  getColsByOp(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
+  getProperty(key: string): Property | undefined;
   normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
   validate(rows: Record<string, unknown>[], operation: Operation | Method): string | null;
   private require;
@@ -106,21 +80,8 @@ declare class Property {
   sanitizer: ((v: any) => any) | null;
   normalizer: ((v: any) => any) | null;
   controller: ((v: any) => any) | null;
-  constructor(key: string,
-    type: Type,
-    min: number | Date,
-    max: number | Date,
-    required: boolean,
-    safe: boolean,
-    typeCheck: boolean,
-    operations: Operation[],
-    sanitize: boolean,
-    normalize: boolean,
-    control: boolean,
-    sanitizer: ((v: any) => any) | null,
-    normalizer: ((v: any) => any) | null,
-    controller: ((v: any) => any) | null
-  );
+  constructor(key: string, type: Type, min: number | Date, max: number | Date, required: boolean, safe: boolean, typeCheck: boolean, operations: Operation[], sanitize: boolean, normalize: boolean, control: boolean, sanitizer: ((v: any) => any) | null, normalizer: ((v: any) => any) | null, controller: ((v: any) => any) | null);
+  private interval;
 }
 
 export type { Type, Operation, Method };

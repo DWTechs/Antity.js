@@ -48,11 +48,14 @@ export class Entity {
       )
       this._properties.push(prop);
       
+      // _cols help to dynamically generates SQL queries.
+      // data is grouped by operation type, making it easy to retrieve and process later.
       for (const o of p.operations) {
-        if (o === "update")
-          this._cols[o].push(`${p.key} = $${this._cols[o].length+1}`); 
+        const c = this._cols[o];
+        if (o === "update") // The "update" operation requires special formatting (key = $index), while other operations only store the key.
+          c.push(`${p.key} = $${c.length+1}`); 
         else
-          this._cols[o].push(p.key);
+          c.push(p.key);
       }
 
       if (!prop.safe) this._unsafeProps.push(prop.key);
@@ -81,7 +84,9 @@ export class Entity {
     stringify?: boolean, 
     pagination?: boolean, 
   ): string[] | string {
-    const cols = pagination && operation === "select" ? [...this._cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
+    const cols = pagination && operation === "select" 
+      ? [...this._cols[operation], "COUNT(*) OVER () AS total"] 
+      : this.cols[operation];
     return stringify ? cols.join(', ') : cols;
   }
 
@@ -89,7 +94,6 @@ export class Entity {
     return this.properties.find(p => p.key === key);
   }
   
-
   public normalize(rows: Record<string, unknown>[]): Record<string, unknown>[] {
     for (const r of rows) {
       for (const { 
@@ -157,6 +161,14 @@ export class Entity {
     return null;
   }
     
+  /**
+   * Validates that a given value is not null or undefined and logs the validation process.
+   *
+   * @param v - The value to validate.
+   * @param key - The key or name associated with the value, used for logging and error messages.
+   * @param type - The expected type of the value, used for logging purposes.
+   * @returns A string containing an error message if the value is null or undefined, otherwise `null`.
+   */
   private require(v: unknown, key: string, type: Type): string | null {
     log.debug(`require ${key}: ${type} = ${v}`);	
     return isNil(v) ? Messages.missing(key) : null ;
@@ -171,10 +183,15 @@ export class Entity {
     typeCheck: boolean,
     cb: ((v:unknown) => unknown) | null
   ): string | null {
+    
     log.debug(`control ${key}: ${type} = ${v}`);
-    if (cb)
-      return cb(v) ? null : Messages.invalid(key, type);
-    return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);
+    if (cb) // this property is controlled by a callback function
+      return cb(v) ? null : Messages.invalid(key, type); // if the callback function returns a value, the value is invalid
+    
+    // if the property is not controlled by a callback function, it is controlled by the default controller of the type
+    const val = Types[type].validate(v, min, max, typeCheck)
+    return val ? null : Messages.invalid(key, type);
+  
   }
 
   /**

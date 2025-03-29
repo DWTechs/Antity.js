@@ -1,7 +1,7 @@
 import { Operations } from "./operations";
 import { Method, Operation } from "./types";
 
-function method(method: Method): Operation {
+function method(method: Method): Operation | undefined {
   switch (method) {
     case "GET": 
       return Operations[0];
@@ -13,6 +13,8 @@ function method(method: Method): Operation {
       return Operations[1];
     case "DELETE":
       return Operations[4];
+    default:
+      return undefined;
   }
 }
 

@@ -72,13 +72,6 @@ export class Property {
     this.controller = isFunction(controller) ? controller : null;
   }
 
-  // public getSQLType(value: any): string {
-  //   if (this.type === "array" && isArray(value)) {
-  //     return `{${value.toString}}::integer[]`
-  //   }
-  //   return Types[this.type];
-  // }
-
   private interval(
     val: number | Date, 
     type: Type,

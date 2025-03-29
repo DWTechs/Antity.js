@@ -166,6 +166,8 @@ function method(method) {
             return Operations[1];
         case "DELETE":
             return Operations[4];
+        default:
+            return undefined;
     }
 }
 var map = { method };
@@ -186,10 +188,11 @@ class Entity {
             const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.operations, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller);
             this._properties.push(prop);
             for (const o of p.operations) {
+                const c = this._cols[o];
                 if (o === "update")
-                    this._cols[o].push(`${p.key} = $${this._cols[o].length + 1}`);
+                    c.push(`${p.key} = $${c.length + 1}`);
                 else
-                    this._cols[o].push(p.key);
+                    c.push(p.key);
             }
             if (!prop.safe)
                 this._unsafeProps.push(prop.key);

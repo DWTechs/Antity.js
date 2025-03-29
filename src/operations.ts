@@ -1,4 +1,4 @@
 
-const Operations = [ "select", "insert", "update", "merge", "delete" ] as const;
+const Operations = [ "select", "insert", "update", "merge", "delete" ];
 
 export { Operations };
