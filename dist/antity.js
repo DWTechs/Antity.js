@@ -27,7 +27,7 @@ https://github.com/DWTechs/Antity.js
 import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isValidFloat, isEven, isOdd, isPositive, isNegative, isPowerOfTwo, isAscii, isArrayOfLength, isEmail, isRegex, isJson, isJWT, isSymbol, isIpAddress, isSlug, isHexadecimal, isValidDate, isValidTimestamp, isFunction, isHtmlElement, isHtmlEventAttribute, isNode, isObject, isString, isProperty, isArray, isIn, isDate, isNumber, isInteger, isNil } from '@dwtechs/checkard';
 import { log } from '@dwtechs/winstan';
 
-const Operations = ["select", "insert", "update", "merge", "delete"];
+const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
 
 const Types = {
     boolean: {
@@ -114,15 +114,15 @@ const Types = {
 };
 
 class Property {
-    constructor(key, type, min, max, required, safe, typeCheck, operations, sanitize, normalize, control, sanitizer, normalizer, controller) {
+    constructor(key, type, min, max, required, safe, typeCheck, methods, sanitize, normalize, control, sanitizer, normalizer, controller) {
         if (!isString(key, "!0"))
             throw new Error(`Property "key" must be a string. Received ${key}`);
         if (!isProperty(Types, type))
             throw new Error(`Property "type" must be a valid type. Received ${type}`);
-        if (isArray(operations)) {
-            for (const o of operations) {
-                if (!isIn(Operations, o))
-                    throw new Error(`Property "operations" must be an array of SQL operations. Received ${o}`);
+        if (isArray(methods)) {
+            for (const m of methods) {
+                if (!isIn(Methods, m))
+                    throw new Error(`Property "methods" must be an array of REST methods. Received ${m}`);
             }
         }
         this.key = key;
@@ -132,7 +132,7 @@ class Property {
         this.required = isBoolean(required) ? required : false;
         this.safe = isBoolean(safe) ? safe : true;
         this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-        this.operations = operations || Operations;
+        this.methods = methods || Methods;
         this.sanitize = isBoolean(sanitize) ? sanitize : true;
         this.normalize = isBoolean(normalize) ? normalize : false;
         this.control = isBoolean(control) ? control : true;
@@ -148,51 +148,18 @@ class Property {
 }
 
 const Messages = {
-    missing: (key) => `Missing ${key}`,
-    invalid: (key, type) => `Invalid ${key}, must be of type ${type}`,
+    missing: (key) => `Missing key: ${key}`,
+    invalid: (key, type) => `Invalid key: ${key}. Must be of type ${type}`,
 };
-
-const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
-
-function method(method) {
-    switch (method) {
-        case "GET":
-            return Operations[0];
-        case "PATCH":
-            return Operations[2];
-        case "PUT":
-            return Operations[2];
-        case "POST":
-            return Operations[1];
-        case "DELETE":
-            return Operations[4];
-        default:
-            return undefined;
-    }
-}
 
 class Entity {
     constructor(table, properties) {
         this._table = table;
         this._properties = [];
-        this._cols = {
-            select: [],
-            insert: [],
-            update: [],
-            merge: [],
-            delete: []
-        };
         this._unsafeProps = [];
         for (const p of properties) {
-            const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.operations, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller);
+            const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.methods, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller);
             this._properties.push(prop);
-            for (const o of p.operations) {
-                const c = this._cols[o];
-                if (o === "update")
-                    c.push(`${p.key} = $${c.length + 1}`);
-                else
-                    c.push(p.key);
-            }
             if (!prop.safe)
                 this._unsafeProps.push(prop.key);
         }
@@ -203,17 +170,8 @@ class Entity {
     get unsafeProps() {
         return this._unsafeProps;
     }
-    get cols() {
-        return this._cols;
-    }
     get properties() {
         return this._properties;
-    }
-    getColsByOp(operation, stringify, pagination) {
-        const cols = pagination && operation === "select"
-            ? [...this._cols[operation], "COUNT(*) OVER () AS total"]
-            : this.cols[operation];
-        return stringify ? cols.join(', ') : cols;
     }
     getProp(key) {
         return this.properties.find(p => p.key === key);
@@ -237,14 +195,13 @@ class Entity {
         }
         return rows;
     }
-    validate(rows, operation) {
-        if (!isIn(Methods, operation))
-            return null;
-        const o = method(operation);
+    validate(rows, method) {
+        if (!isIn(Methods, method))
+            return `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`;
         for (const r of rows) {
-            for (const { key, type, min, max, required, typeCheck, operations, control, controller } of this.properties) {
+            for (const { key, type, min, max, required, typeCheck, methods, control, controller } of this.properties) {
                 const v = r[key];
-                if (isIn(operations, o)) {
+                if (isIn(methods, method)) {
                     if (required) {
                         const rq = this.require(v, key, type);
                         if (rq)

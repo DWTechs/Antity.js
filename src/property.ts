@@ -8,9 +8,9 @@ import {
   isInteger,
   isBoolean,
   isFunction } from '@dwtechs/checkard';
-import { Operations } from './operations';
+import { Methods } from './methods';
 import { Types } from './check';
-import type { Type, Operation } from './types';
+import type { Type, Method } from './types';
 
 export class Property {
   key: string;
@@ -20,7 +20,7 @@ export class Property {
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
-  operations: Operation[];
+  methods: Method[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
@@ -36,7 +36,7 @@ export class Property {
     required: boolean,
     safe: boolean,
     typeCheck: boolean,
-    operations: Operation[],
+    methods: Method[],
     sanitize: boolean,
     normalize: boolean,
     control: boolean,
@@ -49,10 +49,10 @@ export class Property {
       throw new Error(`Property "key" must be a string. Received ${key}`);
     if (!isProperty(Types, type))
       throw new Error(`Property "type" must be a valid type. Received ${type}`);
-    if (isArray(operations)){
-      for (const o of operations) {
-        if (!isIn(Operations as unknown as unknown[], o))
-          throw new Error(`Property "operations" must be an array of SQL operations. Received ${o}`);
+    if (isArray(methods)){
+      for (const m of methods) {
+        if (!isIn(Methods as unknown as unknown[], m))
+          throw new Error(`Property "methods" must be an array of REST methods. Received ${m}`);
       }
     }
 
@@ -63,7 +63,7 @@ export class Property {
     this.required = isBoolean(required) ? required : false;
     this.safe = isBoolean(safe) ? safe : true;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-    this.operations = operations || Operations;
+    this.methods = methods || Methods;
     this.sanitize = isBoolean(sanitize) ? sanitize : true;
     this.normalize = isBoolean(normalize) ? normalize : false;
     this.control = isBoolean(control) ? control : true;

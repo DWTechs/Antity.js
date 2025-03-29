@@ -1,4 +1,4 @@
-import type { Operations } from "./operations";
+
 import type { Methods } from "./methods";
 
 export type Type =  
@@ -31,5 +31,4 @@ export type Type =
   "object";
   // "geometry";
 
-export type Operation = typeof Operations[number];
 export type Method = typeof Methods[number];

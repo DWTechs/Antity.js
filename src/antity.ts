@@ -4,12 +4,10 @@ import { Property } from './property';
 import { Messages } from './message';
 import { Types } from './check';
 import { Methods } from './methods';
-import * as map from './map';
-import type { Type, Operation, Method } from './types';
+import type { Type, Method } from './types';
 
 export class Entity {
   private _table: string;
-  private _cols: Record<Operation, string[]>;
   private _unsafeProps: string[];
   private _properties: Property[];
 
@@ -20,13 +18,6 @@ export class Entity {
 
     this._table = table;
     this._properties = [];
-    this._cols = {
-      select: [],
-      insert: [],
-      update: [],
-      merge: [],
-      delete: []
-    };
     this._unsafeProps = [];
 
     for (const p of properties) {
@@ -38,7 +29,7 @@ export class Entity {
         p.required,
         p.safe,
         p.typeCheck,
-        p.operations,
+        p.methods,
         p.sanitize,
         p.normalize,
         p.control,
@@ -47,16 +38,6 @@ export class Entity {
         p.controller, 
       )
       this._properties.push(prop);
-      
-      // _cols help to dynamically generates SQL queries.
-      // data is grouped by operation type, making it easy to retrieve and process later.
-      for (const o of p.operations) {
-        const c = this._cols[o];
-        if (o === "update") // The "update" operation requires special formatting (key = $index), while other operations only store the key.
-          c.push(`${p.key} = $${c.length+1}`); 
-        else
-          c.push(p.key);
-      }
 
       if (!prop.safe) this._unsafeProps.push(prop.key);
 
@@ -71,38 +52,8 @@ export class Entity {
     return this._unsafeProps;
   }
 
-  public get cols(): Record<Operation, string[]> {
-    return this._cols;
-  }
-
   public get properties(): Property[] {
     return this._properties;
-  }
-
-  /**
-   * Retrieves the columns associated with a specific database operation, with optional
-   * stringification and pagination handling.
-   *
-   * @param {Operation} operation - The database operation (e.g., "select", "insert", etc.)
-   *                                for which to retrieve the columns.
-   * @param {boolean} [stringify] - Optional. If `true`, the columns will be returned as a 
-   *                                comma-separated string. Defaults to `false`.
-   * @param {boolean} [pagination] - Optional. If `true` and the operation is "select", 
-   *                                 adds a "COUNT(*) OVER () AS total" column for pagination.
-   *                                 Defaults to `false`.
-   * @returns {string[] | string} - The columns for the specified operation. Returns an array
-   *                                of column names by default, or a comma-separated string
-   *                                if `stringify` is `true`.
-   */
-  public getColsByOp(
-    operation: Operation, 
-    stringify?: boolean, 
-    pagination?: boolean, 
-  ): string[] | string {
-    const cols = pagination && operation === "select" 
-      ? [...this._cols[operation], "COUNT(*) OVER () AS total"] 
-      : this.cols[operation];
-    return stringify ? cols.join(', ') : cols;
   }
 
   /**
@@ -115,6 +66,15 @@ export class Entity {
     return this.properties.find(p => p.key === key);
   }
   
+  /**
+   * Normalizes an array of records by applying sanitization and normalization
+   * rules defined in the `properties` of the class.
+   *
+   * @param rows - An array of records where each record is a key-value pair.
+   *               The keys represent property names, and the values are the data
+   *               to be sanitized and normalized.
+   * @returns An array of records with sanitized and normalized values.
+   */
   public normalize(rows: Record<string, unknown>[]): Record<string, unknown>[] {
     for (const r of rows) {
       for (const { 
@@ -142,15 +102,25 @@ export class Entity {
     return rows;
   }
   
+  /**
+   * Validates a set of rows against the defined properties and operation/method.
+   *
+   * @param rows - An array of objects where each object represents a row to validate.
+   *               Each row is a record with string keys and unknown values.
+   * @param operation - The operation or method to validate against. It can be of type `Operation` or `Method`.
+   * 
+   * @returns A string containing the validation error message if validation fails, or `null` if validation passes.
+   *
+   * If a property is required and missing, or if it fails the control checks, the function returns an error message.
+   * Otherwise, it returns `null` indicating successful validation.
+   */
   public validate(
     rows: Record<string, unknown>[], 
-    operation: Operation | Method,
+    method: Method,
   ): string | null {
-    
-    if (!isIn(Methods, operation))
-      return null;
       
-    const o = map.method(operation as Method);
+    if (!isIn(Methods, method))
+      return `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`;
     
     for (const r of rows) {
       for (const { 
@@ -160,12 +130,12 @@ export class Entity {
         max,
         required,
         typeCheck,
-        operations,
+        methods,
         control,
         controller
       } of this.properties) {
         const v = r[key];
-        if (isIn(operations, o)) {
+        if (isIn(methods, method)) {
           if (required) {
             const rq = this.require(v, key, type);
             if (rq)
@@ -192,7 +162,7 @@ export class Entity {
    */
   private require(v: unknown, key: string, type: Type): string | null {
     log.debug(`require ${key}: ${type} = ${v}`);	
-    return isNil(v) ? Messages.missing(key) : null ;
+    return isNil(v) ? Messages.missing(key) : null;
   }
 
   private control(

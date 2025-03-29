@@ -1,5 +1,4 @@
 
-type Operation = typeof Operations[number];
 type Method = typeof Methods[number];
 type Type = 
   "boolean" |
@@ -30,7 +29,6 @@ type Type =
   "node" |
   "object";
 
-declare const Operations: readonly [ "select", "insert", "update", "merge", "delete" ];
 declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
 
 declare const Types: Record<Type, {
@@ -54,17 +52,15 @@ declare class Entity {
   constructor(table: string, properties: Property[]);
   get table(): string;
   get unsafeProps(): string[];
-  get cols(): Record<Operation, string[]>;
   get properties(): Property[];
-  getColsByOp(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
   getProp(key: string): Property | undefined;
   normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
-  validate(rows: Record<string, unknown>[], operation: Operation | Method): string | null;
+  validate(rows: Record<string, unknown>[], method: Method): string | null;
 }
 
 declare const Messages: {
-    missing: (key: string) => string;
-    invalid: (key: string, type: Type) => string;
+  missing: (key: string) => string;
+  invalid: (key: string, type: Type) => string;
 };
 
 declare class Property {
@@ -75,7 +71,7 @@ declare class Property {
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
-  operations: Operation[];
+  methods: Method[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
@@ -90,7 +86,7 @@ declare class Property {
     required: boolean,
     safe: boolean,
     typeCheck: boolean,
-    operations: Operation[],
+    methods: Method[],
     sanitize: boolean,
     normalize: boolean,
     control: boolean,
@@ -100,14 +96,13 @@ declare class Property {
   );
 }
 
-export type { Type, Operation, Method };
+export type { Type, Method };
 export { 
   Entity,
   Property,
   Messages,
   Types,
   Required,
-  Operations,
   Methods,
 };
 

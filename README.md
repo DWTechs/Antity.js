@@ -57,7 +57,7 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 120,
     typeCheck: true,
-    operations: ["select", "update", "delete"],
+    operations: ["GET", "PUT", "DELETE"],
     required: true,
     safe: true,
     sanitize: true,
@@ -73,7 +73,7 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    operations: ["select", "insert", "update", "delete"],
+    operations: ["GET", "POST", "PUT", "DELETE"],
     required: true,
     safe: true,
     sanitize: true,
@@ -89,7 +89,7 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    operations: ["select", "insert", "update", "delete"],
+    operations: ["GET", "POST", "PUT", "DELETE"],
     required: true,
     safe: true,
     sanitize: true,
@@ -105,7 +105,7 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    operations: ["select", "insert", "update", "delete"],
+    operations: ["GET", "POST", "PUT", "DELETE"],
     required: true,
     safe: true,
     sanitize: true,
@@ -118,7 +118,7 @@ const entity = new Entity("consumers", [
 ]);
 
 req.body = entity.normalize(req.body); // will also sanitize if true
-const check = entity.validate(req.body, "select");
+const check = entity.validate(req.body, "GET");
 const unsafeProps = entity.getUnsafeProps();
 
 ```
@@ -129,35 +129,35 @@ const unsafeProps = entity.getUnsafeProps();
 
 ```javascript
 
-type Type = "boolean" | 
-            "string" | 
-            "number" | 
-            "integer" | 
-            "float" |
-            "even" |
-            "odd" |
-            "positve" |
-            "negative" |
-            "powerOfTwo" |
-            "ascii" |
-            "array" | 
-            "jwt" |
-            "symbol" | 
-            "email" |
-            "regex" |
-            "json" |
-            "ipAddress" |
-            "slug" |
-            "hexadecimal" |
-            "date" |
-            "timestamp" |
-            "function" |
-            "htmlElement" |
-            "htmlEventAttribute" |
-            "node" |
-            "object";
+type Type = 
+  "boolean" |
+  "string" |
+  "number" |
+  "integer" |
+  "float" |
+  "even" |
+  "odd" |
+  "positive" |
+  "negative" |
+  "powerOfTwo" |
+  "ascii" |
+  "array" |
+  "jwt" |
+  "symbol" |
+  "email" |
+  "regex" |
+  "json" |
+  "ipAddress" |
+  "slug" |
+  "hexadecimal" |
+  "date" |
+  "timestamp" |
+  "function" |
+  "htmlElement" |
+  "htmlEventAttribute" |
+  "node" |
+  "object";
             
-type Operation = "select" | "insert" | "update" | "merge" | "delete";
 type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
 
 class Property {
@@ -168,7 +168,7 @@ class Property {
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
-  operations: Operation[];
+  methods: Method[];
   sanitize: boolean;
   normalize: boolean;
   control: boolean;
@@ -178,38 +178,53 @@ class Property {
 };
 
 class Entity {
-  table: string;
-  cols: Record<Operation, string[]>;
-  properties: Property[];
-  normalize(rows: Record<string, any>[]): Record<string, any>[]; // will also sanitize if true
-  validate(rows: Record<string, any>[], operation: Operation | Method): string | null;
-  getTable(): string;
-  // if pagination is true for a select operation, it will return cols + a total column 
-  getCols(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
-  getUnsafeProps(): string[];
+  get table(): string;
+  get unsafeProps(): string[];
+  get properties(): Property[];
+  
+  /**
+   * Retrieves a property from the `properties` array that matches the specified key.
+   *
+   * @param {string} key - The key of the property to retrieve.
+   * @returns {Property | undefined} - The property object if found, otherwise `undefined`.
+   */
+  getProp(key: string): Property | undefined;
+  
+  /**
+   * Normalizes an array of records by applying sanitization and normalization
+   * rules defined in the `properties` of the class.
+   *
+   * @param rows - An array of records where each record is a key-value pair.
+   *               The keys represent property names, and the values are the data
+   *               to be sanitized and normalized.
+   * @returns An array of records with sanitized and normalized values.
+   */
+  normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
+  
+  /**
+   * Validates a set of rows against the defined properties and operation/method.
+   *
+   * @param rows - An array of objects where each object represents a row to validate.
+   *               Each row is a record with string keys and unknown values.
+   * @param operation - The operation or method to validate against. It can be of type `Operation` or `Method`.
+   * 
+   * @returns A string containing the validation error message if validation fails, or `null` if validation passes.
+   *
+   * If a property is required and missing, or if it fails the control checks, the function returns an error message.
+   * Otherwise, it returns `null` indicating successful validation.
+   */
+  validate(rows: Record<string, unknown>[], method: Method): string | null;
 }
 
 ```
-
-### REST Methods mapping
-
-When validating request inputs, you can use REST methods or SQL operations as second parameter 
-
-| REST method | SQL operation |
-| :---------- | :------------ |
-| GET         | select        |
-| PATCH       | update        |
-| PUT         | update        |
-| POST        | insert        |
-| DELETE      | delete        |
 
 examples : 
 
 ```javascript
 
-entity.validate(req.body, "GET"); // will validate "select" properties
-entity.validate(req.body, "PUT"); // will validate "update" properties
-entity.validate(req.body, "DELETE"); // will validate "delete" properties
+entity.validate(req.body, "GET"); // will validate properties for GET requests
+entity.validate(req.body, "PUT"); // will validate properties for PUT requests
+entity.validate(req.body, "DELETE"); // will validate properties for DELETE requests
 
 ```
 
