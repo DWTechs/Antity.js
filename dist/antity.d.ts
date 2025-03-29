@@ -69,15 +69,17 @@ declare const Required: {
 };
 
 declare class Entity {
-  table: string;
-  cols: Record<Operation, string[]>;
-  properties: Property[];
+  private table;
+  private cols;
+  private unsafeProps;
+  private properties;
   constructor(table: string, properties: Property[]);
   getTable(): string;
   getCols(operation: Operation, stringify?: boolean, pagination?: boolean): string[] | string;
   getUnsafeProps(): string[];
-  normalize(rows: Record<string, any>[]): Record<string, any>[];
-  validate(rows: Record<string, any>[], operation: Operation | Method): string | null;
+  protected getPropertyType(key: string): Type | null;
+  normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
+  validate(rows: Record<string, unknown>[], operation: Operation | Method): string | null;
   private require;
   private control;
   private sanitize;

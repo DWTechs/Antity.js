@@ -8,26 +8,26 @@ import map from './map';
 import type { Type, Operation, Method } from './types';
 
 export class Entity {
-  private table: string;
-  private cols: Record<Operation, string[]>;
-  private unsafeProps: string[];
-  private properties: Property[];
+  private _table: string;
+  private _cols: Record<Operation, string[]>;
+  private _unsafeProps: string[];
+  private _properties: Property[];
 
   constructor(
     table: string,
     properties: Property[],
   ) {
 
-    this.table = table;
-    this.properties = [];
-    this.cols = {
+    this._table = table;
+    this._properties = [];
+    this._cols = {
       select: [],
       insert: [],
       update: [],
       merge: [],
       delete: []
     };
-    this.unsafeProps = [];
+    this._unsafeProps = [];
 
     for (const p of properties) {
       const prop = new Property(
@@ -46,40 +46,49 @@ export class Entity {
         p.normalizer,
         p.controller, 
       )
-      this.properties.push(prop);
+      this._properties.push(prop);
       
       for (const o of p.operations) {
         if (o === "update")
-          this.cols[o].push(`${p.key} = $${this.cols[o].length+1}`); 
+          this._cols[o].push(`${p.key} = $${this._cols[o].length+1}`); 
         else
-          this.cols[o].push(p.key);
+          this._cols[o].push(p.key);
       }
 
-      if (!prop.safe) this.unsafeProps.push(prop.key);
+      if (!prop.safe) this._unsafeProps.push(prop.key);
 
     }
   }
 
-  public getTable() {
-    return this.table;
+  public get table(): string {
+    return this._table;
   }
 
-  public getCols(
+  public get unsafeProps(): string[] {
+    return this._unsafeProps;
+  }
+
+  public get cols(): Record<Operation, string[]> {
+    return this._cols;
+  }
+
+  public get properties(): Property[] {
+    return this._properties;
+  }
+
+  public getColsByOp(
     operation: Operation, 
     stringify?: boolean, 
     pagination?: boolean, 
   ): string[] | string {
-    const cols = pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
+    const cols = pagination && operation === "select" ? [...this._cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
     return stringify ? cols.join(', ') : cols;
   }
 
-  public getUnsafeProps(): string[] {
-    return this.unsafeProps;
+  public getProperty(key: string): Property | undefined {
+    return this.properties.find(p => p.key === key);
   }
-
-  protected getPropertyType(key: string): Type | null {
-    return this.properties.find(p => p.key === key)?.type || null;
-  }
+  
 
   public normalize(rows: Record<string, unknown>[]): Record<string, unknown>[] {
     for (const r of rows) {

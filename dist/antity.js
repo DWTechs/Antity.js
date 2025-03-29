@@ -172,42 +172,47 @@ var map = { method };
 
 class Entity {
     constructor(table, properties) {
-        this.table = table;
-        this.properties = [];
-        this.cols = {
+        this._table = table;
+        this._properties = [];
+        this._cols = {
             select: [],
             insert: [],
             update: [],
             merge: [],
             delete: []
         };
-        this.unsafeProps = [];
+        this._unsafeProps = [];
         for (const p of properties) {
             const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.operations, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller);
-            this.properties.push(prop);
+            this._properties.push(prop);
             for (const o of p.operations) {
                 if (o === "update")
-                    this.cols[o].push(`${p.key} = $${this.cols[o].length + 1}`);
+                    this._cols[o].push(`${p.key} = $${this._cols[o].length + 1}`);
                 else
-                    this.cols[o].push(p.key);
+                    this._cols[o].push(p.key);
             }
             if (!prop.safe)
-                this.unsafeProps.push(prop.key);
+                this._unsafeProps.push(prop.key);
         }
     }
-    getTable() {
-        return this.table;
+    get table() {
+        return this._table;
     }
-    getCols(operation, stringify, pagination) {
-        const cols = pagination && operation === "select" ? [...this.cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
+    get unsafeProps() {
+        return this._unsafeProps;
+    }
+    get cols() {
+        return this._cols;
+    }
+    get properties() {
+        return this._properties;
+    }
+    getColsByOp(operation, stringify, pagination) {
+        const cols = pagination && operation === "select" ? [...this._cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
         return stringify ? cols.join(', ') : cols;
     }
-    getUnsafeProps() {
-        return this.unsafeProps;
-    }
-    getPropertyType(key) {
-        var _a;
-        return ((_a = this.properties.find(p => p.key === key)) === null || _a === void 0 ? void 0 : _a.type) || null;
+    getProperty(key) {
+        return this.properties.find(p => p.key === key);
     }
     normalize(rows) {
         for (const r of rows) {
