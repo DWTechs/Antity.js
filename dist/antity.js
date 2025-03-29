@@ -170,7 +170,6 @@ function method(method) {
             return undefined;
     }
 }
-var map = { method };
 
 class Entity {
     constructor(table, properties) {
@@ -211,7 +210,9 @@ class Entity {
         return this._properties;
     }
     getColsByOp(operation, stringify, pagination) {
-        const cols = pagination && operation === "select" ? [...this._cols[operation], "COUNT(*) OVER () AS total"] : this.cols[operation];
+        const cols = pagination && operation === "select"
+            ? [...this._cols[operation], "COUNT(*) OVER () AS total"]
+            : this.cols[operation];
         return stringify ? cols.join(', ') : cols;
     }
     getProperty(key) {
@@ -239,7 +240,7 @@ class Entity {
     validate(rows, operation) {
         if (!isIn(Methods, operation))
             return null;
-        const o = map.method(operation);
+        const o = method(operation);
         for (const r of rows) {
             for (const { key, type, min, max, required, typeCheck, operations, control, controller } of this.properties) {
                 const v = r[key];
@@ -267,7 +268,8 @@ class Entity {
         log.debug(`control ${key}: ${type} = ${v}`);
         if (cb)
             return cb(v) ? null : Messages.invalid(key, type);
-        return Types[type].validate(v, min, max, typeCheck) ? null : Messages.invalid(key, type);
+        const val = Types[type].validate(v, min, max, typeCheck);
+        return val ? null : Messages.invalid(key, type);
     }
     sanitize(v, cb) {
         if (cb)
@@ -287,7 +289,7 @@ class Entity {
             for (const k in v) {
                 if (Object.prototype.hasOwnProperty.call(v, k)) {
                     let o = v[k];
-                    if (isString(o, "!0"))
+                    if (isString(o, "!0", null))
                         o = o.trim();
                 }
             }

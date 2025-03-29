@@ -18,5 +18,5 @@ function method(method: Method): Operation | undefined {
   }
 }
 
-export default { method };
+export { method };
   

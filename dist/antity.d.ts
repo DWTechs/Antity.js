@@ -27,7 +27,34 @@ https://github.com/DWTechs/Antity.js
 
 type Operation = typeof Operations[number];
 type Method = typeof Methods[number];
-type Type = "boolean" | "string" | "number" | "integer" | "float" | "even" | "odd" | "positive" | "negative" | "powerOfTwo" | "ascii" | "array" | "jwt" | "symbol" | "email" | "regex" | "json" | "ipAddress" | "slug" | "hexadecimal" | "date" | "timestamp" | "function" | "htmlElement" | "htmlEventAttribute" | "node" | "object";
+type Type = 
+  "boolean" |
+  "string" |
+  "number" |
+  "integer" |
+  "float" |
+  "even" |
+  "odd" |
+  "positive" |
+  "negative" |
+  "powerOfTwo" |
+  "ascii" |
+  "array" |
+  "jwt" |
+  "symbol" |
+  "email" |
+  "regex" |
+  "json" |
+  "ipAddress" |
+  "slug" |
+  "hexadecimal" |
+  "date" |
+  "timestamp" |
+  "function" |
+  "htmlElement" |
+  "htmlEventAttribute" |
+  "node" |
+  "object";
 
 declare const Operations: readonly [ "select", "insert", "update", "merge", "delete" ];
 declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
@@ -80,8 +107,22 @@ declare class Property {
   sanitizer: ((v: any) => any) | null;
   normalizer: ((v: any) => any) | null;
   controller: ((v: any) => any) | null;
-  constructor(key: string, type: Type, min: number | Date, max: number | Date, required: boolean, safe: boolean, typeCheck: boolean, operations: Operation[], sanitize: boolean, normalize: boolean, control: boolean, sanitizer: ((v: any) => any) | null, normalizer: ((v: any) => any) | null, controller: ((v: any) => any) | null);
-  private interval;
+  constructor(
+    key: string,
+    type: Type,
+    min: number | Date,
+    max: number | Date,
+    required: boolean,
+    safe: boolean,
+    typeCheck: boolean,
+    operations: Operation[],
+    sanitize: boolean,
+    normalize: boolean,
+    control: boolean,
+    sanitizer: ((v: any) => any) | null,
+    normalizer: ((v: any) => any) | null,
+    controller: ((v: any) => any) | null
+  );
 }
 
 export type { Type, Operation, Method };
@@ -91,6 +132,7 @@ export {
   Messages,
   Types,
   Required,
-  Operations 
+  Operations,
+  Methods,
 };
 

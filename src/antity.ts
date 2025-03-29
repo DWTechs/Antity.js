@@ -4,7 +4,7 @@ import { Property } from './property';
 import { Messages } from './message';
 import { Types } from './check';
 import { Methods } from './methods';
-import map from './map';
+import * as map from './map';
 import type { Type, Operation, Method } from './types';
 
 export class Entity {
@@ -230,7 +230,7 @@ export class Entity {
       for (const k in v) {
         if (Object.prototype.hasOwnProperty.call(v, k)) {
           let o = (v as Record<string, unknown>)[k];
-          if (isString(o, "!0"))
+          if (isString(o, "!0", null))
             o = o.trim();
         }
       }
