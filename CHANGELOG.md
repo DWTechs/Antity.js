@@ -1,7 +1,9 @@
 # 0.6.0 (Mar 29th 2025)
 
-- Add getters for table, unsafeProps, cols, properties
-- Add getProp() method to retreive a property with its key
+- Replace table parameter by name
+- Add getters for name, unsafeProps and properties
+- Add getProp() method to retrieve a property with its key
+- Add setter for entity name
 - Delete getTabe() and getUnsafeProps() methods
 - Delete cols parameter. Now used in pgsql plugin
 - Replace operations by REST methods

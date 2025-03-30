@@ -148,13 +148,13 @@ class Property {
 }
 
 const Messages = {
-    missing: (key) => `Missing key: ${key}`,
-    invalid: (key, type) => `Invalid key: ${key}. Must be of type ${type}`,
+    missing: (key) => `Missing ${key}`,
+    invalid: (key, type) => `Invalid ${key}, must be of type ${type}`,
 };
 
 class Entity {
-    constructor(table, properties) {
-        this._table = table;
+    constructor(name, properties) {
+        this._name = name;
         this._properties = [];
         this._unsafeProps = [];
         for (const p of properties) {
@@ -164,14 +164,19 @@ class Entity {
                 this._unsafeProps.push(prop.key);
         }
     }
-    get table() {
-        return this._table;
+    get name() {
+        return this._name;
     }
     get unsafeProps() {
         return this._unsafeProps;
     }
     get properties() {
         return this._properties;
+    }
+    set name(name) {
+        if (!isString(name, "!0"))
+            throw new Error('name must be a string of length > 0');
+        this._name = name;
     }
     getProp(key) {
         return this.properties.find(p => p.key === key);

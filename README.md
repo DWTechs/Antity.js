@@ -178,9 +178,11 @@ class Property {
 };
 
 class Entity {
-  get table(): string;
+  constructor(name: string, properties: Property[]);
+  get name(): string;
   get unsafeProps(): string[];
   get properties(): Property[];
+  set name(name: string);
   
   /**
    * Retrieves a property from the `properties` array that matches the specified key.

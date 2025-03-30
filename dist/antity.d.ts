@@ -71,14 +71,14 @@ declare const Required: {
 };
 
 declare class Entity {
-  private _table;
-  private _cols;
+  private _name;
   private _unsafeProps;
   private _properties;
-  constructor(table: string, properties: Property[]);
-  get table(): string;
+  constructor(name: string, properties: Property[]);
+  get name(): string;
   get unsafeProps(): string[];
   get properties(): Property[];
+  set name(name: string);
   getProp(key: string): Property | undefined;
   normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
   validate(rows: Record<string, unknown>[], method: Method): string | null;

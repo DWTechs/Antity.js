@@ -7,16 +7,16 @@ import { Methods } from './methods';
 import type { Type, Method } from './types';
 
 export class Entity {
-  private _table: string;
+  private _name: string;
   private _unsafeProps: string[];
   private _properties: Property[];
 
   constructor(
-    table: string,
+    name: string,
     properties: Property[],
   ) {
 
-    this._table = table;
+    this._name = name;
     this._properties = [];
     this._unsafeProps = [];
 
@@ -44,8 +44,8 @@ export class Entity {
     }
   }
 
-  public get table(): string {
-    return this._table;
+  public get name(): string {
+    return this._name;
   }
 
   public get unsafeProps(): string[] {
@@ -54,6 +54,12 @@ export class Entity {
 
   public get properties(): Property[] {
     return this._properties;
+  }
+
+  public set name(name: string) {
+    if (!isString(name, "!0"))
+      throw new Error('name must be a string of length > 0');
+    this._name = name;
   }
 
   /**
