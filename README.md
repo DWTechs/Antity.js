@@ -117,12 +117,10 @@ const entity = new Entity("consumers", [
   },
 ]);
 
-req.body = entity.normalize(req.body); // will also sanitize if true
-const check = entity.validate(req.body, "GET");
-const unsafeProps = entity.getUnsafeProps();
+// add a consumer. Used when loggin in from user service
+router.post("/", entity.normalize, entity.validate, ...);
 
 ```
-
 
 ## API Reference
 
@@ -195,40 +193,21 @@ class Entity {
   /**
    * Normalizes an array of records by applying sanitization and normalization
    * rules defined in the `properties` of the class.
-   *
-   * @param rows - An array of records where each record is a key-value pair.
-   *               The keys represent property names, and the values are the data
-   *               to be sanitized and normalized.
-   * @returns An array of records with sanitized and normalized values.
    */
-  normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
+  normalize(req: Request, _res: Response, next: NextFunction): void;
   
   /**
    * Validates a set of rows against the defined properties and operation/method.
    *
-   * @param rows - An array of objects where each object represents a row to validate.
-   *               Each row is a record with string keys and unknown values.
-   * @param operation - The operation or method to validate against. It can be of type `Operation` or `Method`.
-   * 
-   * @returns A string containing the validation error message if validation fails, or `null` if validation passes.
-   *
    * If a property is required and missing, or if it fails the control checks, the function returns an error message.
    * Otherwise, it returns `null` indicating successful validation.
    */
-  validate(rows: Record<string, unknown>[], method: Method): string | null;
+  validate(req: Request, _res: Response, next: NextFunction): void;
 }
 
 ```
-
-examples : 
-
-```javascript
-
-entity.validate(req.body, "GET"); // will validate properties for GET requests
-entity.validate(req.body, "PUT"); // will validate properties for PUT requests
-entity.validate(req.body, "DELETE"); // will validate properties for DELETE requests
-
-```
+normalize() and validate() methods are made to be used as Express.js middlewares.
+Each method will look for data to work on in the **req.body.rows** parmeter.
 
 
 ### Available options for a property

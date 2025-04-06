@@ -147,11 +147,6 @@ class Property {
     }
 }
 
-const Messages = {
-    missing: (key) => `Missing ${key}`,
-    invalid: (key, type) => `Invalid ${key}, must be of type ${type}`,
-};
-
 class Entity {
     constructor(name, properties) {
         this._name = name;
@@ -181,7 +176,11 @@ class Entity {
     getProp(key) {
         return this.properties.find(p => p.key === key);
     }
-    normalize(rows) {
+    normalize(req, _res, next) {
+        var _a;
+        const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
+        if (!isObject(rows))
+            return next({ status: 400, msg: "Normalize: no rows found in request body" });
         for (const r of rows) {
             for (const { key, type, sanitize, normalize, sanitizer, normalizer, } of this.properties) {
                 let v = r[key];
@@ -198,11 +197,19 @@ class Entity {
                 }
             }
         }
-        return rows;
+        next();
     }
-    validate(rows, method) {
+    validate(req, _res, next) {
+        var _a;
+        const rows = req.body;
+        const method = req.method;
+        if (!isObject((_a = req.body) === null || _a === void 0 ? void 0 : _a.rows))
+            return next({ status: 400, msg: "Sanitize: no rows found in request body" });
         if (!isIn(Methods, method))
-            return `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`;
+            return next({
+                status: 400,
+                msg: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+            });
         for (const r of rows) {
             for (const { key, type, min, max, required, typeCheck, methods, control, controller } of this.properties) {
                 const v = r[key];
@@ -210,28 +217,30 @@ class Entity {
                     if (required) {
                         const rq = this.require(v, key, type);
                         if (rq)
-                            return rq;
+                            return next(rq);
                     }
                     if (v && control) {
                         const ct = this.control(v, key, type, min, max, typeCheck, controller);
                         if (ct)
-                            return ct;
+                            return next(ct);
                     }
                 }
             }
         }
-        return null;
+        next();
     }
     require(v, key, type) {
         log.debug(`require ${key}: ${type} = ${v}`);
-        return isNil(v) ? Messages.missing(key) : null;
+        return isNil(v) ? { status: 400, msg: `Missing ${key} of type ${type}` } : null;
     }
     control(v, key, type, min, max, typeCheck, cb) {
         log.debug(`control ${key}: ${type} = ${v}`);
+        let val;
         if (cb)
-            return cb(v) ? null : Messages.invalid(key, type);
-        const val = Types[type].validate(v, min, max, typeCheck);
-        return val ? null : Messages.invalid(key, type);
+            val = cb(v);
+        else
+            val = Types[type].validate(v, min, max, typeCheck);
+        return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}` };
     }
     sanitize(v, cb) {
         if (cb)

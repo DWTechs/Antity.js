@@ -1,10 +1,10 @@
 import { isArray, isObject, isString, isIn, isNil } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Property } from './property';
-import { Messages } from './message';
 import { Types } from './check';
 import { Methods } from './methods';
 import type { Type, Method } from './types';
+import type { Request, Response, NextFunction } from 'express';
 
 export class Entity {
   private _name: string;
@@ -76,12 +76,14 @@ export class Entity {
    * Normalizes an array of records by applying sanitization and normalization
    * rules defined in the `properties` of the class.
    *
-   * @param rows - An array of records where each record is a key-value pair.
-   *               The keys represent property names, and the values are the data
-   *               to be sanitized and normalized.
-   * @returns An array of records with sanitized and normalized values.
    */
-  public normalize(rows: Record<string, unknown>[]): Record<string, unknown>[] {
+  public normalize(req: Request, _res: Response, next: NextFunction): void {
+    
+    const rows: Record<string, unknown>[] = req.body?.rows;
+    
+    if (!isObject(rows))
+      return next({ status: 400, msg: "Normalize: no rows found in request body" });
+
     for (const r of rows) {
       for (const { 
         key, 
@@ -105,28 +107,28 @@ export class Entity {
         }
       }
     }
-    return rows;
+    next()
   }
   
   /**
    * Validates a set of rows against the defined properties and operation/method.
    *
-   * @param rows - An array of objects where each object represents a row to validate.
-   *               Each row is a record with string keys and unknown values.
-   * @param operation - The operation or method to validate against. It can be of type `Operation` or `Method`.
-   * 
-   * @returns A string containing the validation error message if validation fails, or `null` if validation passes.
-   *
    * If a property is required and missing, or if it fails the control checks, the function returns an error message.
    * Otherwise, it returns `null` indicating successful validation.
    */
-  public validate(
-    rows: Record<string, unknown>[], 
-    method: Method,
-  ): string | null {
+  public validate(req: Request, _res: Response, next: NextFunction): void{
       
+    const rows: Record<string, unknown>[] = req.body;
+    const method: Method = req.method;
+  
+    if (!isObject(req.body?.rows))
+      return next({ status: 400, msg: "Sanitize: no rows found in request body" });
+
     if (!isIn(Methods, method))
-      return `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`;
+      return next({ 
+        status: 400, 
+        msg: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+      });
     
     for (const r of rows) {
       for (const { 
@@ -145,17 +147,17 @@ export class Entity {
           if (required) {
             const rq = this.require(v, key, type);
             if (rq)
-              return rq;
+              return next(rq);
           }
           if (v && control) {
             const ct = this.control(v, key, type, min, max, typeCheck, controller);
             if (ct)
-              return ct;
+              return next(ct);
           }
         }
       }
     }
-    return null;
+    next();
   }
     
   /**
@@ -166,9 +168,9 @@ export class Entity {
    * @param type - The expected type of the value, used for logging purposes.
    * @returns A string containing an error message if the value is null or undefined, otherwise `null`.
    */
-  private require(v: unknown, key: string, type: Type): string | null {
+  private require(v: unknown, key: string, type: Type): Record<string, unknown> | null {
     log.debug(`require ${key}: ${type} = ${v}`);	
-    return isNil(v) ? Messages.missing(key) : null;
+    return isNil(v) ? { status: 400, msg: `Missing ${key} of type ${type}`} : null;
   }
 
   private control(
@@ -178,16 +180,18 @@ export class Entity {
     min: number | Date,
     max: number | Date,
     typeCheck: boolean,
-    cb: ((v:unknown) => unknown) | null
-  ): string | null {
+    cb: ((v:unknown) => boolean) | null
+  ): Record<string, unknown> | null {
     
     log.debug(`control ${key}: ${type} = ${v}`);
-    if (cb) // this property is controlled by a callback function
-      return cb(v) ? null : Messages.invalid(key, type); // if the callback function returns a value, the value is invalid
     
-    // if the property is not controlled by a callback function, it is controlled by the default controller of the type
-    const val = Types[type].validate(v, min, max, typeCheck)
-    return val ? null : Messages.invalid(key, type);
+    let val: boolean;
+    if (cb) // the property is controlled by a callback function
+      val = cb(v);
+    else // the property is controlled by the default controller of the type
+      val = Types[type].validate(v, min, max, typeCheck)
+    
+    return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}`};
   
   }
 

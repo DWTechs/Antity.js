@@ -1,3 +1,8 @@
+# 0.7.0 (Apr 06th 2025)
+
+- normalize() method is now an Express middleware
+- validate() method is now an Express middleware
+
 # 0.6.0 (Mar 29th 2025)
 
 - Replace table parameter by name

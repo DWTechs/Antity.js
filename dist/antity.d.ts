@@ -80,14 +80,9 @@ declare class Entity {
   get properties(): Property[];
   set name(name: string);
   getProp(key: string): Property | undefined;
-  normalize(rows: Record<string, unknown>[]): Record<string, unknown>[];
-  validate(rows: Record<string, unknown>[], method: Method): string | null;
+  normalize(req: Request, _res: Response, next: NextFunction): void;
+  validate(req: Request, _res: Response, next: NextFunction): void;
 }
-
-declare const Messages: {
-  missing: (key: string) => string;
-  invalid: (key: string, type: Type) => string;
-};
 
 declare class Property {
   key: string;

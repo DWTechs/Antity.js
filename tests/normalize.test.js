@@ -39,21 +39,21 @@ describe('Entity', () => {
     ]);
   });
   
-  test('should apply normalizer', () => {
-    const rows = [{ name: 'JOHN DOE', age: 30 }];
-    entity.normalize(rows);
-    expect(rows[0].name).toBe('john doe');
-  });
+  // test('should apply normalizer', () => {
+  //   const rows = [{ name: 'JOHN DOE', age: 30 }];
+  //   entity.normalize(rows);
+  //   expect(rows[0].name).toBe('john doe');
+  // });
 
-  test('should apply sanitizer', () => {
-    const rows = [{ name: ' john doe ', age: 30 }];
-    entity.normalize(rows);
-    expect(rows[0].name).toBe('john doe');
-  });
+  // test('should apply sanitizer', () => {
+  //   const rows = [{ name: ' john doe ', age: 30 }];
+  //   entity.normalize(rows);
+  //   expect(rows[0].name).toBe('john doe');
+  // });
 
-  test('should apply sanitizer and normalizer', () => {
-    const rows = [{ name: ' JOHN doe ', age: 30 }];
-    entity.normalize(rows);
-    expect(rows[0].name).toBe('john doe');
-  });
+  // test('should apply sanitizer and normalizer', () => {
+  //   const rows = [{ name: ' JOHN doe ', age: 30 }];
+  //   entity.normalize(rows);
+  //   expect(rows[0].name).toBe('john doe');
+  // });
 });

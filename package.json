@@ -1,6 +1,6 @@
 {
   "name": "@dwtechs/antity",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Open source library for easy entity management",
   "keywords": [
     "entities"
@@ -48,6 +48,7 @@
     "@rollup/plugin-node-resolve": "15.3.0",
     "@types/jest": "29.5.14",
     "@types/node": "22.10.1",
+    "@types/express": "5.0.0",
     "babel-jest": "29.7.0",
     "core-js": "3.33.0",
     "jest": "29.7.0",
