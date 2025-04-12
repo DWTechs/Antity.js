@@ -40,7 +40,7 @@ const Types = {
         validate: (v, min, max, typeCheck) => isValidNumber(v, min || undefined, max || undefined, typeCheck || undefined)
     },
     integer: {
-        validate: (v, min, max, typeCheck) => isValidInteger(v, min || undefined, max || undefined, typeCheck || undefined)
+        validate: (v, min, max, typeCheck) => isValidInteger(v, min !== null && min !== void 0 ? min : undefined, max !== null && max !== void 0 ? max : undefined, typeCheck || undefined)
     },
     float: {
         validate: (v, min, max, typeCheck) => isValidFloat(v, min || undefined, max || undefined, typeCheck || undefined)
@@ -179,7 +179,7 @@ class Entity {
     normalize(req, _res, next) {
         var _a;
         const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
-        if (!isObject(rows))
+        if (!isArray(rows, "!0"))
             return next({ status: 400, msg: "Normalize: no rows found in request body" });
         for (const r of rows) {
             for (const { key, type, sanitize, normalize, sanitizer, normalizer, } of this.properties) {
@@ -189,7 +189,7 @@ class Entity {
                         log.debug(`sanitize ${key}: ${type} = ${v}`);
                         v = this.sanitize(v, sanitizer);
                     }
-                    if (normalize && normalizer) {
+                    if (normalize && isFunction(normalizer)) {
                         log.debug(`normalize ${key}: ${type} = ${v}`);
                         v = normalizer(v);
                     }
@@ -201,9 +201,9 @@ class Entity {
     }
     validate(req, _res, next) {
         var _a;
-        const rows = req.body;
+        const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
         const method = req.method;
-        if (!isObject((_a = req.body) === null || _a === void 0 ? void 0 : _a.rows))
+        if (!isArray(rows, "!0"))
             return next({ status: 400, msg: "Sanitize: no rows found in request body" });
         if (!isIn(Methods, method))
             return next({
@@ -240,7 +240,12 @@ class Entity {
             val = cb(v);
         else
             val = Types[type].validate(v, min, max, typeCheck);
-        return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}` };
+        let c = "";
+        if (!isNil(min))
+            c += ` and >= ${min}`;
+        if (!isNil(max))
+            c += ` and <= ${max}`;
+        return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}${c}` };
     }
     sanitize(v, cb) {
         if (cb)

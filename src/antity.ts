@@ -1,4 +1,4 @@
-import { isArray, isObject, isString, isIn, isNil } from '@dwtechs/checkard';
+import { isArray, isObject, isString, isIn, isNil, isFunction } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Property } from './property';
 import { Types } from './check';
@@ -81,9 +81,9 @@ export class Entity {
     
     const rows: Record<string, unknown>[] = req.body?.rows;
     
-    if (!isObject(rows))
+    if (!isArray(rows, "!0"))
       return next({ status: 400, msg: "Normalize: no rows found in request body" });
-
+    
     for (const r of rows) {
       for (const { 
         key, 
@@ -99,7 +99,7 @@ export class Entity {
             log.debug(`sanitize ${key}: ${type} = ${v}`);
             v = this.sanitize(v, sanitizer);
           }
-          if (normalize && normalizer) {
+          if (normalize && isFunction(normalizer)) {
             log.debug(`normalize ${key}: ${type} = ${v}`);
             v = normalizer(v);
           }
@@ -118,10 +118,10 @@ export class Entity {
    */
   public validate(req: Request, _res: Response, next: NextFunction): void{
       
-    const rows: Record<string, unknown>[] = req.body;
+    const rows: Record<string, unknown>[] = req.body?.rows;
     const method: Method = req.method;
   
-    if (!isObject(req.body?.rows))
+    if (!isArray(rows, "!0"))
       return next({ status: 400, msg: "Sanitize: no rows found in request body" });
 
     if (!isIn(Methods, method))
@@ -190,8 +190,12 @@ export class Entity {
       val = cb(v);
     else // the property is controlled by the default controller of the type
       val = Types[type].validate(v, min, max, typeCheck)
-    
-    return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}`};
+    let c = "";
+    if (!isNil(min))
+      c += ` and >= ${min}`;
+    if (!isNil(max))
+      c += ` and <= ${max}`;
+    return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}${c}`};
   
   }
 

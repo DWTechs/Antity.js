@@ -44,7 +44,7 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   },
   integer: {
     validate: (v: any, min: number, max: number, typeCheck: boolean) => 
-      isValidInteger(v, min || undefined, max || undefined, typeCheck || undefined)
+      isValidInteger(v, min ?? undefined, max ?? undefined, typeCheck || undefined)
   },
   float: {
     validate: (v: any, min: number, max: number, typeCheck: boolean) => 
