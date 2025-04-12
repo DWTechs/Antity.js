@@ -9,13 +9,13 @@
 
 # 0.6.0 (Mar 29th 2025)
 
-- Replace table parameter by name
-- Add getters for name, unsafeProps and properties
-- Add getProp() method to retrieve a property with its key
-- Add setter for entity name
-- Delete getTabe() and getUnsafeProps() methods
-- Delete cols parameter. Now used in pgsql plugin
-- Replace operations by REST methods
+- replace table parameter by name
+- add getters for name, unsafeProps and properties
+- add getProp() method to retrieve a property with its key
+- add setter for entity name
+- delete getTabe() and getUnsafeProps() methods
+- delete cols parameter. Now used in pgsql plugin
+- replace operations by REST methods
 
 # 0.5.0 (Jan 11th 2025)
 
