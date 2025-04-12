@@ -1,7 +1,7 @@
 # 0.8.0 (Apr 11th 2025)
 
 - enhance validation and normalization logic
-- 
+- replace "control" and "controller" properties in Property class by "validate" and "validator"
 
 # 0.7.0 (Apr 06th 2025)
 
