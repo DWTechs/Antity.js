@@ -1,3 +1,7 @@
+# 0.8.0 (Apr 11th 2025)
+
+- enhance validation and normalization logic
+
 # 0.7.0 (Apr 06th 2025)
 
 - normalize() method is now an Express middleware
