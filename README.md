@@ -62,10 +62,10 @@ const entity = new Entity("consumers", [
     safe: true,
     sanitize: true,
     normalize: true,
-    control: true,
+    validate: true,
     sanitizer: null,
     normalizer: null,
-    controller: null,
+    validator: null,
   },
   {
     key: "firstName",
@@ -78,10 +78,10 @@ const entity = new Entity("consumers", [
     safe: true,
     sanitize: true,
     normalize: true,
-    control: true,
+    validate: true,
     sanitizer: null,
     normalizer: normalizeName,
-    controller: null,
+    validator: null,
   },
   {
     key: "lastName",
@@ -94,10 +94,10 @@ const entity = new Entity("consumers", [
     safe: true,
     sanitize: true,
     normalize: true,
-    control: true,
+    validate: true,
     sanitizer: null,
     normalizer: normalizeName,
-    controller: null,
+    validator: null,
   },
   {
     key: "nickname",
@@ -110,10 +110,10 @@ const entity = new Entity("consumers", [
     safe: true,
     sanitize: true,
     normalize: true,
-    control: true,
+    validate: true,
     sanitizer: null,
     normalizer: normalizeNickname,
-    controller: null,
+    validator: null,
   },
 ]);
 
@@ -169,10 +169,10 @@ class Property {
   methods: Method[];
   sanitize: boolean;
   normalize: boolean;
-  control: boolean;
+  validate: boolean;
   sanitizer: Function | null;
   normalizer: Function | null;
-  controller: Function | null;
+  validator: Function | null;
 };
 
 class Entity {
@@ -223,13 +223,13 @@ Any of these can be passed into the options object for each function.
 | required        |  boolean                  | Is this property required on insert               | false
 | safe            |  boolean                  | Is this property safe to send to the client       | true
 | typeCheck       |  boolean                  | Type is checked if true                           | false
-| operations      |  Operation[]              | SQL DML operations concerned by the property      | [ "select", "insert", "update", "merge", "delete" ]
+| methods         |  Method[]                 | SQL DML operations concerned by the property      | [ "select", "insert", "update", "merge", "delete" ]
 | sanitize        |  boolean                  | Sanitize the property if true                     | true
 | normalize       |  boolean                  | Normalize the property if true                    | false
-| control         |  boolean                  | Control the property if true                      | true
+| validate        |  boolean                  | validate the property if true                     | true
 | sanitizer       |  ((v:any) => any) \| null | Sanitizer function if sanitize is true            | null
 | normalizer      |  ((v:any) => any) \| null | Normalizer function if normalize is true          | null
-| controller      |  ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null  | Controller function if control is true            | null
+| validator       |  ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null  | validator function if validate is true            | null
 
 * *Min and max parameters are not used for boolean type*
 * *TypeCheck Parameter is not used for boolean, string and array types*

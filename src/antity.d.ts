@@ -55,10 +55,10 @@ declare class Property {
   methods: Method[];
   sanitize: boolean;
   normalize: boolean;
-  control: boolean;
+  validate: boolean;
   sanitizer: ((v: any) => any) | null;
   normalizer: ((v: any) => any) | null;
-  controller: ((v: any) => any) | null;
+  validator: ((v: any) => any) | null;
   constructor(
     key: string,
     type: Type,
@@ -70,10 +70,10 @@ declare class Property {
     methods: Method[],
     sanitize: boolean,
     normalize: boolean,
-    control: boolean,
+    validate: boolean,
     sanitizer: ((v: any) => any) | null,
     normalizer: ((v: any) => any) | null,
-    controller: ((v: any) => any) | null
+    validator: ((v: any) => any) | null
   );
 }
 

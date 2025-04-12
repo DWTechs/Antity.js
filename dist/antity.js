@@ -114,7 +114,7 @@ const Types = {
 };
 
 class Property {
-    constructor(key, type, min, max, required, safe, typeCheck, methods, sanitize, normalize, control, sanitizer, normalizer, controller) {
+    constructor(key, type, min, max, required, safe, typeCheck, methods, sanitize, normalize, validate, sanitizer, normalizer, validator) {
         if (!isString(key, "!0"))
             throw new Error(`Property "key" must be a string. Received ${key}`);
         if (!isProperty(Types, type))
@@ -135,10 +135,10 @@ class Property {
         this.methods = methods || Methods;
         this.sanitize = isBoolean(sanitize) ? sanitize : true;
         this.normalize = isBoolean(normalize) ? normalize : false;
-        this.control = isBoolean(control) ? control : true;
+        this.validate = isBoolean(validate) ? validate : true;
         this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
         this.normalizer = isFunction(normalizer) ? normalizer : null;
-        this.controller = isFunction(controller) ? controller : null;
+        this.validator = isFunction(validator) ? validator : null;
     }
     interval(val, type, integerDefault, dateDefault) {
         if (type === "date")
@@ -153,7 +153,7 @@ class Entity {
         this._properties = [];
         this._unsafeProps = [];
         for (const p of properties) {
-            const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.methods, p.sanitize, p.normalize, p.control, p.sanitizer, p.normalizer, p.controller);
+            const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.methods, p.sanitize, p.normalize, p.validate, p.sanitizer, p.normalizer, p.validator);
             this._properties.push(prop);
             if (!prop.safe)
                 this._unsafeProps.push(prop.key);
@@ -211,7 +211,7 @@ class Entity {
                 msg: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
             });
         for (const r of rows) {
-            for (const { key, type, min, max, required, typeCheck, methods, control, controller } of this.properties) {
+            for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of this.properties) {
                 const v = r[key];
                 if (isIn(methods, method)) {
                     if (required) {
@@ -219,8 +219,8 @@ class Entity {
                         if (rq)
                             return next(rq);
                     }
-                    if (v && control) {
-                        const ct = this.control(v, key, type, min, max, typeCheck, controller);
+                    if (v && validate) {
+                        const ct = this.control(v, key, type, min, max, typeCheck, validator);
                         if (ct)
                             return next(ct);
                     }

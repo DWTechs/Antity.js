@@ -25,6 +25,7 @@ https://github.com/DWTechs/Antity.js
 */
 
 import type { Request, Response, NextFunction } from 'express';
+declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
 type Method = typeof Methods[number];
 type Type = 
   "boolean" |
@@ -55,17 +56,6 @@ type Type =
   "node" |
   "object";
 
-declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
-
-declare const Types: Record<Type, {
-  validate: (
-    v: any, 
-    min: number | Date, 
-    max: number | Date, 
-    typeCheck: boolean
-  ) => boolean;
-}>;
-
 declare class Entity {
   private _name;
   private _unsafeProps;
@@ -91,10 +81,10 @@ declare class Property {
   methods: Method[];
   sanitize: boolean;
   normalize: boolean;
-  control: boolean;
+  validate: boolean;
   sanitizer: ((v: any) => any) | null;
   normalizer: ((v: any) => any) | null;
-  controller: ((v: any) => any) | null;
+  validator: ((v: any) => any) | null;
   constructor(
     key: string,
     type: Type,
@@ -106,10 +96,10 @@ declare class Property {
     methods: Method[],
     sanitize: boolean,
     normalize: boolean,
-    control: boolean,
+    validate: boolean,
     sanitizer: ((v: any) => any) | null,
     normalizer: ((v: any) => any) | null,
-    controller: ((v: any) => any) | null
+    validator: ((v: any) => any) | null
   );
 }
 
@@ -117,7 +107,5 @@ export type { Type, Method };
 export { 
   Entity,
   Property,
-  Types,
-  Methods,
 };
 

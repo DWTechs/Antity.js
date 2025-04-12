@@ -23,10 +23,10 @@ export class Property {
   methods: Method[];
   sanitize: boolean;
   normalize: boolean;
-  control: boolean;
+  validate: boolean;
   sanitizer: ((v:any) => any) | null;
   normalizer: ((v:any) => any) | null;
-  controller: ((v:any) => any) | null;
+  validator: ((v:any) => any) | null;
   
   constructor(
     key: string,
@@ -39,10 +39,10 @@ export class Property {
     methods: Method[],
     sanitize: boolean,
     normalize: boolean,
-    control: boolean,
+    validate: boolean,
     sanitizer: ((v:any) => any) | null,
     normalizer: ((v:any) => any) | null,
-    controller: ((v:any) => any) | null,
+    validator: ((v:any) => any) | null,
   ) {
 
     if (!isString(key, "!0")) 
@@ -66,10 +66,10 @@ export class Property {
     this.methods = methods || Methods;
     this.sanitize = isBoolean(sanitize) ? sanitize : true;
     this.normalize = isBoolean(normalize) ? normalize : false;
-    this.control = isBoolean(control) ? control : true;
+    this.validate = isBoolean(validate) ? validate : true;
     this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
     this.normalizer = isFunction(normalizer) ? normalizer : null;
-    this.controller = isFunction(controller) ? controller : null;
+    this.validator = isFunction(validator) ? validator : null;
   }
 
   private interval(

@@ -19,10 +19,10 @@ describe('Entity.normalize', () => {
         safe: true,
         sanitize: true,
         normalize: true,
-        control: true,
+        validate: true,
         sanitizer: null,
         normalizer: val => normalizeName(val),
-        controller: null
+        validator: null
       },
       {
         key: 'address',
@@ -35,10 +35,10 @@ describe('Entity.normalize', () => {
         safe: true,
         sanitize: true,
         normalize: true,
-        control: true,
+        validate: true,
         sanitizer: null,
         normalizer: null,
-        controller: null
+        validator: null
       },
       {
         key: 'city',
@@ -51,10 +51,10 @@ describe('Entity.normalize', () => {
         safe: true,
         sanitize: false,
         normalize: true,
-        control: true,
+        validate: true,
         sanitizer: null,
         normalizer: null,
-        controller: null
+        validator: null
       },
       {
         key: 'age',
@@ -67,10 +67,10 @@ describe('Entity.normalize', () => {
         safe: true,
         sanitize: true,
         normalize: false,
-        control: true,
+        validate: true,
         sanitizer: null,
         normalizer: null,
-        controller: null
+        validator: null
       },
       {
         key: 'normalizedAge',
@@ -83,10 +83,10 @@ describe('Entity.normalize', () => {
         safe: true,
         sanitize: true,
         normalize: true,
-        control: true,
+        validate: true,
         sanitizer: null,
         normalizer: val => Math.floor(val),
-        controller: null
+        validator: null
       }
     ]);
 

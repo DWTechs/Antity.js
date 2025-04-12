@@ -32,10 +32,10 @@ export class Entity {
         p.methods,
         p.sanitize,
         p.normalize,
-        p.control,
+        p.validate,
         p.sanitizer,
         p.normalizer,
-        p.controller, 
+        p.validator, 
       )
       this._properties.push(prop);
 
@@ -139,8 +139,8 @@ export class Entity {
         required,
         typeCheck,
         methods,
-        control,
-        controller
+        validate,
+        validator
       } of this.properties) {
         const v = r[key];
         if (isIn(methods, method)) {
@@ -149,8 +149,8 @@ export class Entity {
             if (rq)
               return next(rq);
           }
-          if (v && control) {
-            const ct = this.control(v, key, type, min, max, typeCheck, controller);
+          if (v && validate) {
+            const ct = this.control(v, key, type, min, max, typeCheck, validator);
             if (ct)
               return next(ct);
           }
