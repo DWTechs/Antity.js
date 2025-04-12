@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
 type Method = typeof Methods[number];
 type Type = 
   "boolean" |
@@ -28,17 +29,6 @@ type Type =
   "htmlEventAttribute" |
   "node" |
   "object";
-
-declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
-
-declare const Types: Record<Type, {
-  validate: (
-    v: any, 
-    min: number | Date, 
-    max: number | Date, 
-    typeCheck: boolean
-  ) => boolean;
-}>;
 
 declare class Entity {
   private _name;
@@ -91,7 +81,5 @@ export type { Type, Method };
 export { 
   Entity,
   Property,
-  Types,
-  Methods,
 };
 
