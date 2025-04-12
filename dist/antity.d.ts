@@ -24,7 +24,7 @@ SOFTWARE.
 https://github.com/DWTechs/Antity.js
 */
 
-
+import type { Request, Response, NextFunction } from 'express';
 type Method = typeof Methods[number];
 type Type = 
   "boolean" |
@@ -65,10 +65,6 @@ declare const Types: Record<Type, {
     typeCheck: boolean
   ) => boolean;
 }>;
-
-declare const Required: {
-  validate: (v: any) => boolean;
-};
 
 declare class Entity {
   private _name;
@@ -121,9 +117,7 @@ export type { Type, Method };
 export { 
   Entity,
   Property,
-  Messages,
   Types,
-  Required,
   Methods,
 };
 
