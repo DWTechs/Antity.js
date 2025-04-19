@@ -176,6 +176,14 @@ class Entity {
     getProp(key) {
         return this.properties.find(p => p.key === key);
     }
+    getPropsByMethod(method) {
+        const props = [];
+        for (const p of this.properties) {
+            if (isIn(p.methods, method, 0))
+                props.push(p);
+        }
+        return props;
+    }
     normalize(req, _res, next) {
         var _a;
         const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;

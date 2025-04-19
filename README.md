@@ -190,6 +190,14 @@ class Entity {
    * @returns {Property | undefined} - The property object if found, otherwise `undefined`.
    */
   getProp(key: string): Property | undefined;
+
+  /**
+   * Retrieves a list of properties associated with a specific method.
+   *
+   * @param {Method} method - The method to filter properties by.
+   * @returns {Property[]} An array of properties that are associated with the specified method.
+   */
+  getPropsByMethod(method: Method): Property[];
   
   /**
    * Normalizes an array of records by applying sanitization and normalization

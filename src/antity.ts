@@ -11,7 +11,7 @@ export class Entity {
   private _unsafeProps: string[];
   private _properties: Property[];
 
-  constructor(
+  constructor (
     name: string,
     properties: Property[],
   ) {
@@ -70,6 +70,21 @@ export class Entity {
    */
   public getProp(key: string): Property | undefined {
     return this.properties.find(p => p.key === key);
+  }
+
+  /**
+   * Retrieves a list of properties associated with a specific method.
+   *
+   * @param {Method} method - The method to filter properties by.
+   * @returns {Property[]} An array of properties that are associated with the specified method.
+   */
+  public getPropsByMethod(method: Method): Property[] {
+    const props: Property[] = [];
+    for(const p of this.properties) {
+      if (isIn(p.methods, method, 0))
+        props.push(p);
+    }
+    return props;
   }
   
   /**
