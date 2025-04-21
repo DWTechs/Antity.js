@@ -1,6 +1,6 @@
 # 0.9.0 (Apr 20th 2025)
 
-- add getPropsByMethod to Entity class for filtering properties by method
+- add getPropsByMethod() to Entity class for filtering properties by REST method
 
 # 0.8.0 (Apr 11th 2025)
 
