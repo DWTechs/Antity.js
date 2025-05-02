@@ -1,3 +1,7 @@
+# 0.9.1 (May 1st 2025)
+
+- Fix scope issue when using validate and normalize middlewares
+
 # 0.9.0 (Apr 20th 2025)
 
 - add getPropsByMethod() to Entity class for filtering properties by REST method
