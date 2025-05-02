@@ -147,8 +147,107 @@ class Property {
     }
 }
 
+function sanitize(v, cb) {
+    if (cb)
+        return cb(v);
+    if (isArray(v, null, null)) {
+        for (let d of v) {
+            d = trim(d);
+        }
+        return v;
+    }
+    return trim(v);
+}
+function trim(v) {
+    if (isString(v, "!0"))
+        return v.trim();
+    if (isObject(v, true)) {
+        for (const k in v) {
+            if (Object.prototype.hasOwnProperty.call(v, k)) {
+                let o = v[k];
+                if (isString(o, "!0", null))
+                    o = o.trim();
+            }
+        }
+    }
+    return v;
+}
+
+function control(v, key, type, min, max, typeCheck, cb) {
+    log.debug(`control ${key}: ${type} = ${v}`);
+    let val;
+    if (cb)
+        val = cb(v);
+    else
+        val = Types[type].validate(v, min, max, typeCheck);
+    let c = "";
+    if (!isNil(min))
+        c += ` and >= ${min}`;
+    if (!isNil(max))
+        c += ` and <= ${max}`;
+    return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}${c}` };
+}
+
+function require(v, key, type) {
+    log.debug(`require ${key}: ${type} = ${v}`);
+    return isNil(v) ? { status: 400, msg: `Missing ${key} of type ${type}` } : null;
+}
+
 class Entity {
     constructor(name, properties) {
+        this.normalize = (req, _res, next) => {
+            var _a;
+            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
+            if (!isArray(rows, "!0"))
+                return next({ status: 400, msg: "Normalize: no rows found in request body" });
+            for (const r of rows) {
+                for (const { key, type, sanitize: sanitize$1, normalize, sanitizer, normalizer, } of this._properties) {
+                    let v = r[key];
+                    if (v) {
+                        if (sanitize$1) {
+                            log.debug(`sanitize ${key}: ${type} = ${v}`);
+                            v = sanitize(v, sanitizer);
+                        }
+                        if (normalize && isFunction(normalizer)) {
+                            log.debug(`normalize ${key}: ${type} = ${v}`);
+                            v = normalizer(v);
+                        }
+                        r[key] = v;
+                    }
+                }
+            }
+            next();
+        };
+        this.validate = (req, _res, next) => {
+            var _a;
+            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
+            const method = req.method;
+            if (!isArray(rows, "!0"))
+                return next({ status: 400, msg: "Sanitize: no rows found in request body" });
+            if (!isIn(Methods, method))
+                return next({
+                    status: 400,
+                    msg: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+                });
+            for (const r of rows) {
+                for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of this._properties) {
+                    const v = r[key];
+                    if (isIn(methods, method)) {
+                        if (required) {
+                            const rq = require(v, key, type);
+                            if (rq)
+                                return next(rq);
+                        }
+                        if (v && validate) {
+                            const ct = control(v, key, type, min, max, typeCheck, validator);
+                            if (ct)
+                                return next(ct);
+                        }
+                    }
+                }
+            }
+            next();
+        };
         this._name = name;
         this._properties = [];
         this._unsafeProps = [];
@@ -183,102 +282,6 @@ class Entity {
                 props.push(p);
         }
         return props;
-    }
-    normalize(req, _res, next) {
-        var _a;
-        const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
-        if (!isArray(rows, "!0"))
-            return next({ status: 400, msg: "Normalize: no rows found in request body" });
-        for (const r of rows) {
-            for (const { key, type, sanitize, normalize, sanitizer, normalizer, } of this.properties) {
-                let v = r[key];
-                if (v) {
-                    if (sanitize) {
-                        log.debug(`sanitize ${key}: ${type} = ${v}`);
-                        v = this.sanitize(v, sanitizer);
-                    }
-                    if (normalize && isFunction(normalizer)) {
-                        log.debug(`normalize ${key}: ${type} = ${v}`);
-                        v = normalizer(v);
-                    }
-                    r[key] = v;
-                }
-            }
-        }
-        next();
-    }
-    validate(req, _res, next) {
-        var _a;
-        const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
-        const method = req.method;
-        if (!isArray(rows, "!0"))
-            return next({ status: 400, msg: "Sanitize: no rows found in request body" });
-        if (!isIn(Methods, method))
-            return next({
-                status: 400,
-                msg: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
-            });
-        for (const r of rows) {
-            for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of this.properties) {
-                const v = r[key];
-                if (isIn(methods, method)) {
-                    if (required) {
-                        const rq = this.require(v, key, type);
-                        if (rq)
-                            return next(rq);
-                    }
-                    if (v && validate) {
-                        const ct = this.control(v, key, type, min, max, typeCheck, validator);
-                        if (ct)
-                            return next(ct);
-                    }
-                }
-            }
-        }
-        next();
-    }
-    require(v, key, type) {
-        log.debug(`require ${key}: ${type} = ${v}`);
-        return isNil(v) ? { status: 400, msg: `Missing ${key} of type ${type}` } : null;
-    }
-    control(v, key, type, min, max, typeCheck, cb) {
-        log.debug(`control ${key}: ${type} = ${v}`);
-        let val;
-        if (cb)
-            val = cb(v);
-        else
-            val = Types[type].validate(v, min, max, typeCheck);
-        let c = "";
-        if (!isNil(min))
-            c += ` and >= ${min}`;
-        if (!isNil(max))
-            c += ` and <= ${max}`;
-        return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}${c}` };
-    }
-    sanitize(v, cb) {
-        if (cb)
-            return cb(v);
-        if (isArray(v, null, null)) {
-            for (let d of v) {
-                d = this.trim(d);
-            }
-            return v;
-        }
-        return this.trim(v);
-    }
-    trim(v) {
-        if (isString(v, "!0"))
-            return v.trim();
-        if (isObject(v, true)) {
-            for (const k in v) {
-                if (Object.prototype.hasOwnProperty.call(v, k)) {
-                    let o = v[k];
-                    if (isString(o, "!0", null))
-                        o = o.trim();
-                }
-            }
-        }
-        return v;
     }
 }
 

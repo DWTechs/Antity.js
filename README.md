@@ -216,7 +216,7 @@ class Entity {
 
 ```
 normalize() and validate() methods are made to be used as Express.js middlewares.
-Each method will look for data to work on in the **req.body.rows** parmeter.
+Each method will look for data to work on in the **req.body.rows** parameter.
 
 
 ### Available options for a property
