@@ -203,7 +203,7 @@ class Entity {
    * Normalizes an array of records by applying sanitization and normalization
    * rules defined in the `properties` of the class.
    */
-  normalize(req: Request, _res: Response, next: NextFunction): void;
+  normalize: (req: Request, _res: Response, next: NextFunction) => void;
   
   /**
    * Validates a set of rows against the defined properties and operation/method.
@@ -211,7 +211,7 @@ class Entity {
    * If a property is required and missing, or if it fails the control checks, the function returns an error message.
    * Otherwise, it returns `null` indicating successful validation.
    */
-  validate(req: Request, _res: Response, next: NextFunction): void;
+  validate: (req: Request, _res: Response, next: NextFunction) => void;
 }
 
 ```
