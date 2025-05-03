@@ -41,8 +41,8 @@ declare class Entity {
   set name(name: string);
   getProp(key: string): Property | undefined;
   getPropsByMethod(method: Method): Property[];
-  normalize(req: Request, _res: Response, next: NextFunction): void;
-  validate(req: Request, _res: Response, next: NextFunction): void;
+  normalize: (req: Request, _res: Response, next: NextFunction) => void;
+  validate: (req: Request, _res: Response, next: NextFunction) => void;
 }
 
 declare class Property {
