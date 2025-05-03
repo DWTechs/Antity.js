@@ -1,3 +1,7 @@
+# 0.9.2 (May 2nd 2025)
+
+- Update typescript to version 5.8.3
+
 # 0.9.1 (May 1st 2025)
 
 - Fix scope issue when using validate and normalize middlewares
