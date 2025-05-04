@@ -16,6 +16,7 @@ export type Type =
   "array" |
   "jwt" |
   "symbol" |
+  "password" |
   "email" |
   "regex" |
   "json" |

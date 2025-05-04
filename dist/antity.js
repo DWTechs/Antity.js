@@ -24,11 +24,18 @@ SOFTWARE.
 https://github.com/DWTechs/Antity.js
 */
 
-import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isValidFloat, isEven, isOdd, isPositive, isNegative, isPowerOfTwo, isAscii, isArrayOfLength, isEmail, isRegex, isJson, isJWT, isSymbol, isIpAddress, isSlug, isHexadecimal, isValidDate, isValidTimestamp, isFunction, isHtmlElement, isHtmlEventAttribute, isNode, isObject, isString, isProperty, isArray, isIn, isDate, isNumber, isInteger, isNil } from '@dwtechs/checkard';
+import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isValidFloat, isEven, isOdd, isPositive, isNegative, isPowerOfTwo, isAscii, isArrayOfLength, isValidPassword, isEmail, isRegex, isJson, isJWT, isSymbol, isIpAddress, isSlug, isHexadecimal, isValidDate, isValidTimestamp, isFunction, isHtmlElement, isHtmlEventAttribute, isNode, isObject, isString, isProperty, isArray, isIn, isDate, isNumber, isInteger, isNil } from '@dwtechs/checkard';
 import { log } from '@dwtechs/winstan';
 
 const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
 
+const { PWD_MIN_LENGTH_POLICY, PWD_MAX_LENGTH_POLICY, PWD_NUMBERS_POLICY, PWD_UPPERCASE_POLICY, PWD_LOWERCASE_POLICY, PWD_SYMBOLS_POLICY } = process.env;
+const PWD_MIN_LENGTH = PWD_MIN_LENGTH_POLICY ? +PWD_MIN_LENGTH_POLICY : 9;
+const PWD_MAX_LENGTH = PWD_MAX_LENGTH_POLICY ? +PWD_MAX_LENGTH_POLICY : 20;
+const PWD_NUMBERS = PWD_NUMBERS_POLICY ? true : false;
+const PWD_UPPERCASE = PWD_UPPERCASE_POLICY ? true : false;
+const PWD_LOWERCASE = PWD_LOWERCASE_POLICY ? true : false;
+const PWD_SYMBOLS = PWD_SYMBOLS_POLICY ? true : false;
 const Types = {
     boolean: {
         validate: (v, _min, _max, _typeCheck) => isBoolean(v)
@@ -65,6 +72,19 @@ const Types = {
     },
     array: {
         validate: (v, min, max, _typeCheck) => isArrayOfLength(v, min || undefined, max || undefined)
+    },
+    password: {
+        validate: (v, min, max, _typeCheck) => {
+            const o = {
+                minLength: min || PWD_MIN_LENGTH,
+                maxLength: max || PWD_MAX_LENGTH,
+                lowerCase: PWD_LOWERCASE,
+                upperCase: PWD_UPPERCASE,
+                number: PWD_NUMBERS,
+                specialCharacter: PWD_SYMBOLS,
+            };
+            return isValidPassword(v, o);
+        }
     },
     email: {
         validate: (v, _min, _max, _typeCheck) => isEmail(v)

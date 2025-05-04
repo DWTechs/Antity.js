@@ -16,6 +16,7 @@ type Type =
   "array" |
   "jwt" |
   "symbol" |
+  "password" |
   "email" |
   "regex" |
   "json" |
@@ -48,8 +49,8 @@ declare class Entity {
 declare class Property {
   key: string;
   type: Type;
-  min: number | Date;
-  max: number | Date;
+  min: number | Date | null;
+  max: number | Date | null;
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
@@ -63,8 +64,8 @@ declare class Property {
   constructor(
     key: string,
     type: Type,
-    min: number | Date,
-    max: number | Date,
+    min: number | Date | null,
+    max: number | Date | null,
     required: boolean,
     safe: boolean,
     typeCheck: boolean,

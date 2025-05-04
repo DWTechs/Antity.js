@@ -1,3 +1,7 @@
+# 0.10.0 (May 3rd 2025)
+
+- Add password validation with configurable options
+
 # 0.9.2 (May 2nd 2025)
 
 - Update typescript to version 5.8.3

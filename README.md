@@ -143,6 +143,7 @@ type Type =
   "array" |
   "jwt" |
   "symbol" |
+  "password" |
   "email" |
   "regex" |
   "json" |
@@ -217,6 +218,35 @@ class Entity {
 ```
 normalize() and validate() methods are made to be used as Express.js middlewares.
 Each method will look for data to work on in the **req.body.rows** parameter.
+
+
+### Password validation
+
+Password validation will have the following options by default : 
+
+```javascript
+const PWD_MIN_LENGTH = 9;
+const PWD_MAX_LENGTH = 20;
+const PWD_NUMBERS = true; // password must contain a number
+const PWD_UPPERCASE = true; // password must contain an uppercase letter
+const PWD_LOWERCASE = true; // password must contain a lowercase letter
+const PWD_SYMBOLS = true; //  password must contain at least one of the following symbol character : !@#%*_-+=:?><./()
+```
+
+#### Environment variables
+
+You can update password default validator by setting the following environment variables :
+
+```javascript
+  PWD_MIN_LENGTH_POLICY,
+  PWD_MAX_LENGTH_POLICY,
+  PWD_NUMBERS_POLICY,
+  PWD_UPPERCASE_POLICY,
+  PWD_LOWERCASE_POLICY,
+  PWD_SYMBOLS_POLICY
+```
+
+Properties **min** and **max** of the password properties will override default and environement variable if set.
 
 
 ### Available options for a property
