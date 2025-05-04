@@ -163,8 +163,8 @@ type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
 class Property {
   key: string;
   type: Type;
-  min: number | Date;
-  max: number | Date;
+  min: number | Date | null;
+  max: number | Date | null;
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
