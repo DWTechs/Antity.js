@@ -120,6 +120,8 @@ const entity = new Entity("consumers", [
 
 // add a consumer. Used when loggin in from user service
 router.post("/", entity.normalize, entity.validate, ...);
+// or use check method to both normalize and validate at once
+router.put("/", entity.check, ...);
 
 ```
 
