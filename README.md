@@ -185,34 +185,143 @@ class Entity {
   set name(name: string);
   
   /**
-   * Retrieves a property from the `properties` array that matches the specified key.
+   * Returns a single property object matching the given key.
    *
-   * @param {string} key - The key of the property to retrieve.
-   * @returns {Property | undefined} - The property object if found, otherwise `undefined`.
+   * - Searches the entity's properties for a property with the specified key
+   * - Useful for dynamic validation, normalization, or documentation
+   *
+   * @param {string} key - The property key to look up
+   * @returns {Property | undefined} The Property object if found, otherwise undefined
+   *
+   * **Input Properties Required:**
+   * - `key` (string) - Property key to look up
+   *
+   * **Output Properties:**
+   * - Property object matching the key, or undefined if not found
+   *
+   * @example
+   * ```typescript
+   * const prop = entity.getProp('firstName');
+   * // prop contains the Property object for 'firstName' or undefined
+   * ```
    */
   getProp(key: string): Property | undefined;
 
   /**
-   * Retrieves a list of properties associated with a specific method.
+   * Returns all properties configured for a given REST method.
    *
-   * @param {Method} method - The method to filter properties by.
-   * @returns {Property[]} An array of properties that are associated with the specified method.
+   * - Filters the entity's properties by the specified method (e.g., 'POST', 'GET')
+   * - Useful for dynamic validation, normalization, or documentation
+   *
+   * @param {Method} method - The REST method to filter properties by (e.g., 'POST', 'GET')
+   * @returns {Property[]} Array of Property objects associated with the method
+   *
+   * **Input Properties Required:**
+   * - `method` (string) - REST method to filter by
+   *
+   * **Output Properties:**
+   * - Array of Property objects matching the method
+   *
+   * @example
+   * ```typescript
+   * const postProps = entity.getPropsByMethod('POST');
+   * // postProps contains all properties relevant for POST requests
+   * ```
    */
   getPropsByMethod(method: Method): Property[];
   
   /**
-   * Normalizes an array of records by applying sanitization and normalization
-   * rules defined in the `properties` of the class.
+   * Normalizes each row in req.body.rows according to property config and HTTP method.
+   *
+   * - Applies sanitization if `sanitize: true` and method matches
+   * - Applies normalization if `normalize: true` and method matches
+   * - Mutates req.body.rows with sanitized/normalized values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing rows
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body.rows` (array) - Array of objects to normalize
+   * - Each property config can specify sanitize, normalize, etc.
+   *
+   * **Output Properties:**
+   * - Mutates `req.body.rows` with sanitized/normalized values
+   * - Calls next(error) if any row fails normalization, next() if all pass
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.normalize, (req, res) => {
+   *   // req.body.rows are now sanitized and normalized
+   *   res.json({ success: true });
+   * });
+   * ```
    */
   normalize: (req: Request, _res: Response, next: NextFunction) => void;
   
   /**
-   * Validates a set of rows against the defined properties and operation/method.
+   * Validates each row in req.body.rows according to property config and HTTP method.
    *
-   * If a property is required and missing, or if it fails the control checks, the function returns an error message.
-   * Otherwise, it returns `null` indicating successful validation.
+   * - Checks required properties and validates values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing rows
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body.rows` (array) - Array of objects to validate
+   * - Each property config can specify validate, required, etc.
+   *
+   * **Output Properties:**
+   * - Calls next(error) if any row fails validation, next() if all pass
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.validate, (req, res) => {
+   *   // req.body.rows are now validated
+   *   res.json({ success: true });
+   * });
+   * ```
    */
   validate: (req: Request, _res: Response, next: NextFunction) => void;
+
+  /**
+   * Checks, sanitizes, normalizes, and validates each row in req.body.rows according to property config and HTTP method.
+   *
+   * - Applies sanitization if `sanitize: true` and method matches
+   * - Applies normalization if `normalize: true` and method matches
+   * - Checks required properties and validates values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing rows
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body.rows` (array) - Array of objects to check
+   * - Each property config can specify sanitize, normalize, validate, required, etc.
+   *
+   * **Output Properties:**
+   * - Mutates `req.body.rows` with sanitized/normalized values
+   * - Calls next(error) if any row fails checks, next() if all pass
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.check, (req, res) => {
+   *   // req.body.rows are now sanitized, normalized, and validated
+   *   res.json({ success: true });
+   * });
+   * ```
+   */
+  check: (req: Request, _res: Response, next: NextFunction) => void;
 }
 
 ```

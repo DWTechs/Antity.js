@@ -177,6 +177,36 @@ export class Entity {
     next();
   }
 
+  /**
+   * Checks, sanitizes, normalizes, and validates each row in req.body.rows according to property config and HTTP method.
+   *
+   * - Applies sanitization if `sanitize: true` and method matches
+   * - Applies normalization if `normalize: true` and method matches
+   * - Checks required properties and validates values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing rows
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body.rows` (array) - Array of objects to check
+   * - Each property config can specify sanitize, normalize, validate, required, etc.
+   *
+   * **Output Properties:**
+   * - Mutates `req.body.rows` with sanitized/normalized values
+   * - Calls next(error) if any row fails checks, next() if all pass
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.check, (req, res) => {
+   *   // req.body.rows are now sanitized, normalized, and validated
+   *   res.json({ success: true });
+   * });
+   * ```
+   */
   public check = (req: Request, _res: Response, next: NextFunction): void => {
     
     const rows: Record<string, unknown>[] = req.body?.rows;
