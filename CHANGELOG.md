@@ -1,3 +1,7 @@
+# 0.11.0 (Jul 27th 2025)
+
+- Add `check` middleware to Entity class for validating and normalizing request body rows
+
 # 0.10.0 (May 3rd 2025)
 
 - Add password validation with configurable options
