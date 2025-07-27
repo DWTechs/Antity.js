@@ -205,12 +205,12 @@ function control(v, key, type, min, max, typeCheck, cb) {
         c += ` and >= ${min}`;
     if (!isNil(max))
         c += ` and <= ${max}`;
-    return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}${c}` };
+    return val ? null : { statusCode: 400, message: `Invalid ${key}, must be of type ${type}${c}` };
 }
 
 function require(v, key, type) {
     log.debug(`require ${key}: ${type} = ${v}`);
-    return isNil(v) ? { status: 400, msg: `Missing ${key} of type ${type}` } : null;
+    return isNil(v) ? { statusCode: 400, message: `Missing ${key} of type ${type}` } : null;
 }
 
 class Entity {
@@ -219,7 +219,7 @@ class Entity {
             var _a;
             const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
             if (!isArray(rows, "!0"))
-                return next({ status: 400, msg: "Normalize: no rows found in request body" });
+                return next({ statusCode: 400, message: "Normalize: no rows found in request body" });
             for (const r of rows) {
                 for (const { key, type, sanitize: sanitize$1, normalize, sanitizer, normalizer, } of this._properties) {
                     let v = r[key];
@@ -243,11 +243,11 @@ class Entity {
             const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
             const method = req.method;
             if (!isArray(rows, "!0"))
-                return next({ status: 400, msg: "Sanitize: no rows found in request body" });
+                return next({ statusCode: 400, message: "Validate: no rows found in request body" });
             if (!isIn(Methods, method))
                 return next({
-                    status: 400,
-                    msg: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+                    statusCode: 400,
+                    message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
                 });
             for (const r of rows) {
                 for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of this._properties) {
@@ -262,6 +262,47 @@ class Entity {
                             const ct = control(v, key, type, min, max, typeCheck, validator);
                             if (ct)
                                 return next(ct);
+                        }
+                    }
+                }
+            }
+            next();
+        };
+        this.check = (req, _res, next) => {
+            var _a;
+            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
+            const method = req.method;
+            if (!isArray(rows, "!0"))
+                return next({ statusCode: 400, message: "Check: no rows found in request body" });
+            if (!isIn(Methods, method))
+                return next({
+                    statusCode: 400,
+                    message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+                });
+            for (const r of rows) {
+                for (const { key, type, min, max, required, typeCheck, methods, validate, sanitize: sanitize$1, normalize, sanitizer, normalizer, validator } of this._properties) {
+                    let v = r[key];
+                    if (isIn(methods, method)) {
+                        if (v) {
+                            if (sanitize$1) {
+                                log.debug(`sanitize ${key}: ${type} = ${v}`);
+                                v = sanitize(v, sanitizer);
+                            }
+                            if (normalize && isFunction(normalizer)) {
+                                log.debug(`normalize ${key}: ${type} = ${v}`);
+                                v = normalizer(v);
+                            }
+                            r[key] = v;
+                            if (validate) {
+                                const ct = control(v, key, type, min, max, typeCheck, validator);
+                                if (ct)
+                                    return next(ct);
+                            }
+                        }
+                        if (required) {
+                            const rq = require(v, key, type);
+                            if (rq)
+                                return next(rq);
                         }
                     }
                 }

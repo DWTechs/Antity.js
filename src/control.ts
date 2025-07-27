@@ -25,7 +25,7 @@ function control(
     c += ` and >= ${min}`;
   if (!isNil(max))
     c += ` and <= ${max}`;
-  return val ? null : { status: 400, msg: `Invalid ${key}, must be of type ${type}${c}`};
+  return val ? null : { statusCode: 400, message: `Invalid ${key}, must be of type ${type}${c}`};
 
 }
 

@@ -99,7 +99,7 @@ export class Entity {
     const rows: Record<string, unknown>[] = req.body?.rows;
     
     if (!isArray(rows, "!0"))
-      return next({ status: 400, msg: "Normalize: no rows found in request body" });
+      return next({ statusCode: 400, message: "Normalize: no rows found in request body" });
     
     for (const r of rows) {
       for (const { 
@@ -139,12 +139,12 @@ export class Entity {
     const method: Method = req.method;
   
     if (!isArray(rows, "!0"))
-      return next({ status: 400, msg: "Sanitize: no rows found in request body" });
+      return next({ statusCode: 400, message: "Validate: no rows found in request body" });
 
     if (!isIn(Methods, method))
       return next({ 
-        status: 400, 
-        msg: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+        statusCode: 400, 
+        message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
       });
     
     for (const r of rows) {
@@ -174,6 +174,66 @@ export class Entity {
         }
       }
     }
+    next();
+  }
+
+  public check = (req: Request, _res: Response, next: NextFunction): void => {
+    
+    const rows: Record<string, unknown>[] = req.body?.rows;
+    const method: Method = req.method;
+  
+    if (!isArray(rows, "!0"))
+      return next({ statusCode: 400, message: "Check: no rows found in request body" });
+
+    if (!isIn(Methods, method))
+      return next({ 
+        statusCode: 400, 
+        message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+      });
+
+    for (const r of rows) {
+      for (const { 
+        key, 
+        type,
+        min,
+        max,
+        required,
+        typeCheck,
+        methods,
+        validate,
+        sanitize,
+        normalize,
+        sanitizer,
+        normalizer,
+        validator
+      } of this._properties) {
+        let v = r[key];
+        if (isIn(methods, method)) {
+          if (v) {
+            if (sanitize) {
+              log.debug(`sanitize ${key}: ${type} = ${v}`);
+              v = san(v, sanitizer);
+            }
+            if (normalize && isFunction(normalizer)) {
+              log.debug(`normalize ${key}: ${type} = ${v}`);
+              v = normalizer(v);
+            }
+            r[key] = v;
+            if (validate) {
+              const ct = control(v, key, type, min, max, typeCheck, validator);
+              if (ct)
+                return next(ct);
+            }
+          }
+          if (required) {
+            const rq = require(v, key, type);
+            if (rq)
+              return next(rq);
+          }
+        }
+      }
+    }
+
     next();
   }
 

@@ -94,8 +94,8 @@ describe('Entity.validate', () => {
       req.body = {};
       entity.validate(req, null, next);
       expect(next).toHaveBeenCalledWith({
-          status: 400,
-          msg: 'Sanitize: no rows found in request body'
+          statusCode: 400,
+          message: 'Validate: no rows found in request body'
       });
   });
 
@@ -103,8 +103,8 @@ describe('Entity.validate', () => {
     req.method = 'PTCH';
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
-        status: 400,
-        msg: `Invalid REST method. Received: PTCH. Must be one of: GET,PATCH,PUT,POST,DELETE`
+        statusCode: 400,
+        message: `Invalid REST method. Received: PTCH. Must be one of: GET,PATCH,PUT,POST,DELETE`
     });
   });
 
@@ -112,8 +112,8 @@ describe('Entity.validate', () => {
     req.method = undefined;
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
-        status: 400,
-        msg: `Invalid REST method. Received: undefined. Must be one of: GET,PATCH,PUT,POST,DELETE`
+        statusCode: 400,
+        message: `Invalid REST method. Received: undefined. Must be one of: GET,PATCH,PUT,POST,DELETE`
     });
   });
 
@@ -121,8 +121,8 @@ describe('Entity.validate', () => {
       req.body.rows[0] = { age: 30 };
       entity.validate(req, null, next);
       expect(next).toHaveBeenCalledWith({
-          status: 400,
-          msg: 'Missing name of type string'
+          statusCode: 400,
+          message: 'Missing name of type string'
       });
   });
 
@@ -130,8 +130,8 @@ describe('Entity.validate', () => {
       req.body.rows[0].age = 150; // Exceeds max value
       entity.validate(req, null, next);
       expect(next).toHaveBeenCalledWith({
-          status: 400,
-          msg: 'Invalid age, must be of type integer and >= 0 and <= 120'
+          statusCode: 400,
+          message: 'Invalid age, must be of type integer and >= 0 and <= 120'
       });
   });
 
@@ -139,8 +139,8 @@ describe('Entity.validate', () => {
     req.body.rows[0].age = -1; // Exceeds max value
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
-        status: 400,
-        msg: 'Invalid age, must be of type integer and >= 0 and <= 120'
+        statusCode: 400,
+        message: 'Invalid age, must be of type integer and >= 0 and <= 120'
     });
   });
 
@@ -155,8 +155,8 @@ describe('Entity.validate', () => {
     req.body.rows[0].age = "30"; // invalid age
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
-      msg: "Invalid age, must be of type integer and >= 0 and <= 120", 
-      status: 400
+      statusCode: 400,
+      message: "Invalid age, must be of type integer and >= 0 and <= 120",
     });
   });
 });

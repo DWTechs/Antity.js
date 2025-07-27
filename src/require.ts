@@ -12,7 +12,7 @@ import { Type } from './types';
  */
 function require(v: unknown, key: string, type: Type): Record<string, unknown> | null {
   log.debug(`require ${key}: ${type} = ${v}`);	
-  return isNil(v) ? { status: 400, msg: `Missing ${key} of type ${type}`} : null;
+  return isNil(v) ? { statusCode: 400, message: `Missing ${key} of type ${type}`} : null;
 }
 
 export {
