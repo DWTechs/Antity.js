@@ -1,3 +1,7 @@
+# 0.11.1 (Aug 14th 2025)
+
+- Add logs at the beginning of exported methods
+
 # 0.11.0 (Jul 27th 2025)
 
 - Add `check` middleware to Entity class for validating and normalizing request body rows
