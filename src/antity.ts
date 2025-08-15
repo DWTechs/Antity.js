@@ -98,6 +98,8 @@ export class Entity {
     
     const rows: Record<string, unknown>[] = req.body?.rows;
     
+    log.debug(`normalize ${this.name}`);
+    
     if (!isArray(rows, "!0"))
       return next({ statusCode: 400, message: "Normalize: no rows found in request body" });
     
@@ -137,6 +139,8 @@ export class Entity {
       
     const rows: Record<string, unknown>[] = req.body?.rows;
     const method: Method = req.method;
+
+    log.debug(`validate ${this.name}`);
   
     if (!isArray(rows, "!0"))
       return next({ statusCode: 400, message: "Validate: no rows found in request body" });
@@ -212,6 +216,8 @@ export class Entity {
     const rows: Record<string, unknown>[] = req.body?.rows;
     const method: Method = req.method;
   
+    log.debug(`check ${this.name}`);
+
     if (!isArray(rows, "!0"))
       return next({ statusCode: 400, message: "Check: no rows found in request body" });
 
