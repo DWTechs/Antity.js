@@ -9,7 +9,6 @@
 - [Support](#support)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [ES6](#es6)
 - [API Reference](#api-reference)
 - [Contributors](#contributors)
 - [Stack](#stack)
@@ -43,8 +42,6 @@ $ npm i @dwtechs/antity
 
 ## Usage
 
-
-### ES6 / TypeScript
 
 ```javascript
 
