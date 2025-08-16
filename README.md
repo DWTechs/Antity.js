@@ -17,12 +17,11 @@
 
 **[Antity.js](https://github.com/DWTechs/Antity.js)** is an Open source library for easy entity management.
 
-- Only 1 small dependency to check inputs variables
-- Very lightweight
-- Thoroughly tested
-- Works in Javascript, Typescript
-- Can be used as EcmaScrypt module
-- Written in Typescript
+- 📦 Only 1 small dependency to check inputs variables
+- 🪶 Very lightweight
+- 🧪 Thoroughly tested
+- 🚚 Shipped as EcmaScrypt module
+- 📝 Written in Typescript
 
 
 ## Support
