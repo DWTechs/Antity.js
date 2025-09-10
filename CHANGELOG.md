@@ -1,3 +1,9 @@
+# 0.9.1 (Sep 10th 2025)
+
+- Update dependencyies : 
+  - @dwtechs/checkard to 3.5.1
+  - @dwtechs/sparray to 0.2.1
+
 # 0.9.0 (Apr 20th 2025)
 
 - add getPropsByMethod() to Entity class for filtering properties by REST method
