@@ -16,6 +16,7 @@ type Type =
   "array" |
   "jwt" |
   "symbol" |
+  "password" |
   "email" |
   "regex" |
   "json" |
@@ -41,15 +42,16 @@ declare class Entity {
   set name(name: string);
   getProp(key: string): Property | undefined;
   getPropsByMethod(method: Method): Property[];
-  normalize(req: Request, _res: Response, next: NextFunction): void;
-  validate(req: Request, _res: Response, next: NextFunction): void;
+  normalize: (req: Request, _res: Response, next: NextFunction) => void;
+  validate: (req: Request, _res: Response, next: NextFunction) => void;
+  check: (req: Request, _res: Response, next: NextFunction) => void;
 }
 
 declare class Property {
   key: string;
   type: Type;
-  min: number | Date;
-  max: number | Date;
+  min: number | Date | null;
+  max: number | Date | null;
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
@@ -63,8 +65,8 @@ declare class Property {
   constructor(
     key: string,
     type: Type,
-    min: number | Date,
-    max: number | Date,
+    min: number | Date | null,
+    max: number | Date | null,
     required: boolean,
     safe: boolean,
     typeCheck: boolean,

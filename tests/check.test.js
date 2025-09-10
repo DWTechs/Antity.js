@@ -1,7 +1,7 @@
-import { Entity } from '../dist/antity.js';
+import { Entity } from '../dist/antity';
 import { normalizeName } from '@dwtechs/checkard';
 
-describe('Entity.normalize', () => {
+describe('Entity.check', () => {
   let entity;
   let req;
   let next;
@@ -102,42 +102,98 @@ describe('Entity.normalize', () => {
   });
 
   it('should call next without error if rows are present and valid in the request body', () => {
-    entity.normalize(req, null, next);
+    req.method = 'PATCH';
+    entity.check(req, null, next);
     expect(next).toHaveBeenCalledWith();
   });
 
   it('should call next with an error if rows are not present in the request body', () => {
     req.body = {};
-    entity.normalize(req, null, next);
+    entity.check(req, null, next);
 
     expect(next).toHaveBeenCalledWith({
       statusCode: 400,
-      message: 'Normalize: no rows found in request body'
+      message: 'Check: no rows found in request body'
     });
   });
 
-  it('should normalize and sanitize properties based on the normalizer function', () => {
-    entity.normalize(req, null, next);
+  it('should call next with an error if the method is invalid', () => {
+    req.method = 'PTCH';
+    entity.check(req, null, next);
+    expect(next).toHaveBeenCalledWith({
+        statusCode: 400,
+        message: `Invalid REST method. Received: PTCH. Must be one of: GET,PATCH,PUT,POST,DELETE`
+    });
+  });
+
+  it('should call next with an error if the method is missing', () => {
+    req.method = undefined;
+    entity.check(req, null, next);
+    expect(next).toHaveBeenCalledWith({
+        statusCode: 400,
+        message: `Invalid REST method. Received: undefined. Must be one of: GET,PATCH,PUT,POST,DELETE`
+    });
+  });
+
+  it('should check properties based on the normalizer function', () => {
+    req.method = 'POST';
+    entity.check(req, null, next);
     const r0 = req.body.rows[0];
     const r1 = req.body.rows[1];
     expect(r0.name).toBe('John Doe');
-    expect(r1.name).toBe('Jane Smith');
     expect(r0.address).toBe('45 backer street');
-    expect(r1.address).toBe('23 backer street');
-    expect(r0.normalizedAge).toBe(30);
-    expect(r1.normalizedAge).toBe(25);
+    expect(next).toHaveBeenCalledWith({
+      statusCode: 400,
+      message: "Invalid age, must be of type integer and >= 0 and <= 120"
+    });
+  });
+
+  it('should call next with an error if a property value is greater than max', () => {
+    req.method = 'POST';
+    req.body.rows[0].age = 150; // Exceeds max value
+    entity.check(req, null, next);
+    expect(next).toHaveBeenCalledWith({
+        statusCode: 400,
+        message: 'Invalid age, must be of type integer and >= 0 and <= 120'
+    });
+  });
+
+  it('should call next with an error if a property value is lower than min', () => {
+    req.method = 'POST';
+    req.body.rows[0].age = -1; // Exceeds max value
+    entity.check(req, null, next);
+    expect(next).toHaveBeenCalledWith({
+        statusCode: 400,
+        message: 'Invalid age, must be of type integer and >= 0 and <= 120'
+    });
+  });
+
+  it('should skip validation for properties not applicable to the current method', () => {
+    req.body.rows[0].age = "30"; // invalid age
+    req.method = 'GET';
+    entity.check(req, null, next);
     expect(next).toHaveBeenCalledWith();
   });
 
+  it('should call next with an error if a property value has a wrong type', () => {
+    req.method = 'POST';
+    req.body.rows[0].age = "30"; // invalid age
+    entity.check(req, null, next);
+    expect(next).toHaveBeenCalledWith({
+      statusCode: 400,
+      message: "Invalid age, must be of type integer and >= 0 and <= 120",
+    });
+  });
+
   it('should not sanitize properties when sanitize = false', () => {
-    entity.normalize(req, null, next);
+    entity.check(req, null, next);
     expect(req.body.rows[0].city).toBe(' new York');
     expect(req.body.rows[1].city).toBe('new York ');
     expect(next).toHaveBeenCalled();
   });
 
   it('should skip normalization for properties without a normalizer function', () => {
-    entity.normalize(req, null, next);
+    entity.check(req, null, next);
     expect(req.body.rows[0].age).toBe(30.5);
     expect(req.body.rows[1].age).toBe(25.9);
     expect(next).toHaveBeenCalled();

@@ -1,4 +1,22 @@
 import type { Type } from './types';
+
+const {
+  PWD_MIN_LENGTH_POLICY,
+  PWD_MAX_LENGTH_POLICY,
+  PWD_NUMBERS_POLICY,
+  PWD_UPPERCASE_POLICY,
+  PWD_LOWERCASE_POLICY,
+  PWD_SYMBOLS_POLICY
+} = process.env;
+
+const PWD_MIN_LENGTH = PWD_MIN_LENGTH_POLICY ? +PWD_MIN_LENGTH_POLICY : 9;
+const PWD_MAX_LENGTH = PWD_MAX_LENGTH_POLICY ? +PWD_MAX_LENGTH_POLICY : 20;
+const PWD_NUMBERS = PWD_NUMBERS_POLICY ? true : false;
+const PWD_UPPERCASE = PWD_UPPERCASE_POLICY ? true : false;
+const PWD_LOWERCASE = PWD_LOWERCASE_POLICY ? true : false;
+const PWD_SYMBOLS = PWD_SYMBOLS_POLICY ? true : false;
+
+
 import { 
   isSymbol,
   isBoolean,
@@ -7,6 +25,7 @@ import {
   isValidInteger,
   isValidFloat,
   isValidNumber,
+  isValidPassword,
   isEmail,
   isRegex,
   isJson,
@@ -77,6 +96,19 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   array: {
     validate: (v: any, min: number, max: number, _typeCheck: boolean) => 
       isArrayOfLength(v, min || undefined, max || undefined)
+  },
+  password: {
+    validate: (v: any, min: number, max: number, _typeCheck: boolean) => {
+      const o = { 
+        minLength: min || PWD_MIN_LENGTH,
+        maxLength: max || PWD_MAX_LENGTH,
+        lowerCase: PWD_LOWERCASE,
+        upperCase: PWD_UPPERCASE,
+        number: PWD_NUMBERS,
+        specialCharacter: PWD_SYMBOLS, 
+      };
+      return isValidPassword(v, o);
+    }
   },
   email: {
     validate: (v: any, _min: number, _max: number, _typeCheck: boolean) => 

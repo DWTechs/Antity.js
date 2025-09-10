@@ -3,13 +3,11 @@
 [![npm version](https://badge.fury.io/js/%40dwtechs%2Fantity.svg)](https://www.npmjs.com/package/@dwtechs/antity)
 [![last version release date](https://img.shields.io/github/release-date/DWTechs/Antity.js)](https://www.npmjs.com/package/@dwtechs/antity)
 ![Jest:coverage](https://img.shields.io/badge/Jest:coverage-100%25-brightgreen.svg)
-[![minified size](https://img.shields.io/bundlephobia/min/@dwtechs/antity?color=brightgreen)](https://www.npmjs.com/package/@dwtechs/antity)
 
 - [Synopsis](#synopsis)
 - [Support](#support)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [ES6](#es6)
 - [API Reference](#api-reference)
 - [Contributors](#contributors)
 - [Stack](#stack)
@@ -19,12 +17,10 @@
 
 **[Antity.js](https://github.com/DWTechs/Antity.js)** is an Open source library for easy entity management.
 
-- Only 1 small dependency to check inputs variables
-- Very lightweight
-- Thoroughly tested
-- Works in Javascript, Typescript
-- Can be used as EcmaScrypt module
-- Written in Typescript
+- 🪶 Very lightweight
+- 🧪 Thoroughly tested
+- 🚚 Shipped as EcmaScrypt module
+- 📝 Written in Typescript
 
 
 ## Support
@@ -43,8 +39,6 @@ $ npm i @dwtechs/antity
 
 ## Usage
 
-
-### ES6 / TypeScript
 
 ```javascript
 
@@ -120,6 +114,8 @@ const entity = new Entity("consumers", [
 
 // add a consumer. Used when loggin in from user service
 router.post("/", entity.normalize, entity.validate, ...);
+// or use check method to both normalize and validate at once
+router.put("/", entity.check, ...);
 
 ```
 
@@ -143,6 +139,7 @@ type Type =
   "array" |
   "jwt" |
   "symbol" |
+  "password" |
   "email" |
   "regex" |
   "json" |
@@ -162,8 +159,8 @@ type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
 class Property {
   key: string;
   type: Type;
-  min: number | Date;
-  max: number | Date;
+  min: number | Date | null;
+  max: number | Date | null;
   required: boolean;
   safe: boolean;
   typeCheck: boolean;
@@ -184,39 +181,177 @@ class Entity {
   set name(name: string);
   
   /**
-   * Retrieves a property from the `properties` array that matches the specified key.
+   * Returns a single property object matching the given key.
    *
-   * @param {string} key - The key of the property to retrieve.
-   * @returns {Property | undefined} - The property object if found, otherwise `undefined`.
+   * - Searches the entity's properties for a property with the specified key
+   * - Useful for dynamic validation, normalization, or documentation
+   *
+   * @param {string} key - The property key to look up
+   * @returns {Property | undefined} The Property object if found, otherwise undefined
+   *
+   * **Input Properties Required:**
+   * - `key` (string) - Property key to look up
+   *
+   * **Output Properties:**
+   * - Property object matching the key, or undefined if not found
+   *
+   * @example
+   * ```typescript
+   * const prop = entity.getProp('firstName');
+   * // prop contains the Property object for 'firstName' or undefined
+   * ```
    */
   getProp(key: string): Property | undefined;
 
   /**
-   * Retrieves a list of properties associated with a specific method.
+   * Returns all properties configured for a given REST method.
    *
-   * @param {Method} method - The method to filter properties by.
-   * @returns {Property[]} An array of properties that are associated with the specified method.
+   * - Filters the entity's properties by the specified method (e.g., 'POST', 'GET')
+   * - Useful for dynamic validation, normalization, or documentation
+   *
+   * @param {Method} method - The REST method to filter properties by (e.g., 'POST', 'GET')
+   * @returns {Property[]} Array of Property objects associated with the method
+   *
+   * **Input Properties Required:**
+   * - `method` (string) - REST method to filter by
+   *
+   * **Output Properties:**
+   * - Array of Property objects matching the method
+   *
+   * @example
+   * ```typescript
+   * const postProps = entity.getPropsByMethod('POST');
+   * // postProps contains all properties relevant for POST requests
+   * ```
    */
   getPropsByMethod(method: Method): Property[];
   
   /**
-   * Normalizes an array of records by applying sanitization and normalization
-   * rules defined in the `properties` of the class.
+   * Normalizes each row in req.body.rows according to property config and HTTP method.
+   *
+   * - Applies sanitization if `sanitize: true` and method matches
+   * - Applies normalization if `normalize: true` and method matches
+   * - Mutates req.body.rows with sanitized/normalized values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing rows
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body.rows` (array) - Array of objects to normalize
+   * - Each property config can specify sanitize, normalize, etc.
+   *
+   * **Output Properties:**
+   * - Mutates `req.body.rows` with sanitized/normalized values
+   * - Calls next(error) if any row fails normalization, next() if all pass
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.normalize, (req, res) => {
+   *   // req.body.rows are now sanitized and normalized
+   *   res.json({ success: true });
+   * });
+   * ```
    */
-  normalize(req: Request, _res: Response, next: NextFunction): void;
+  normalize: (req: Request, _res: Response, next: NextFunction) => void;
   
   /**
-   * Validates a set of rows against the defined properties and operation/method.
+   * Validates each row in req.body.rows according to property config and HTTP method.
    *
-   * If a property is required and missing, or if it fails the control checks, the function returns an error message.
-   * Otherwise, it returns `null` indicating successful validation.
+   * - Checks required properties and validates values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing rows
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body.rows` (array) - Array of objects to validate
+   * - Each property config can specify validate, required, etc.
+   *
+   * **Output Properties:**
+   * - Calls next(error) if any row fails validation, next() if all pass
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.validate, (req, res) => {
+   *   // req.body.rows are now validated
+   *   res.json({ success: true });
+   * });
+   * ```
    */
-  validate(req: Request, _res: Response, next: NextFunction): void;
+  validate: (req: Request, _res: Response, next: NextFunction) => void;
+
+  /**
+   * Checks, sanitizes, normalizes, and validates each row in req.body.rows according to property config and HTTP method.
+   *
+   * - Applies sanitization if `sanitize: true` and method matches
+   * - Applies normalization if `normalize: true` and method matches
+   * - Checks required properties and validates values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing rows
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body.rows` (array) - Array of objects to check
+   * - Each property config can specify sanitize, normalize, validate, required, etc.
+   *
+   * **Output Properties:**
+   * - Mutates `req.body.rows` with sanitized/normalized values
+   * - Calls next(error) if any row fails checks, next() if all pass
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.check, (req, res) => {
+   *   // req.body.rows are now sanitized, normalized, and validated
+   *   res.json({ success: true });
+   * });
+   * ```
+   */
+  check: (req: Request, _res: Response, next: NextFunction) => void;
 }
 
 ```
 normalize() and validate() methods are made to be used as Express.js middlewares.
-Each method will look for data to work on in the **req.body.rows** parmeter.
+Each method will look for data to work on in the **req.body.rows** parameter.
+
+
+### Password validation
+
+Password validation will have the following options by default : 
+
+```javascript
+const PWD_MIN_LENGTH = 9;
+const PWD_MAX_LENGTH = 20;
+const PWD_NUMBERS = true; // password must contain a number
+const PWD_UPPERCASE = true; // password must contain an uppercase letter
+const PWD_LOWERCASE = true; // password must contain a lowercase letter
+const PWD_SYMBOLS = true; //  password must contain at least one of the following symbol character : !@#%*_-+=:?><./()
+```
+
+#### Environment variables
+
+You can update password default validator by setting the following environment variables :
+
+```javascript
+  PWD_MIN_LENGTH_POLICY,
+  PWD_MAX_LENGTH_POLICY,
+  PWD_NUMBERS_POLICY,
+  PWD_UPPERCASE_POLICY,
+  PWD_LOWERCASE_POLICY,
+  PWD_SYMBOLS_POLICY
+```
+
+Properties **min** and **max** of the password properties will override default and environement variable if set.
 
 
 ### Available options for a property

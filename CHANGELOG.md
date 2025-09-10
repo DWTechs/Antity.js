@@ -1,8 +1,28 @@
-# 0.9.1 (Sep 10th 2025)
+# 0.11.2 (Sep 10th 2025)
 
 - Update dependencyies : 
   - @dwtechs/checkard to 3.5.1
   - @dwtechs/sparray to 0.2.1
+
+# 0.11.1 (Aug 14th 2025)
+
+- Add logs at the beginning of exported methods
+
+# 0.11.0 (Jul 27th 2025)
+
+- Add `check` middleware to Entity class for validating and normalizing request body rows
+
+# 0.10.0 (May 3rd 2025)
+
+- Add password validation with configurable options
+
+# 0.9.2 (May 2nd 2025)
+
+- Update typescript to version 5.8.3
+
+# 0.9.1 (May 1st 2025)
+
+- Fix scope issue when using validate and normalize middlewares
 
 # 0.9.0 (Apr 20th 2025)
 

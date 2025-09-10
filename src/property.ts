@@ -31,8 +31,8 @@ export class Property {
   constructor(
     key: string,
     type: Type,
-    min: number | Date,
-    max: number | Date,
+    min: number | Date | null,
+    max: number | Date | null,
     required: boolean,
     safe: boolean,
     typeCheck: boolean,
@@ -73,7 +73,7 @@ export class Property {
   }
 
   private interval(
-    val: number | Date, 
+    val: number | Date | null, 
     type: Type,
     integerDefault: number,
     dateDefault: string
