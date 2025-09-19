@@ -1,7 +1,8 @@
-import { isNil } from '@dwtechs/checkard';
+
 import { log } from "@dwtechs/winstan";
 import { Type } from './types';
 import { Types } from './check';
+import { LOGS_PREFIX } from './constants';
 
 function control(
   v: unknown,
@@ -15,17 +16,25 @@ function control(
   
   log.debug(`control ${key}: ${type} = ${v}`);
   
-  let val: boolean;
-  if (cb) // the property is controlled by a callback function
-    val = cb(v);
+  let errorMessage: string = "";
+  
+  if (cb) // the property is controlled by a custom callback function
+    try {
+      cb(v);
+    } catch (err) { 
+      errorMessage = `Custom validator callback failed for "${key}" - caused by: ${(err as Error).message}`;
+    }
   else // the property is controlled by the default controller of the type
-    val = Types[type].validate(v, min, max, typeCheck)
-  let c = "";
-  if (!isNil(min))
-    c += ` and >= ${min}`;
-  if (!isNil(max))
-    c += ` and <= ${max}`;
-  return val ? null : { statusCode: 400, message: `Invalid ${key}, must be of type ${type}${c}`};
+    try {
+      Types[type].validate(v, min, max, typeCheck);
+    } catch (err) {
+      errorMessage = `Invalid "${key}" - caused by: ${(err as Error).message}`;
+    }
+
+  if (!errorMessage)
+    return { statusCode: 400, message: `${LOGS_PREFIX}${errorMessage}` };
+    
+  return null;
 
 }
 

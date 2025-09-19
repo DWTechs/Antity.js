@@ -1,5 +1,5 @@
 
-import type { Methods } from "./methods";
+import type { METHODS } from "./constants";
 
 export type Type =  
   "boolean" | 
@@ -32,4 +32,4 @@ export type Type =
   "object";
   // "geometry";
 
-export type Method = typeof Methods[number];
+export type Method = typeof METHODS[number];

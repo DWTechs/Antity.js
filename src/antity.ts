@@ -7,6 +7,7 @@ import { control } from './control';
 import { require } from './require';
 import type {  Method } from './types';
 import type { Request, Response, NextFunction } from 'express';
+import { LOGS_PREFIX } from './constants';
 
 export class Entity {
   private _name: string;
@@ -60,7 +61,7 @@ export class Entity {
 
   public set name(name: string) {
     if (!isString(name, "!0"))
-      throw new Error('name must be a string of length > 0');
+      throw new Error(`${LOGS_PREFIX}name must be a string of length > 0`);
     this._name = name;
   }
 
@@ -101,7 +102,7 @@ export class Entity {
     log.debug(`normalize ${this.name}`);
     
     if (!isArray(rows, "!0"))
-      return next({ statusCode: 400, message: "Normalize: no rows found in request body" });
+      return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
     
     for (const r of rows) {
       for (const { 
@@ -143,12 +144,12 @@ export class Entity {
     log.debug(`validate ${this.name}`);
   
     if (!isArray(rows, "!0"))
-      return next({ statusCode: 400, message: "Validate: no rows found in request body" });
+      return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
 
     if (!isIn(Methods, method))
       return next({ 
         statusCode: 400, 
-        message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+        message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
       });
     
     for (const r of rows) {
@@ -218,14 +219,23 @@ export class Entity {
   
     log.debug(`check ${this.name}`);
 
-    if (!isArray(rows, "!0"))
-      return next({ statusCode: 400, message: "Check: no rows found in request body" });
-
-    if (!isIn(Methods, method))
+    try {
+      isArray(rows, "!0", null, true);
+    } catch (err) {
       return next({ 
         statusCode: 400, 
-        message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+        message: `${LOGS_PREFIX}no rows found in request body - caused by: ${(err as Error).message}`
       });
+    }
+
+    try {
+      isIn(Methods, method, 0, true);
+    } catch (err) {
+      return next({ 
+        statusCode: 400, 
+        message: `${LOGS_PREFIX}Invalid REST method. Must be one of: ${Methods.toString()} - caused by: ${(err as Error).message}`
+      });
+    }
 
     for (const r of rows) {
       for (const { 

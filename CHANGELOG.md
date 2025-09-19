@@ -1,3 +1,7 @@
+# 0.12.0 (Sep 20th 2025)
+
+- Improve error messages
+
 # 0.11.2 (Sep 10th 2025)
 
 - Update dependencyies : 

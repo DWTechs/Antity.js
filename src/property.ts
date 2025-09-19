@@ -8,9 +8,9 @@ import {
   isInteger,
   isBoolean,
   isFunction } from '@dwtechs/checkard';
-import { Methods } from './methods';
 import { Types } from './check';
 import type { Type, Method } from './types';
+import { LOGS_PREFIX, METHODS } from './constants';
 
 export class Property {
   key: string;
@@ -45,14 +45,25 @@ export class Property {
     validator: ((v:any) => any) | null,
   ) {
 
-    if (!isString(key, "!0")) 
-      throw new Error(`Property "key" must be a string. Received ${key}`);
-    if (!isProperty(Types, type))
-      throw new Error(`Property "type" must be a valid type. Received ${type}`);
+    try {
+      isString(key, "!0", null, true);
+    } catch (err) {
+      throw new Error(`${LOGS_PREFIX}Property "key" must be a string - caused by: ${(err as Error).message}`);
+    }
+    
+    try {
+      isProperty(Types, type, true, true, true);
+    } catch (err) {
+      throw new Error(`${LOGS_PREFIX}Property "type" must be a valid type - caused by: ${(err as Error).message}`);
+    }
+    
     if (isArray(methods)){
       for (const m of methods) {
-        if (!isIn(Methods as unknown as unknown[], m))
-          throw new Error(`Property "methods" must be an array of REST methods. Received ${m}`);
+        try {
+          isIn(METHODS as unknown as unknown[], m, 0, true);
+        } catch (err) {
+          throw new Error(`${LOGS_PREFIX}Property "methods" must be an array of REST methods - caused by: ${(err as Error).message}`);
+        }
       }
     }
 
@@ -63,7 +74,7 @@ export class Property {
     this.required = isBoolean(required) ? required : false;
     this.safe = isBoolean(safe) ? safe : true;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-    this.methods = methods || Methods;
+    this.methods = methods || METHODS;
     this.sanitize = isBoolean(sanitize) ? sanitize : true;
     this.normalize = isBoolean(normalize) ? normalize : false;
     this.validate = isBoolean(validate) ? validate : true;
