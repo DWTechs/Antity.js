@@ -31,7 +31,7 @@ function control(
       errorMessage = `Invalid "${key}" - caused by: ${(err as Error).message}`;
     }
 
-  if (!errorMessage)
+  if (errorMessage)
     return { statusCode: 400, message: `${LOGS_PREFIX}${errorMessage}` };
     
   return null;

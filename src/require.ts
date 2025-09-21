@@ -1,6 +1,7 @@
 import { isNil } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Type } from './types';
+import { LOGS_PREFIX } from './constants';
   
 /**
  * Validates that a given value is not null or undefined and logs the validation process.
@@ -12,7 +13,7 @@ import { Type } from './types';
  */
 function require(v: unknown, key: string, type: Type): Record<string, unknown> | null {
   log.debug(`require ${key}: ${type} = ${v}`);	
-  return isNil(v) ? { statusCode: 400, message: `Missing ${key} of type ${type}`} : null;
+  return isNil(v) ? { statusCode: 400, message: `${LOGS_PREFIX}Missing ${key} of type ${type}`} : null;
 }
 
 export {

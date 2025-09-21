@@ -1,13 +1,12 @@
 import { isArray, isString, isIn, isFunction } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Property } from './property';
-import { Methods } from './methods';
 import { sanitize as san } from './sanitize';
 import { control } from './control';
 import { require } from './require';
 import type {  Method } from './types';
 import type { Request, Response, NextFunction } from 'express';
-import { LOGS_PREFIX } from './constants';
+import { LOGS_PREFIX, METHODS } from './constants';
 
 export class Entity {
   private _name: string;
@@ -146,10 +145,10 @@ export class Entity {
     if (!isArray(rows, "!0"))
       return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
 
-    if (!isIn(Methods, method))
+    if (!isIn(METHODS, method))
       return next({ 
         statusCode: 400, 
-        message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+        message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
       });
     
     for (const r of rows) {
@@ -229,11 +228,11 @@ export class Entity {
     }
 
     try {
-      isIn(Methods, method, 0, true);
+      isIn(METHODS, method, 0, true);
     } catch (err) {
       return next({ 
         statusCode: 400, 
-        message: `${LOGS_PREFIX}Invalid REST method. Must be one of: ${Methods.toString()} - caused by: ${(err as Error).message}`
+        message: `${LOGS_PREFIX}Invalid REST method. Must be one of: ${METHODS.toString()} - caused by: ${(err as Error).message}`
       });
     }
 

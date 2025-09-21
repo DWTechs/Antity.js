@@ -112,7 +112,7 @@ describe('Entity.normalize', () => {
 
     expect(next).toHaveBeenCalledWith({
       statusCode: 400,
-      message: 'Normalize: no rows found in request body'
+      message: 'Antity: Normalize: no rows found in request body'
     });
   });
 

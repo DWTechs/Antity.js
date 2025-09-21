@@ -95,7 +95,7 @@ describe('Entity.validate', () => {
       entity.validate(req, null, next);
       expect(next).toHaveBeenCalledWith({
           statusCode: 400,
-          message: 'Validate: no rows found in request body'
+          message: 'Antity: Validate: no rows found in request body'
       });
   });
 
@@ -104,7 +104,7 @@ describe('Entity.validate', () => {
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
         statusCode: 400,
-        message: `Invalid REST method. Received: PTCH. Must be one of: GET,PATCH,PUT,POST,DELETE`
+        message: `Antity: Invalid REST method. Received: PTCH. Must be one of: GET,PATCH,PUT,POST,DELETE`
     });
   });
 
@@ -113,7 +113,7 @@ describe('Entity.validate', () => {
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
         statusCode: 400,
-        message: `Invalid REST method. Received: undefined. Must be one of: GET,PATCH,PUT,POST,DELETE`
+        message: `Antity: Invalid REST method. Received: undefined. Must be one of: GET,PATCH,PUT,POST,DELETE`
     });
   });
 
@@ -122,7 +122,7 @@ describe('Entity.validate', () => {
       entity.validate(req, null, next);
       expect(next).toHaveBeenCalledWith({
           statusCode: 400,
-          message: 'Missing name of type string'
+          message: 'Antity: Missing name of type string'
       });
   });
 
@@ -131,7 +131,7 @@ describe('Entity.validate', () => {
       entity.validate(req, null, next);
       expect(next).toHaveBeenCalledWith({
           statusCode: 400,
-          message: 'Invalid age, must be of type integer and >= 0 and <= 120'
+          message: 'Antity: Invalid \"age\" - caused by: Checkard: Expected valid integer in range [0, 120], but received number: 150'
       });
   });
 
@@ -140,7 +140,7 @@ describe('Entity.validate', () => {
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
         statusCode: 400,
-        message: 'Invalid age, must be of type integer and >= 0 and <= 120'
+        message: 'Antity: Invalid \"age\" - caused by: Checkard: Expected valid integer in range [0, 120], but received number: -1'
     });
   });
 
@@ -156,7 +156,7 @@ describe('Entity.validate', () => {
     entity.validate(req, null, next);
     expect(next).toHaveBeenCalledWith({
       statusCode: 400,
-      message: "Invalid age, must be of type integer and >= 0 and <= 120",
+      message: "Antity: Invalid \"age\" - caused by: Checkard: Expected integer, but received string: 30",
     });
   });
 });

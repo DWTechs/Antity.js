@@ -27,8 +27,8 @@ https://github.com/DWTechs/Antity.js
 import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isValidFloat, isEven, isOdd, isPositive, isNegative, isPowerOfTwo, isAscii, isArrayOfLength, isValidPassword, isEmail, isRegex, isJson, isJWT, isSymbol, isIpAddress, isSlug, isHexadecimal, isValidDate, isValidTimestamp, isFunction, isHtmlElement, isHtmlEventAttribute, isNode, isObject, isString, isProperty, isArray, isIn, isDate, isNumber, isInteger, isNil } from '@dwtechs/checkard';
 import { log } from '@dwtechs/winstan';
 
-const Methods = ["GET", "PATCH", "PUT", "POST", "DELETE"];
-
+const LOGS_PREFIX = "Antity: ";
+const METHODS = ["GET", "PATCH", "PUT", "POST", "DELETE"];
 const { PWD_MIN_LENGTH_POLICY, PWD_MAX_LENGTH_POLICY, PWD_NUMBERS_POLICY, PWD_UPPERCASE_POLICY, PWD_LOWERCASE_POLICY, PWD_SYMBOLS_POLICY } = process.env;
 const PWD_MIN_LENGTH = PWD_MIN_LENGTH_POLICY ? +PWD_MIN_LENGTH_POLICY : 9;
 const PWD_MAX_LENGTH = PWD_MAX_LENGTH_POLICY ? +PWD_MAX_LENGTH_POLICY : 20;
@@ -36,42 +36,43 @@ const PWD_NUMBERS = PWD_NUMBERS_POLICY ? true : false;
 const PWD_UPPERCASE = PWD_UPPERCASE_POLICY ? true : false;
 const PWD_LOWERCASE = PWD_LOWERCASE_POLICY ? true : false;
 const PWD_SYMBOLS = PWD_SYMBOLS_POLICY ? true : false;
+
 const Types = {
     boolean: {
-        validate: (v, _min, _max, _typeCheck) => isBoolean(v)
+        validate: (v, _min, _max, _typeCheck) => isBoolean(v, true)
     },
     string: {
-        validate: (v, min, max, _typeCheck) => isStringOfLength(v, min, max)
+        validate: (v, min, max, _typeCheck) => isStringOfLength(v, min, max, true)
     },
     number: {
-        validate: (v, min, max, typeCheck) => isValidNumber(v, min || undefined, max || undefined, typeCheck || undefined)
+        validate: (v, min, max, typeCheck) => isValidNumber(v, min || undefined, max || undefined, typeCheck || undefined, true)
     },
     integer: {
-        validate: (v, min, max, typeCheck) => isValidInteger(v, min !== null && min !== void 0 ? min : undefined, max !== null && max !== void 0 ? max : undefined, typeCheck || undefined)
+        validate: (v, min, max, typeCheck) => isValidInteger(v, min !== null && min !== void 0 ? min : undefined, max !== null && max !== void 0 ? max : undefined, typeCheck || undefined, true)
     },
     float: {
-        validate: (v, min, max, typeCheck) => isValidFloat(v, min || undefined, max || undefined, typeCheck || undefined)
+        validate: (v, min, max, typeCheck) => isValidFloat(v, min || undefined, max || undefined, typeCheck || undefined, true)
     },
     even: {
-        validate: (v, _min, _max, typeCheck) => isEven(v, typeCheck || undefined)
+        validate: (v, _min, _max, typeCheck) => isEven(v, typeCheck || undefined, true)
     },
     odd: {
-        validate: (v, _min, _max, typeCheck) => isOdd(v, typeCheck || undefined)
+        validate: (v, _min, _max, typeCheck) => isOdd(v, typeCheck || undefined, true)
     },
     positive: {
-        validate: (v, _min, _max, typeCheck) => isPositive(v, typeCheck || undefined)
+        validate: (v, _min, _max, typeCheck) => isPositive(v, typeCheck || undefined, true)
     },
     negative: {
-        validate: (v, _min, _max, typeCheck) => isNegative(v, typeCheck || undefined)
+        validate: (v, _min, _max, typeCheck) => isNegative(v, typeCheck || undefined, true)
     },
     powerOfTwo: {
-        validate: (v, _min, _max, typeCheck) => isPowerOfTwo(v, typeCheck || undefined)
+        validate: (v, _min, _max, typeCheck) => isPowerOfTwo(v, typeCheck || undefined, true)
     },
     ascii: {
-        validate: (v, _min, _max, typeCheck) => isAscii(v, typeCheck || undefined)
+        validate: (v, _min, _max, typeCheck) => isAscii(v, typeCheck || undefined, true)
     },
     array: {
-        validate: (v, min, max, _typeCheck) => isArrayOfLength(v, min || undefined, max || undefined)
+        validate: (v, min, max, _typeCheck) => isArrayOfLength(v, min || undefined, max || undefined, true)
     },
     password: {
         validate: (v, min, max, _typeCheck) => {
@@ -83,66 +84,78 @@ const Types = {
                 number: PWD_NUMBERS,
                 specialCharacter: PWD_SYMBOLS,
             };
-            return isValidPassword(v, o);
+            return isValidPassword(v, o, true);
         }
     },
     email: {
-        validate: (v, _min, _max, _typeCheck) => isEmail(v)
+        validate: (v, _min, _max, _typeCheck) => isEmail(v, true)
     },
     regex: {
-        validate: (v, _min, _max, typeCheck) => isRegex(v, typeCheck || undefined)
+        validate: (v, _min, _max, typeCheck) => isRegex(v, typeCheck || undefined, true)
     },
     json: {
-        validate: (v, _min, _max, _typeCheck) => isJson(v)
+        validate: (v, _min, _max, _typeCheck) => isJson(v, true)
     },
     jwt: {
-        validate: (v, _min, _max, _typeCheck) => isJWT(v)
+        validate: (v, _min, _max, _typeCheck) => isJWT(v, true)
     },
     symbol: {
-        validate: (v, _min, _max, _typeCheck) => isSymbol(v)
+        validate: (v, _min, _max, _typeCheck) => isSymbol(v, true)
     },
     ipAddress: {
-        validate: (v, _min, _max, _typeCheck) => isIpAddress(v)
+        validate: (v, _min, _max, _typeCheck) => isIpAddress(v, true)
     },
     slug: {
-        validate: (v, _min, _max, _typeCheck) => isSlug(v)
+        validate: (v, _min, _max, _typeCheck) => isSlug(v, true)
     },
     hexadecimal: {
-        validate: (v, _min, _max, _typeCheck) => isHexadecimal(v)
+        validate: (v, _min, _max, _typeCheck) => isHexadecimal(v, true)
     },
     date: {
-        validate: (v, min, max, _typeCheck) => isValidDate(v, min || undefined, max || undefined)
+        validate: (v, min, max, _typeCheck) => isValidDate(v, min || undefined, max || undefined, true)
     },
     timestamp: {
-        validate: (v, min, max, typeCheck) => isValidTimestamp(v, min || undefined, max || undefined, typeCheck || undefined)
+        validate: (v, min, max, typeCheck) => isValidTimestamp(v, min || undefined, max || undefined, typeCheck || undefined, true)
     },
     function: {
-        validate: (v, _min, _max, _typeCheck) => isFunction(v)
+        validate: (v, _min, _max, _typeCheck) => isFunction(v, true)
     },
     htmlElement: {
-        validate: (v, _min, _max, _typeCheck) => isHtmlElement(v)
+        validate: (v, _min, _max, _typeCheck) => isHtmlElement(v, true)
     },
     htmlEventAttribute: {
-        validate: (v, _min, _max, _typeCheck) => isHtmlEventAttribute(v)
+        validate: (v, _min, _max, _typeCheck) => isHtmlEventAttribute(v, true)
     },
     node: {
-        validate: (v, _min, _max, _typeCheck) => isNode(v)
+        validate: (v, _min, _max, _typeCheck) => isNode(v, true)
     },
     object: {
-        validate: (v, _min, _max, _typeCheck) => isObject(v)
+        validate: (v, _min, _max, _typeCheck) => isObject(v, true)
     }
 };
 
 class Property {
     constructor(key, type, min, max, required, safe, typeCheck, methods, sanitize, normalize, validate, sanitizer, normalizer, validator) {
-        if (!isString(key, "!0"))
-            throw new Error(`Property "key" must be a string. Received ${key}`);
-        if (!isProperty(Types, type))
-            throw new Error(`Property "type" must be a valid type. Received ${type}`);
+        try {
+            isString(key, "!0", null, true);
+        }
+        catch (err) {
+            throw new Error(`${LOGS_PREFIX}Property "key" must be a string - caused by: ${err.message}`);
+        }
+        try {
+            isProperty(Types, type, true, true, true);
+        }
+        catch (err) {
+            throw new Error(`${LOGS_PREFIX}Property "type" must be a valid type - caused by: ${err.message}`);
+        }
         if (isArray(methods)) {
             for (const m of methods) {
-                if (!isIn(Methods, m))
-                    throw new Error(`Property "methods" must be an array of REST methods. Received ${m}`);
+                try {
+                    isIn(METHODS, m, 0, true);
+                }
+                catch (err) {
+                    throw new Error(`${LOGS_PREFIX}Property "methods" must be an array of REST methods - caused by: ${err.message}`);
+                }
             }
         }
         this.key = key;
@@ -152,7 +165,7 @@ class Property {
         this.required = isBoolean(required) ? required : false;
         this.safe = isBoolean(safe) ? safe : true;
         this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-        this.methods = methods || Methods;
+        this.methods = methods || METHODS;
         this.sanitize = isBoolean(sanitize) ? sanitize : true;
         this.normalize = isBoolean(normalize) ? normalize : false;
         this.validate = isBoolean(validate) ? validate : true;
@@ -195,22 +208,29 @@ function trim(v) {
 
 function control(v, key, type, min, max, typeCheck, cb) {
     log.debug(`control ${key}: ${type} = ${v}`);
-    let val;
+    let errorMessage = "";
     if (cb)
-        val = cb(v);
+        try {
+            cb(v);
+        }
+        catch (err) {
+            errorMessage = `Custom validator callback failed for "${key}" - caused by: ${err.message}`;
+        }
     else
-        val = Types[type].validate(v, min, max, typeCheck);
-    let c = "";
-    if (!isNil(min))
-        c += ` and >= ${min}`;
-    if (!isNil(max))
-        c += ` and <= ${max}`;
-    return val ? null : { statusCode: 400, message: `Invalid ${key}, must be of type ${type}${c}` };
+        try {
+            Types[type].validate(v, min, max, typeCheck);
+        }
+        catch (err) {
+            errorMessage = `Invalid "${key}" - caused by: ${err.message}`;
+        }
+    if (errorMessage)
+        return { statusCode: 400, message: `${LOGS_PREFIX}${errorMessage}` };
+    return null;
 }
 
 function require(v, key, type) {
     log.debug(`require ${key}: ${type} = ${v}`);
-    return isNil(v) ? { statusCode: 400, message: `Missing ${key} of type ${type}` } : null;
+    return isNil(v) ? { statusCode: 400, message: `${LOGS_PREFIX}Missing ${key} of type ${type}` } : null;
 }
 
 class Entity {
@@ -220,7 +240,7 @@ class Entity {
             const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
             log.debug(`normalize ${this.name}`);
             if (!isArray(rows, "!0"))
-                return next({ statusCode: 400, message: "Normalize: no rows found in request body" });
+                return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
             for (const r of rows) {
                 for (const { key, type, sanitize: sanitize$1, normalize, sanitizer, normalizer, } of this._properties) {
                     let v = r[key];
@@ -245,11 +265,11 @@ class Entity {
             const method = req.method;
             log.debug(`validate ${this.name}`);
             if (!isArray(rows, "!0"))
-                return next({ statusCode: 400, message: "Validate: no rows found in request body" });
-            if (!isIn(Methods, method))
+                return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
+            if (!isIn(METHODS, method))
                 return next({
                     statusCode: 400,
-                    message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+                    message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
                 });
             for (const r of rows) {
                 for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of this._properties) {
@@ -275,13 +295,24 @@ class Entity {
             const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
             const method = req.method;
             log.debug(`check ${this.name}`);
-            if (!isArray(rows, "!0"))
-                return next({ statusCode: 400, message: "Check: no rows found in request body" });
-            if (!isIn(Methods, method))
+            try {
+                isArray(rows, "!0", null, true);
+            }
+            catch (err) {
                 return next({
                     statusCode: 400,
-                    message: `Invalid REST method. Received: ${method}. Must be one of: ${Methods.toString()}`
+                    message: `${LOGS_PREFIX}no rows found in request body - caused by: ${err.message}`
                 });
+            }
+            try {
+                isIn(METHODS, method, 0, true);
+            }
+            catch (err) {
+                return next({
+                    statusCode: 400,
+                    message: `${LOGS_PREFIX}Invalid REST method. Must be one of: ${METHODS.toString()} - caused by: ${err.message}`
+                });
+            }
             for (const r of rows) {
                 for (const { key, type, min, max, required, typeCheck, methods, validate, sanitize: sanitize$1, normalize, sanitizer, normalizer, validator } of this._properties) {
                     let v = r[key];
@@ -333,7 +364,7 @@ class Entity {
     }
     set name(name) {
         if (!isString(name, "!0"))
-            throw new Error('name must be a string of length > 0');
+            throw new Error(`${LOGS_PREFIX}name must be a string of length > 0`);
         this._name = name;
     }
     getProp(key) {
