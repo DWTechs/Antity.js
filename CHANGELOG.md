@@ -1,9 +1,6 @@
 # 0.12.0 (Sep 20th 2025)
 
 - Improve error messages
-
-# 0.11.2 (Sep 10th 2025)
-
 - Update dependencyies : 
   - @dwtechs/checkard to 3.5.1
   - @dwtechs/sparray to 0.2.1
