@@ -367,7 +367,7 @@ Any of these can be passed into the options object for each function.
 | required        |  boolean                  | Is this property required on insert               | false
 | safe            |  boolean                  | Is this property safe to send to the client       | true
 | typeCheck       |  boolean                  | Type is checked if true                           | false
-| methods         |  Method[]                 | SQL DML operations concerned by the property      | [ "select", "insert", "update", "merge", "delete" ]
+| methods         |  Method[]                 | REST methods for the property                     | [ "GET", "POST", "PUT", "DELETE" ]
 | sanitize        |  boolean                  | Sanitize the property if true                     | true
 | normalize       |  boolean                  | Normalize the property if true                    | false
 | validate        |  boolean                  | validate the property if true                     | true
