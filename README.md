@@ -364,15 +364,15 @@ Any of these can be passed into the options object for each function.
 | type            |  Type                     | Type of the property                              |
 | min             |  number \| Date           | Minimum value                                     | 0 \| 1900-01-01
 | max             |  number \| Date           | Maximum value                                     | 999999999 \| 2200-12-31
-| required        |  boolean                  | Is this property required on insert               | false
-| safe            |  boolean                  | Is this property safe to send to the client       | true
-| typeCheck       |  boolean                  | Type is checked if true                           | false
-| methods         |  Method[]                 | REST methods for the property                     | [ "GET", "POST", "PUT", "DELETE" ]
+| required        |  boolean                  | Property is required during validation            | false
+| safe            |  boolean                  | Property is sent in the response                  | true
+| typeCheck       |  boolean                  | Type is checked during validation                 | false
+| methods         |  Method[]                 | property is validated for the listed methods only | [ "GET", "POST", "PUT", "DELETE" ]
 | sanitize        |  boolean                  | Sanitize the property if true                     | true
 | normalize       |  boolean                  | Normalize the property if true                    | false
 | validate        |  boolean                  | validate the property if true                     | true
-| sanitizer       |  ((v:any) => any) \| null | Sanitizer function if sanitize is true            | null
-| normalizer      |  ((v:any) => any) \| null | Normalizer function if normalize is true          | null
+| sanitizer       |  ((v:any) => any) \| null | Custom sanitizer function if sanitize is true     | null
+| normalizer      |  ((v:any) => any) \| null | Custop Normalizer function if normalize is true   | null
 | validator       |  ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null  | validator function if validate is true            | null
 
 * *Min and max parameters are not used for boolean type*
