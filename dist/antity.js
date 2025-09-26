@@ -348,6 +348,7 @@ class Entity {
         this._unsafeProps = [];
         for (const p of properties) {
             const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.methods, p.sanitize, p.normalize, p.validate, p.sanitizer, p.normalizer, p.validator);
+            Object.assign(prop, p);
             this._properties.push(prop);
             if (!prop.safe)
                 this._unsafeProps.push(prop.key);

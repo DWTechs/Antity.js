@@ -13,6 +13,7 @@ import type { Type, Method } from './types';
 import { LOGS_PREFIX, METHODS } from './constants';
 
 export class Property {
+  [key: string]: unknown;
   key: string;
   type: Type;
   min: number | Date;

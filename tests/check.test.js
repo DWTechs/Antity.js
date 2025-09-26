@@ -22,7 +22,8 @@ describe('Entity.check', () => {
         validate: true,
         sanitizer: null,
         normalizer: val => normalizeName(val),
-        validator: null
+        validator: null,
+        customProp: true,
       },
       {
         key: 'address',

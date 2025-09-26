@@ -1,3 +1,8 @@
+
+# 0.13.0 (Sep 24th 2025)
+
+- `Property` class now includes an index signature, allowing arbitrary custom properties to be added to instances. This makes the class extensible for downstream libraries and user code.
+
 # 0.12.0 (Sep 20th 2025)
 
 - Improve error messages

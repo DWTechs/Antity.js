@@ -74,6 +74,7 @@ declare class Entity {
 }
 
 declare class Property {
+  [key: string]: unknown;
   key: string;
   type: Type;
   min: number | Date | null;

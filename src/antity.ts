@@ -39,6 +39,8 @@ export class Entity {
         p.normalizer,
         p.validator, 
       )
+      // Copy all extra fields from p to prop
+      Object.assign(prop, p);
       this._properties.push(prop);
 
       if (!prop.safe) this._unsafeProps.push(prop.key);
