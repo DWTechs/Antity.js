@@ -2,7 +2,7 @@
 [![License: MIT](https://img.shields.io/npm/l/@dwtechs/antity.svg?color=brightgreen)](https://opensource.org/licenses/MIT)
 [![npm version](https://badge.fury.io/js/%40dwtechs%2Fantity.svg)](https://www.npmjs.com/package/@dwtechs/antity)
 [![last version release date](https://img.shields.io/github/release-date/DWTechs/Antity.js)](https://www.npmjs.com/package/@dwtechs/antity)
-![Jest:coverage](https://img.shields.io/badge/Jest:coverage-100%25-brightgreen.svg)
+![Jest:coverage](https://img.shields.io/badge/Jest:coverage-72%25-brightgreen.svg)
 
 - [Synopsis](#synopsis)
 - [Support](#support)
