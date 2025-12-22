@@ -3,6 +3,7 @@ import { log } from "@dwtechs/winstan";
 import { Type } from './types';
 import { Types } from './check';
 import { LOGS_PREFIX } from './constants';
+import type { ValidationError } from './validator';
 
 function control(
   v: unknown,
@@ -12,7 +13,7 @@ function control(
   max: number | Date,
   typeCheck: boolean,
   cb: ((v:unknown) => boolean) | null
-): Record<string, unknown> | null {
+): ValidationError | null {
   
   log.debug(`control ${key}: ${type} = ${v}`);
   

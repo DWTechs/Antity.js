@@ -2,6 +2,7 @@ import { isNil } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Type } from './types';
 import { LOGS_PREFIX } from './constants';
+import type { ValidationError } from './validator';
   
 /**
  * Validates that a given value is not null or undefined and logs the validation process.
@@ -9,9 +10,9 @@ import { LOGS_PREFIX } from './constants';
  * @param v - The value to validate.
  * @param key - The key or name associated with the value, used for logging and error messages.
  * @param type - The expected type of the value, used for logging purposes.
- * @returns A string containing an error message if the value is null or undefined, otherwise `null`.
+ * @returns A ValidationError containing statusCode and message if the value is null or undefined, otherwise `null`.
  */
-function require(v: unknown, key: string, type: Type): Record<string, unknown> | null {
+function require(v: unknown, key: string, type: Type): ValidationError | null {
   log.debug(`require ${key}: ${type} = ${v}`);	
   return isNil(v) ? { statusCode: 400, message: `${LOGS_PREFIX}Missing ${key} of type ${type}`} : null;
 }

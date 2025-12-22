@@ -1,9 +1,11 @@
-import { isArray, isString, isIn, isFunction } from '@dwtechs/checkard';
+import { isArray, isString, isIn, isFunction, isObject } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Property } from './property';
 import { sanitize as san } from './sanitize';
 import { control } from './control';
 import { require } from './require';
+import { applyNormalization } from './normalizer';
+import { applyValidation } from './validator';
 import type {  Method } from './types';
 import type { Request, Response, NextFunction } from 'express';
 import { LOGS_PREFIX, METHODS } from './constants';
@@ -96,55 +98,53 @@ export class Entity {
    * rules defined in the `properties` of the class.
    *
    */
-  public normalize = (req: Request, _res: Response, next: NextFunction): void => {
+  public normalizeArray = (req: Request, _res: Response, next: NextFunction): void => {
     
-    const rows: Record<string, unknown>[] = req.body?.rows;
+    log.debug(`normalizeArray ${this.name}`);
     
-    log.debug(`normalize ${this.name}`);
+    const rows: Record<string, unknown>[] = req.body?.rows || req.body;
     
-    if (!isArray(rows, "!0"))
+    if (!isArray(rows, ">", 0))
       return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
     
     for (const r of rows) {
-      for (const { 
-        key, 
-        type,
-        sanitize,
-        normalize,
-        sanitizer,
-        normalizer,
-      } of this._properties) {
-        let v = r[key];
-        if (v) {
-          if (sanitize) {
-            log.debug(`sanitize ${key}: ${type} = ${v}`);
-            v = san(v, sanitizer);
-          }
-          if (normalize && isFunction(normalizer)) {
-            log.debug(`normalize ${key}: ${type} = ${v}`);
-            v = normalizer(v);
-          }
-          r[key] = v;
-        }
-      }
+      applyNormalization(r, this._properties);
     }
+    next()
+  }
+
+  /**
+   * Normalizes a single record by applying sanitization and normalization
+   * rules defined in the `properties` of the class.
+   *
+   */
+  public normalizeOne = (req: Request, _res: Response, next: NextFunction): void => {
+    
+    log.debug(`normalizeOne ${this.name}`);
+    
+    const record: Record<string, unknown> = req.body;
+    
+    if (!isObject(record, true))
+      return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
+    
+    applyNormalization(record, this._properties);
     next()
   }
   
   /**
-   * Validates a set of rows against the defined properties and operation/method.
+   * Validates an array of rows against the defined properties and operation/method.
    *
    * If a property is required and missing, or if it fails the control checks, the function returns an error message.
    * Otherwise, it returns `null` indicating successful validation.
    */
-  public validate = (req: Request, _res: Response, next: NextFunction): void => {
+  public validateArray = (req: Request, _res: Response, next: NextFunction): void => {
       
-    const rows: Record<string, unknown>[] = req.body?.rows;
+    log.debug(`validateArray ${this.name}`);
+    
+    const rows: Record<string, unknown>[] = req.body?.rows || req.body;
     const method: Method = req.method;
-
-    log.debug(`validate ${this.name}`);
   
-    if (!isArray(rows, "!0"))
+    if (!isArray(rows, ">", 0))
       return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
 
     if (!isIn(METHODS, method))
@@ -154,32 +154,39 @@ export class Entity {
       });
     
     for (const r of rows) {
-      for (const { 
-        key, 
-        type,
-        min,
-        max,
-        required,
-        typeCheck,
-        methods,
-        validate,
-        validator
-      } of this._properties) {
-        const v = r[key];
-        if (isIn(methods, method)) {
-          if (required) {
-            const rq = require(v, key, type);
-            if (rq)
-              return next(rq);
-          }
-          if (v && validate) {
-            const ct = control(v, key, type, min, max, typeCheck, validator);
-            if (ct)
-              return next(ct);
-          }
-        }
-      }
+      const error = applyValidation(r, this._properties, method);
+      if (error)
+        return next(error);
     }
+    next();
+  }
+
+  /**
+   * Validates a single record against the defined properties and operation/method.
+   *
+   * If a property is required and missing, or if it fails the control checks, the function returns an error message.
+   * Otherwise, it returns `null` indicating successful validation.
+   */
+  public validateOne = (req: Request, _res: Response, next: NextFunction): void => {
+      
+    log.debug(`validateOne ${this.name}`);
+    
+    const record: Record<string, unknown> = req.body;
+    const method: Method = req.method;
+  
+    if (!isObject(record, true))
+      return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no data found in request body` });
+
+    if (!isIn(METHODS, method))
+      return next({ 
+        statusCode: 400, 
+        message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
+      });
+    
+    const error = applyValidation(record, this._properties, method);
+    if (error)
+      return next(error);
+    
     next();
   }
 

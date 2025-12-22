@@ -1,12 +1,12 @@
 import { Entity } from '../dist/antity.js';
 
-describe('Entity.validateArray', () => {
+describe('Entity.validateOne', () => {
   let entity;
   let req;
   let next;
 
   beforeEach(() => {
-    entity = new Entity('persons', [
+    entity = new Entity('person', [
       {
         key: 'name',
         type: 'string',
@@ -75,33 +75,33 @@ describe('Entity.validateArray', () => {
 
     req = {
       body: {
-        rows: [
-          { name: ' john Doe ', address: ' 45 backer street', city: ' new York', age: 30 },
-          { name: '  Jane smith  ', address: ' 23 backer street', city: 'new York ' , age: 25 }
-        ]
+        name: ' john Doe ',
+        address: ' 45 backer street',
+        city: ' new York',
+        age: 30
       },
       method: 'POST'
     };
     next = jest.fn();
   });
 
-  it('should call next without error if rows are valid', () => {
-      entity.validateArray(req, null, next);
+  it('should call next without error if record is valid', () => {
+      entity.validateOne(req, null, next);
       expect(next).toHaveBeenCalledWith();
   });
 
-  it('should call next with an error if rows are missing in the request body', () => {
-      req.body = {};
-      entity.validateArray(req, null, next);
+  it('should call next with an error if data is missing in the request body', () => {
+      req.body = null;
+      entity.validateOne(req, null, next);
       expect(next).toHaveBeenCalledWith({
           statusCode: 400,
-          message: 'Antity: Validate: no rows found in request body'
+          message: 'Antity: Validate: no data found in request body'
       });
   });
 
   it('should call next with an error if the method is invalid', () => {
     req.method = 'PTCH';
-    entity.validateArray(req, null, next);
+    entity.validateOne(req, null, next);
     expect(next).toHaveBeenCalledWith({
         statusCode: 400,
         message: `Antity: Invalid REST method. Received: PTCH. Must be one of: GET,PATCH,PUT,POST,DELETE`
@@ -110,7 +110,7 @@ describe('Entity.validateArray', () => {
 
   it('should call next with an error if the method is missing', () => {
     req.method = undefined;
-    entity.validateArray(req, null, next);
+    entity.validateOne(req, null, next);
     expect(next).toHaveBeenCalledWith({
         statusCode: 400,
         message: `Antity: Invalid REST method. Received: undefined. Must be one of: GET,PATCH,PUT,POST,DELETE`
@@ -118,8 +118,8 @@ describe('Entity.validateArray', () => {
   });
 
   it('should call next with an error if a required property is missing', () => {
-      req.body.rows[0] = { age: 30 };
-      entity.validateArray(req, null, next);
+      req.body = { age: 30 };
+      entity.validateOne(req, null, next);
       expect(next).toHaveBeenCalledWith({
           statusCode: 400,
           message: 'Antity: Missing name of type string'
@@ -127,8 +127,8 @@ describe('Entity.validateArray', () => {
   });
 
   it('should call next with an error if a property value is greater than max', () => {
-      req.body.rows[0].age = 150; // Exceeds max value
-      entity.validateArray(req, null, next);
+      req.body.age = 150; // Exceeds max value
+      entity.validateOne(req, null, next);
       expect(next).toHaveBeenCalledWith({
           statusCode: 400,
           message: 'Antity: Invalid \"age\" - caused by: Checkard: Expected valid integer in range [0, 120], but received number: 150'
@@ -136,8 +136,8 @@ describe('Entity.validateArray', () => {
   });
 
   it('should call next with an error if a property value is lower than min', () => {
-    req.body.rows[0].age = -1; // Exceeds max value
-    entity.validateArray(req, null, next);
+    req.body.age = -1; // Below min value
+    entity.validateOne(req, null, next);
     expect(next).toHaveBeenCalledWith({
         statusCode: 400,
         message: 'Antity: Invalid \"age\" - caused by: Checkard: Expected valid integer in range [0, 120], but received number: -1'
@@ -145,15 +145,15 @@ describe('Entity.validateArray', () => {
   });
 
   it('should skip validation for properties not applicable to the current method', () => {
-    req.body.rows[0].age = "30"; // invalid age
+    req.body.age = "30"; // invalid age
     req.method = 'GET';
-    entity.validateArray(req, null, next);
+    entity.validateOne(req, null, next);
     expect(next).toHaveBeenCalledWith();
   });
 
   it('should call next with an error if a property value has a wrong type', () => {
-    req.body.rows[0].age = "30"; // invalid age
-    entity.validateArray(req, null, next);
+    req.body.age = "30"; // invalid age
+    entity.validateOne(req, null, next);
     expect(next).toHaveBeenCalledWith({
       statusCode: 400,
       message: "Antity: Invalid \"age\" - caused by: Checkard: Expected integer, but received string: 30",

@@ -42,8 +42,10 @@ declare class Entity {
   set name(name: string);
   getProp(key: string): Property | undefined;
   getPropsByMethod(method: Method): Property[];
-  normalize: (req: Request, _res: Response, next: NextFunction) => void;
-  validate: (req: Request, _res: Response, next: NextFunction) => void;
+  normalizeArray: (req: Request, _res: Response, next: NextFunction) => void;
+  normalizeOne: (req: Request, _res: Response, next: NextFunction) => void;
+  validateArray: (req: Request, _res: Response, next: NextFunction) => void;
+  validateOne: (req: Request, _res: Response, next: NextFunction) => void;
   check: (req: Request, _res: Response, next: NextFunction) => void;
 }
 

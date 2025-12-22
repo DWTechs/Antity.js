@@ -1,13 +1,13 @@
 import { Entity } from '../dist/antity.js';
 import { normalizeName } from '@dwtechs/checkard';
 
-describe('Entity.normalizeArray', () => {
+describe('Entity.normalizeOne', () => {
   let entity;
   let req;
   let next;
 
   beforeEach(() => {
-    entity = new Entity('persons', [
+    entity = new Entity('person', [
       {
         key: 'name',
         type: 'string',
@@ -92,54 +92,48 @@ describe('Entity.normalizeArray', () => {
 
     req = {
       body: {
-        rows: [
-          { name: ' john Doe ', address: ' 45 backer street', city: ' new York', age: 30.5, normalizedAge: 30.5 },
-          { name: '  Jane smith  ', address: ' 23 backer street', city: 'new York ' , age: 25.9, normalizedAge: 25.9 }
-        ]
+        name: ' john Doe ',
+        address: ' 45 backer street',
+        city: ' new York',
+        age: 30.5,
+        normalizedAge: 30.5
       }
     };
     next = jest.fn();
   });
 
-  it('should call next without error if rows are present and valid in the request body', () => {
-    entity.normalizeArray(req, null, next);
+  it('should call next without error if record is present and valid in the request body', () => {
+    entity.normalizeOne(req, null, next);
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should call next with an error if rows are not present in the request body', () => {
-    req.body = {};
-    entity.normalizeArray(req, null, next);
+  it('should call next with an error if data is not present in the request body', () => {
+    req.body = null;
+    entity.normalizeOne(req, null, next);
 
     expect(next).toHaveBeenCalledWith({
       statusCode: 400,
-      message: 'Antity: Normalize: no rows found in request body'
+      message: 'Antity: Normalize: no data found in request body'
     });
   });
 
   it('should normalize and sanitize properties based on the normalizer function', () => {
-    entity.normalizeArray(req, null, next);
-    const r0 = req.body.rows[0];
-    const r1 = req.body.rows[1];
-    expect(r0.name).toBe('John Doe');
-    expect(r1.name).toBe('Jane Smith');
-    expect(r0.address).toBe('45 backer street');
-    expect(r1.address).toBe('23 backer street');
-    expect(r0.normalizedAge).toBe(30);
-    expect(r1.normalizedAge).toBe(25);
+    entity.normalizeOne(req, null, next);
+    expect(req.body.name).toBe('John Doe');
+    expect(req.body.address).toBe('45 backer street');
+    expect(req.body.normalizedAge).toBe(30);
     expect(next).toHaveBeenCalledWith();
   });
 
   it('should not sanitize properties when sanitize = false', () => {
-    entity.normalizeArray(req, null, next);
-    expect(req.body.rows[0].city).toBe(' new York');
-    expect(req.body.rows[1].city).toBe('new York ');
+    entity.normalizeOne(req, null, next);
+    expect(req.body.city).toBe(' new York');
     expect(next).toHaveBeenCalled();
   });
 
   it('should skip normalization for properties without a normalizer function', () => {
-    entity.normalizeArray(req, null, next);
-    expect(req.body.rows[0].age).toBe(30.5);
-    expect(req.body.rows[1].age).toBe(25.9);
+    entity.normalizeOne(req, null, next);
+    expect(req.body.age).toBe(30.5);
     expect(next).toHaveBeenCalled();
   });
 

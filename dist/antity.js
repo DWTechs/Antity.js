@@ -233,38 +233,69 @@ function require(v, key, type) {
     return isNil(v) ? { statusCode: 400, message: `${LOGS_PREFIX}Missing ${key} of type ${type}` } : null;
 }
 
+function applyNormalization(record, properties) {
+    for (const { key, type, sanitize: sanitize$1, normalize, sanitizer, normalizer, } of properties) {
+        let v = record[key];
+        if (v) {
+            if (sanitize$1) {
+                log.debug(`sanitize ${key}: ${type} = ${v}`);
+                v = sanitize(v, sanitizer);
+            }
+            if (normalize && isFunction(normalizer)) {
+                log.debug(`normalize ${key}: ${type} = ${v}`);
+                v = normalizer(v);
+            }
+            record[key] = v;
+        }
+    }
+}
+
+function applyValidation(record, properties, method) {
+    for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of properties) {
+        const v = record[key];
+        if (isIn(methods, method)) {
+            if (required) {
+                const rq = require(v, key, type);
+                if (rq)
+                    return rq;
+            }
+            if (v && validate) {
+                const ct = control(v, key, type, min, max, typeCheck, validator);
+                if (ct)
+                    return ct;
+            }
+        }
+    }
+    return null;
+}
+
 class Entity {
     constructor(name, properties) {
-        this.normalize = (req, _res, next) => {
+        this.normalizeArray = (req, _res, next) => {
             var _a;
-            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
-            log.debug(`normalize ${this.name}`);
-            if (!isArray(rows, "!0"))
+            log.debug(`normalizeArray ${this.name}`);
+            const rows = ((_a = req.body) === null || _a === void 0 ? void 0 : _a.rows) || req.body;
+            if (!isArray(rows, ">", 0))
                 return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
             for (const r of rows) {
-                for (const { key, type, sanitize: sanitize$1, normalize, sanitizer, normalizer, } of this._properties) {
-                    let v = r[key];
-                    if (v) {
-                        if (sanitize$1) {
-                            log.debug(`sanitize ${key}: ${type} = ${v}`);
-                            v = sanitize(v, sanitizer);
-                        }
-                        if (normalize && isFunction(normalizer)) {
-                            log.debug(`normalize ${key}: ${type} = ${v}`);
-                            v = normalizer(v);
-                        }
-                        r[key] = v;
-                    }
-                }
+                applyNormalization(r, this._properties);
             }
             next();
         };
-        this.validate = (req, _res, next) => {
+        this.normalizeOne = (req, _res, next) => {
+            log.debug(`normalizeOne ${this.name}`);
+            const record = req.body;
+            if (!isObject(record, true))
+                return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
+            applyNormalization(record, this._properties);
+            next();
+        };
+        this.validateArray = (req, _res, next) => {
             var _a;
-            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
+            log.debug(`validateArray ${this.name}`);
+            const rows = ((_a = req.body) === null || _a === void 0 ? void 0 : _a.rows) || req.body;
             const method = req.method;
-            log.debug(`validate ${this.name}`);
-            if (!isArray(rows, "!0"))
+            if (!isArray(rows, ">", 0))
                 return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
             if (!isIn(METHODS, method))
                 return next({
@@ -272,22 +303,26 @@ class Entity {
                     message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
                 });
             for (const r of rows) {
-                for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of this._properties) {
-                    const v = r[key];
-                    if (isIn(methods, method)) {
-                        if (required) {
-                            const rq = require(v, key, type);
-                            if (rq)
-                                return next(rq);
-                        }
-                        if (v && validate) {
-                            const ct = control(v, key, type, min, max, typeCheck, validator);
-                            if (ct)
-                                return next(ct);
-                        }
-                    }
-                }
+                const error = applyValidation(r, this._properties, method);
+                if (error)
+                    return next(error);
             }
+            next();
+        };
+        this.validateOne = (req, _res, next) => {
+            log.debug(`validateOne ${this.name}`);
+            const record = req.body;
+            const method = req.method;
+            if (!isObject(record, true))
+                return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no data found in request body` });
+            if (!isIn(METHODS, method))
+                return next({
+                    statusCode: 400,
+                    message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
+                });
+            const error = applyValidation(record, this._properties, method);
+            if (error)
+                return next(error);
             next();
         };
         this.check = (req, _res, next) => {
