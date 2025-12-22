@@ -102,7 +102,7 @@ export class Entity {
     
     log.debug(`normalizeArray ${this.name}`);
     
-    const rows: Record<string, unknown>[] = req.body?.rows || req.body;
+    const rows: Record<string, unknown>[] = req.body?.rows;
     
     if (!isArray(rows, ">", 0))
       return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
@@ -122,12 +122,12 @@ export class Entity {
     
     log.debug(`normalizeOne ${this.name}`);
     
-    const record: Record<string, unknown> = req.body;
+    const r: Record<string, unknown> = req.body;
     
-    if (!isObject(record, true))
+    if (!isObject(r, true))
       return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
     
-    applyNormalization(record, this._properties);
+    applyNormalization(r, this._properties);
     next()
   }
   
@@ -141,7 +141,7 @@ export class Entity {
       
     log.debug(`validateArray ${this.name}`);
     
-    const rows: Record<string, unknown>[] = req.body?.rows || req.body;
+    const rows: Record<string, unknown>[] = req.body?.rows;
     const method: Method = req.method;
   
     if (!isArray(rows, ">", 0))

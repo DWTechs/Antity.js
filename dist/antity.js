@@ -274,7 +274,7 @@ class Entity {
         this.normalizeArray = (req, _res, next) => {
             var _a;
             log.debug(`normalizeArray ${this.name}`);
-            const rows = ((_a = req.body) === null || _a === void 0 ? void 0 : _a.rows) || req.body;
+            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
             if (!isArray(rows, ">", 0))
                 return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
             for (const r of rows) {
@@ -293,7 +293,7 @@ class Entity {
         this.validateArray = (req, _res, next) => {
             var _a;
             log.debug(`validateArray ${this.name}`);
-            const rows = ((_a = req.body) === null || _a === void 0 ? void 0 : _a.rows) || req.body;
+            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
             const method = req.method;
             if (!isArray(rows, ">", 0))
                 return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });

@@ -1,4 +1,12 @@
 
+# 0.14.0 (Dec 22nd 2025)
+
+- Replace `normalize()` and `validate()` methods with more explicit methods:
+  - Add `normalizeArray()` for normalizing arrays of records (supports `req.body.rows` as array)
+  - Add `validateArray()` for validating arrays of records (supports `req.body.rows` as array)
+  - Add `normalizeOne()` for normalizing a single record (supports `req.body` as object)
+  - Add `validateOne()` for validating a single record (supports `req.body` as object)
+
 # 0.13.0 (Sep 24th 2025)
 
 - `Property` class now includes an index signature, allowing arbitrary custom properties to be added to instances. This makes the class extensible for downstream libraries and user code.

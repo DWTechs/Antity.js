@@ -112,9 +112,9 @@ const entity = new Entity("consumers", [
   },
 ]);
 
-// add a consumer. Used when loggin in from user service
-router.post("/", entity.normalize, entity.validate, ...);
-// or use check method to both normalize and validate at once
+// add a consumer. Used when logging in from user service
+router.post("/", entity.normalizeArray, entity.validateArray, ...);
+// or use check method to normalize and validate array at once
 router.put("/", entity.check, ...);
 
 ```
@@ -227,11 +227,12 @@ class Entity {
   getPropsByMethod(method: Method): Property[];
   
   /**
-   * Normalizes each row in req.body.rows according to property config and HTTP method.
+   * Normalizes an array of records by applying sanitization and normalization
+   * rules defined in the properties of the class.
    *
-   * - Applies sanitization if `sanitize: true` and method matches
-   * - Applies normalization if `normalize: true` and method matches
-   * - Mutates req.body.rows with sanitized/normalized values
+   * - Applies sanitization if `sanitize: true`
+   * - Applies normalization if `normalize: true`
+   * - Mutates req.body.rows or req.body with sanitized/normalized values
    * - Calls next(error) on failure, next() on success
    *
    * @param {Request} req - Express request object containing rows
@@ -241,25 +242,58 @@ class Entity {
    * @returns {void}
    *
    * **Input Properties Required:**
-   * - `req.body.rows` (array) - Array of objects to normalize
+   * - `req.body.rows` (array) or `req.body` (array) - Array of objects to normalize
    * - Each property config can specify sanitize, normalize, etc.
    *
    * **Output Properties:**
-   * - Mutates `req.body.rows` with sanitized/normalized values
-   * - Calls next(error) if any row fails normalization, next() if all pass
+   * - Mutates array with sanitized/normalized values
+   * - Calls next(error) if normalization fails, next() if all pass
    *
    * @example
    * ```typescript
-   * router.post('/entity', entity.normalize, (req, res) => {
+   * router.post('/entities', entity.normalizeArray, (req, res) => {
    *   // req.body.rows are now sanitized and normalized
    *   res.json({ success: true });
    * });
    * ```
    */
-  normalize: (req: Request, _res: Response, next: NextFunction) => void;
+  normalizeArray: (req: Request, _res: Response, next: NextFunction) => void;
   
   /**
-   * Validates each row in req.body.rows according to property config and HTTP method.
+   * Normalizes a single record by applying sanitization and normalization
+   * rules defined in the properties of the class.
+   *
+   * - Applies sanitization if `sanitize: true`
+   * - Applies normalization if `normalize: true`
+   * - Mutates req.body with sanitized/normalized values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing a single record
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body` (object) - Single object to normalize
+   * - Each property config can specify sanitize, normalize, etc.
+   *
+   * **Output Properties:**
+   * - Mutates `req.body` with sanitized/normalized values
+   * - Calls next(error) if normalization fails, next() if success
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.normalizeOne, (req, res) => {
+   *   // req.body is now sanitized and normalized
+   *   res.json({ success: true });
+   * });
+   * ```
+   */
+  normalizeOne: (req: Request, _res: Response, next: NextFunction) => void;
+  
+  /**
+   * Validates an array of rows according to property config and HTTP method.
    *
    * - Checks required properties and validates values
    * - Calls next(error) on failure, next() on success
@@ -271,7 +305,7 @@ class Entity {
    * @returns {void}
    *
    * **Input Properties Required:**
-   * - `req.body.rows` (array) - Array of objects to validate
+   * - `req.body.rows` (array) or `req.body` (array) - Array of objects to validate
    * - Each property config can specify validate, required, etc.
    *
    * **Output Properties:**
@@ -279,13 +313,42 @@ class Entity {
    *
    * @example
    * ```typescript
-   * router.post('/entity', entity.validate, (req, res) => {
+   * router.post('/entities', entity.validateArray, (req, res) => {
    *   // req.body.rows are now validated
    *   res.json({ success: true });
    * });
    * ```
    */
-  validate: (req: Request, _res: Response, next: NextFunction) => void;
+  validateArray: (req: Request, _res: Response, next: NextFunction) => void;
+  
+  /**
+   * Validates a single record according to property config and HTTP method.
+   *
+   * - Checks required properties and validates values
+   * - Calls next(error) on failure, next() on success
+   *
+   * @param {Request} req - Express request object containing a single record
+   * @param {Response} _res - Express response object (not used)
+   * @param {NextFunction} next - Express next function
+   *
+   * @returns {void}
+   *
+   * **Input Properties Required:**
+   * - `req.body` (object) - Single object to validate
+   * - Each property config can specify validate, required, etc.
+   *
+   * **Output Properties:**
+   * - Calls next(error) if validation fails, next() if success
+   *
+   * @example
+   * ```typescript
+   * router.post('/entity', entity.validateOne, (req, res) => {
+   *   // req.body is now validated
+   *   res.json({ success: true });
+   * });
+   * ```
+   */
+  validateOne: (req: Request, _res: Response, next: NextFunction) => void;
 
   /**
    * Checks, sanitizes, normalizes, and validates each row in req.body.rows according to property config and HTTP method.
@@ -321,8 +384,10 @@ class Entity {
 }
 
 ```
-normalize() and validate() methods are made to be used as Express.js middlewares.
-Each method will look for data to work on in the **req.body.rows** parameter.
+**normalizeArray()**, **normalizeOne()**, **validateArray()**, and **validateOne()** methods are made to be used as Express.js middlewares.
+
+- **normalizeArray()** and **validateArray()** will look for data in the **req.body.rows** parameter or **req.body** as an array.
+- **normalizeOne()** and **validateOne()** will look for data in the **req.body** parameter as a single object.
 
 
 ### Password validation
