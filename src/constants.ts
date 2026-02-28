@@ -1,6 +1,6 @@
 // Antity.js library constants
 export const LOGS_PREFIX = "Antity: ";
-export const METHODS = [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
+export const METHODS = [ "PATCH", "PUT", "POST" ];
 
 // Password policy constants
 declare const process: {

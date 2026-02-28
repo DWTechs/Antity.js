@@ -7,85 +7,65 @@ describe('Entity.normalizeArray', () => {
   let next;
 
   beforeEach(() => {
-    entity = new Entity('persons', [
+    entity = new Entity('users', [
       {
-        key: 'name',
+        key: 'username',
         type: 'string',
-        min: 1,
-        max: 255,
+        min: 3,
+        max: 50,
         typeCheck: true,
-        methods: ['POST'],
-        required: true,
-        safe: true,
-        sanitize: true,
-        normalize: true,
-        validate: true,
+        need: ['POST'],
+        send: true,
         sanitizer: null,
-        normalizer: val => normalizeName(val),
+        normalizer: val => val.trim().toLowerCase(),
         validator: null
       },
       {
-        key: 'address',
-        type: 'string',
-        min: 1,
+        key: 'email',
+        type: 'email',
+        min: 5,
         max: 255,
         typeCheck: true,
-        methods: ['POST'],
-        required: true,
-        safe: true,
-        sanitize: true,
-        normalize: true,
-        validate: true,
+        need: ['POST', 'PUT'],
+        send: true,
         sanitizer: null,
-        normalizer: null,
+        normalizer: val => val.trim().toLowerCase(),
         validator: null
       },
       {
-        key: 'city',
+        key: 'firstName',
         type: 'string',
         min: 1,
-        max: 255,
+        max: 100,
         typeCheck: true,
-        methods: ['POST'],
-        required: true,
-        safe: true,
-        sanitize: false,
-        normalize: true,
-        validate: true,
+        need: ['POST'],
+        send: true,
         sanitizer: null,
-        normalizer: null,
+        normalizer: normalizeName,
         validator: null
       },
       {
-        key: 'age',
-        type: 'integer',
+        key: 'lastName',
+        type: 'string',
+        min: 1,
+        max: 100,
+        typeCheck: true,
+        need: ['POST'],
+        send: true,
+        sanitizer: null,
+        normalizer: normalizeName,
+        validator: null
+      },
+      {
+        key: 'bio',
+        type: 'string',
         min: 0,
-        max: 120,
+        max: 500,
         typeCheck: true,
-        methods: ['POST', 'PUT'],
-        required: true,
-        safe: true,
-        sanitize: true,
-        normalize: false,
-        validate: true,
+        need: [],
+        send: true,
         sanitizer: null,
         normalizer: null,
-        validator: null
-      },
-      {
-        key: 'normalizedAge',
-        type: 'integer',
-        min: 0,
-        max: 120,
-        typeCheck: true,
-        methods: ['POST', 'PUT'],
-        required: true,
-        safe: true,
-        sanitize: true,
-        normalize: true,
-        validate: true,
-        sanitizer: null,
-        normalizer: val => Math.floor(val),
         validator: null
       }
     ]);
@@ -93,15 +73,27 @@ describe('Entity.normalizeArray', () => {
     req = {
       body: {
         rows: [
-          { name: ' john Doe ', address: ' 45 backer street', city: ' new York', age: 30.5, normalizedAge: 30.5 },
-          { name: '  Jane smith  ', address: ' 23 backer street', city: 'new York ' , age: 25.9, normalizedAge: 25.9 }
+          { 
+            username: '  JohnDoe_123  ',
+            email: '  John.Doe@Example.COM  ',
+            firstName: ' john ',
+            lastName: 'doe  ',
+            bio: '   Software developer   '
+          },
+          { 
+            username: ' jane_smith ',
+            email: ' JANE@EXAMPLE.COM ',
+            firstName: '  jane  ',
+            lastName: ' smith',
+            bio: 'Designer'
+          }
         ]
       }
     };
     next = jest.fn();
   });
 
-  it('should call next without error if rows are present and valid in the request body', () => {
+  it('should call next without error if rows are present in the request body', () => {
     entity.normalizeArray(req, null, next);
     expect(next).toHaveBeenCalledWith();
   });
@@ -109,38 +101,70 @@ describe('Entity.normalizeArray', () => {
   it('should call next with an error if rows are not present in the request body', () => {
     req.body = {};
     entity.normalizeArray(req, null, next);
-
     expect(next).toHaveBeenCalledWith({
       statusCode: 400,
       message: 'Antity: Normalize: no rows found in request body'
     });
   });
 
-  it('should normalize and sanitize properties based on the normalizer function', () => {
+  it('should sanitize and normalize properties with custom normalizer functions', () => {
     entity.normalizeArray(req, null, next);
-    const r0 = req.body.rows[0];
-    const r1 = req.body.rows[1];
-    expect(r0.name).toBe('John Doe');
-    expect(r1.name).toBe('Jane Smith');
-    expect(r0.address).toBe('45 backer street');
-    expect(r1.address).toBe('23 backer street');
-    expect(r0.normalizedAge).toBe(30);
-    expect(r1.normalizedAge).toBe(25);
+    const user1 = req.body.rows[0];
+    const user2 = req.body.rows[1];
+    
+    // username: trim + lowercase
+    expect(user1.username).toBe('johndoe_123');
+    expect(user2.username).toBe('jane_smith');
+    
+    // email: trim + lowercase
+    expect(user1.email).toBe('john.doe@example.com');
+    expect(user2.email).toBe('jane@example.com');
+    
+    // firstName/lastName: normalizeName (capitalize first letter)
+    expect(user1.firstName).toBe('John');
+    expect(user1.lastName).toBe('Doe');
+    expect(user2.firstName).toBe('Jane');
+    expect(user2.lastName).toBe('Smith');
+    
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should not sanitize properties when sanitize = false', () => {
+  it('should only sanitize properties without a normalizer function', () => {
     entity.normalizeArray(req, null, next);
-    expect(req.body.rows[0].city).toBe(' new York');
-    expect(req.body.rows[1].city).toBe('new York ');
+    
+    // bio has no normalizer, only sanitization (trim whitespace)
+    expect(req.body.rows[0].bio).toBe('Software developer');
+    expect(req.body.rows[1].bio).toBe('Designer');
     expect(next).toHaveBeenCalled();
   });
 
-  it('should skip normalization for properties without a normalizer function', () => {
+  it('should handle missing optional properties gracefully', () => {
+    req.body.rows = [
+      { username: ' user1 ', email: ' USER1@EXAMPLE.COM ', firstName: 'john', lastName: 'doe' }
+      // bio is missing
+    ];
     entity.normalizeArray(req, null, next);
-    expect(req.body.rows[0].age).toBe(30.5);
-    expect(req.body.rows[1].age).toBe(25.9);
-    expect(next).toHaveBeenCalled();
+    expect(req.body.rows[0].username).toBe('user1');
+    expect(req.body.rows[0].bio).toBeUndefined();
+    expect(next).toHaveBeenCalledWith();
   });
 
+  it('should process all rows in the array', () => {
+    req.body.rows = [
+      { username: ' user1 ', email: ' user1@test.com ', firstName: 'alice', lastName: 'jones' },
+      { username: ' user2 ', email: ' user2@test.com ', firstName: 'bob', lastName: 'smith' },
+      { username: ' user3 ', email: ' user3@test.com ', firstName: 'charlie', lastName: 'brown' }
+    ];
+    
+    entity.normalizeArray(req, null, next);
+    
+    expect(req.body.rows[0].username).toBe('user1');
+    expect(req.body.rows[0].firstName).toBe('Alice');
+    expect(req.body.rows[1].username).toBe('user2');
+    expect(req.body.rows[1].firstName).toBe('Bob');
+    expect(req.body.rows[2].username).toBe('user3');
+    expect(req.body.rows[2].firstName).toBe('Charlie');
+    
+    expect(next).toHaveBeenCalledWith();
+  });
 });

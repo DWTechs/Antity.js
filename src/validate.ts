@@ -1,6 +1,6 @@
 import { isIn } from '@dwtechs/checkard';
 import { control } from './control';
-import { require } from './require';
+import { require } from './need';
 import type { Property } from './property';
 import type { Method } from './types';
 
@@ -17,7 +17,7 @@ export type ValidationError = {
  * @param {Method} method - The HTTP method to check against
  * @returns {ValidationError | null} - Error object if validation fails, null if successful
  */
-export function applyValidation(
+export function validate(
   record: Record<string, unknown>,
   properties: Property[],
   method: Method
@@ -27,24 +27,20 @@ export function applyValidation(
     type,
     min,
     max,
-    required,
+    need,
     typeCheck,
-    methods,
-    validate,
     validator
   } of properties) {
     const v = record[key];
-    if (isIn(methods, method)) {
-      if (required) {
-        const rq = require(v, key, type);
-        if (rq)
-          return rq;
-      }
-      if (v && validate) {
-        const ct = control(v, key, type, min, max, typeCheck, validator);
-        if (ct)
-          return ct;
-      }
+    if (isIn(need, method)) {
+      const rq = require(v, key, type);
+      if (rq)
+        return rq;
+    }
+    if (v) {
+      const ct = control(v, key, type, min, max, typeCheck, validator);
+      if (ct)
+        return ct;
     }
   }
   return null;

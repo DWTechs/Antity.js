@@ -3,7 +3,7 @@ import { log } from "@dwtechs/winstan";
 import { Type } from './types';
 import { Types } from './check';
 import { LOGS_PREFIX } from './constants';
-import type { ValidationError } from './validator';
+import type { ValidationError } from './validate';
 
 function control(
   v: unknown,

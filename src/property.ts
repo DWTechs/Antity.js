@@ -18,13 +18,9 @@ export class Property {
   type: Type;
   min: number | Date;
   max: number | Date;
-  required: boolean;
-  safe: boolean;
+  send: boolean;
+  need: Method[];
   typeCheck: boolean;
-  methods: Method[];
-  sanitize: boolean;
-  normalize: boolean;
-  validate: boolean;
   sanitizer: ((v:any) => any) | null;
   normalizer: ((v:any) => any) | null;
   validator: ((v:any) => any) | null;
@@ -34,13 +30,9 @@ export class Property {
     type: Type,
     min: number | Date | null,
     max: number | Date | null,
-    required: boolean,
-    safe: boolean,
+    send: boolean,
+    need: Method[],
     typeCheck: boolean,
-    methods: Method[],
-    sanitize: boolean,
-    normalize: boolean,
-    validate: boolean,
     sanitizer: ((v:any) => any) | null,
     normalizer: ((v:any) => any) | null,
     validator: ((v:any) => any) | null,
@@ -58,12 +50,12 @@ export class Property {
       throw new Error(`${LOGS_PREFIX}Property "type" must be a valid type - caused by: ${(err as Error).message}`);
     }
     
-    if (isArray(methods)){
-      for (const m of methods) {
+    if (isArray(need)){
+      for (const m of need) {
         try {
           isIn(METHODS as unknown as unknown[], m, 0, true);
         } catch (err) {
-          throw new Error(`${LOGS_PREFIX}Property "methods" must be an array of REST methods - caused by: ${(err as Error).message}`);
+          throw new Error(`${LOGS_PREFIX}Property "need" must be an array of REST methods - caused by: ${(err as Error).message}`);
         }
       }
     }
@@ -72,13 +64,9 @@ export class Property {
     this.type = type;
     this.min = this.interval(min, type, 0, "1900-01-01T00:00:00Z");
     this.max = this.interval(max, type, 999999999, "2200-12-31T00:00:00Z");
-    this.required = isBoolean(required) ? required : false;
-    this.safe = isBoolean(safe) ? safe : true;
+    this.need = isArray(need) ? need : [];
+    this.send = isBoolean(send) ? send : true;
     this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-    this.methods = methods || METHODS;
-    this.sanitize = isBoolean(sanitize) ? sanitize : true;
-    this.normalize = isBoolean(normalize) ? normalize : false;
-    this.validate = isBoolean(validate) ? validate : true;
     this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
     this.normalizer = isFunction(normalizer) ? normalizer : null;
     this.validator = isFunction(validator) ? validator : null;

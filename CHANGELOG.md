@@ -1,4 +1,11 @@
 
+# 0.15.0 (Feb 28th 2026)
+
+- Delete `check()` method
+- Delete `methods`, `sanityze`, `normalize` and `validate` options
+- `required`option is now called `require`. It is of type array of methods instead of boolean
+- `safe`option is now called `send`
+
 # 0.14.0 (Dec 22nd 2025)
 
 - Replace `normalize()` and `validate()` methods with more explicit methods:

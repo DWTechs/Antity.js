@@ -28,7 +28,7 @@ import { isBoolean, isStringOfLength, isValidNumber, isValidInteger, isValidFloa
 import { log } from '@dwtechs/winstan';
 
 const LOGS_PREFIX = "Antity: ";
-const METHODS = ["GET", "PATCH", "PUT", "POST", "DELETE"];
+const METHODS = ["PATCH", "PUT", "POST"];
 const { PWD_MIN_LENGTH_POLICY, PWD_MAX_LENGTH_POLICY, PWD_NUMBERS_POLICY, PWD_UPPERCASE_POLICY, PWD_LOWERCASE_POLICY, PWD_SYMBOLS_POLICY } = process.env;
 const PWD_MIN_LENGTH = PWD_MIN_LENGTH_POLICY ? +PWD_MIN_LENGTH_POLICY : 9;
 const PWD_MAX_LENGTH = PWD_MAX_LENGTH_POLICY ? +PWD_MAX_LENGTH_POLICY : 20;
@@ -135,7 +135,7 @@ const Types = {
 };
 
 class Property {
-    constructor(key, type, min, max, required, safe, typeCheck, methods, sanitize, normalize, validate, sanitizer, normalizer, validator) {
+    constructor(key, type, min, max, send, need, typeCheck, sanitizer, normalizer, validator) {
         try {
             isString(key, "!0", null, true);
         }
@@ -148,13 +148,13 @@ class Property {
         catch (err) {
             throw new Error(`${LOGS_PREFIX}Property "type" must be a valid type - caused by: ${err.message}`);
         }
-        if (isArray(methods)) {
-            for (const m of methods) {
+        if (isArray(need)) {
+            for (const m of need) {
                 try {
                     isIn(METHODS, m, 0, true);
                 }
                 catch (err) {
-                    throw new Error(`${LOGS_PREFIX}Property "methods" must be an array of REST methods - caused by: ${err.message}`);
+                    throw new Error(`${LOGS_PREFIX}Property "need" must be an array of REST methods - caused by: ${err.message}`);
                 }
             }
         }
@@ -162,13 +162,9 @@ class Property {
         this.type = type;
         this.min = this.interval(min, type, 0, "1900-01-01T00:00:00Z");
         this.max = this.interval(max, type, 999999999, "2200-12-31T00:00:00Z");
-        this.required = isBoolean(required) ? required : false;
-        this.safe = isBoolean(safe) ? safe : true;
+        this.need = isArray(need) ? need : [];
+        this.send = isBoolean(send) ? send : true;
         this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
-        this.methods = methods || METHODS;
-        this.sanitize = isBoolean(sanitize) ? sanitize : true;
-        this.normalize = isBoolean(normalize) ? normalize : false;
-        this.validate = isBoolean(validate) ? validate : true;
         this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
         this.normalizer = isFunction(normalizer) ? normalizer : null;
         this.validator = isFunction(validator) ? validator : null;
@@ -206,6 +202,21 @@ function trim(v) {
     return v;
 }
 
+function normalize(record, properties) {
+    for (const { key, type, sanitizer, normalizer, } of properties) {
+        let v = record[key];
+        if (v) {
+            log.debug(`sanitize ${key}: ${type} = ${v}`);
+            v = sanitize(v, sanitizer);
+            if (isFunction(normalizer)) {
+                log.debug(`normalize ${key}: ${type} = ${v}`);
+                v = normalizer(v);
+            }
+            record[key] = v;
+        }
+    }
+}
+
 function control(v, key, type, min, max, typeCheck, cb) {
     log.debug(`control ${key}: ${type} = ${v}`);
     let errorMessage = "";
@@ -233,37 +244,18 @@ function require(v, key, type) {
     return isNil(v) ? { statusCode: 400, message: `${LOGS_PREFIX}Missing ${key} of type ${type}` } : null;
 }
 
-function applyNormalization(record, properties) {
-    for (const { key, type, sanitize: sanitize$1, normalize, sanitizer, normalizer, } of properties) {
-        let v = record[key];
-        if (v) {
-            if (sanitize$1) {
-                log.debug(`sanitize ${key}: ${type} = ${v}`);
-                v = sanitize(v, sanitizer);
-            }
-            if (normalize && isFunction(normalizer)) {
-                log.debug(`normalize ${key}: ${type} = ${v}`);
-                v = normalizer(v);
-            }
-            record[key] = v;
-        }
-    }
-}
-
-function applyValidation(record, properties, method) {
-    for (const { key, type, min, max, required, typeCheck, methods, validate, validator } of properties) {
+function validate(record, properties, method) {
+    for (const { key, type, min, max, need, typeCheck, validator } of properties) {
         const v = record[key];
-        if (isIn(methods, method)) {
-            if (required) {
-                const rq = require(v, key, type);
-                if (rq)
-                    return rq;
-            }
-            if (v && validate) {
-                const ct = control(v, key, type, min, max, typeCheck, validator);
-                if (ct)
-                    return ct;
-            }
+        if (isIn(need, method)) {
+            const rq = require(v, key, type);
+            if (rq)
+                return rq;
+        }
+        if (v) {
+            const ct = control(v, key, type, min, max, typeCheck, validator);
+            if (ct)
+                return ct;
         }
     }
     return null;
@@ -278,16 +270,16 @@ class Entity {
             if (!isArray(rows, ">", 0))
                 return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
             for (const r of rows) {
-                applyNormalization(r, this._properties);
+                normalize(r, this._properties);
             }
             next();
         };
         this.normalizeOne = (req, _res, next) => {
             log.debug(`normalizeOne ${this.name}`);
-            const record = req.body;
-            if (!isObject(record, true))
+            const r = req.body;
+            if (!isObject(r, true))
                 return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
-            applyNormalization(record, this._properties);
+            normalize(r, this._properties);
             next();
         };
         this.validateArray = (req, _res, next) => {
@@ -303,7 +295,7 @@ class Entity {
                     message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
                 });
             for (const r of rows) {
-                const error = applyValidation(r, this._properties, method);
+                const error = validate(r, this._properties, method);
                 if (error)
                     return next(error);
             }
@@ -320,69 +312,16 @@ class Entity {
                     statusCode: 400,
                     message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
                 });
-            const error = applyValidation(record, this._properties, method);
+            const error = validate(record, this._properties, method);
             if (error)
                 return next(error);
-            next();
-        };
-        this.check = (req, _res, next) => {
-            var _a;
-            const rows = (_a = req.body) === null || _a === void 0 ? void 0 : _a.rows;
-            const method = req.method;
-            log.debug(`check ${this.name}`);
-            try {
-                isArray(rows, "!0", null, true);
-            }
-            catch (err) {
-                return next({
-                    statusCode: 400,
-                    message: `${LOGS_PREFIX}no rows found in request body - caused by: ${err.message}`
-                });
-            }
-            try {
-                isIn(METHODS, method, 0, true);
-            }
-            catch (err) {
-                return next({
-                    statusCode: 400,
-                    message: `${LOGS_PREFIX}Invalid REST method. Must be one of: ${METHODS.toString()} - caused by: ${err.message}`
-                });
-            }
-            for (const r of rows) {
-                for (const { key, type, min, max, required, typeCheck, methods, validate, sanitize: sanitize$1, normalize, sanitizer, normalizer, validator } of this._properties) {
-                    let v = r[key];
-                    if (isIn(methods, method)) {
-                        if (v) {
-                            if (sanitize$1) {
-                                log.debug(`sanitize ${key}: ${type} = ${v}`);
-                                v = sanitize(v, sanitizer);
-                            }
-                            if (normalize && isFunction(normalizer)) {
-                                log.debug(`normalize ${key}: ${type} = ${v}`);
-                                v = normalizer(v);
-                            }
-                            r[key] = v;
-                            if (validate) {
-                                const ct = control(v, key, type, min, max, typeCheck, validator);
-                                if (ct)
-                                    return next(ct);
-                            }
-                        }
-                        if (required) {
-                            const rq = require(v, key, type);
-                            if (rq)
-                                return next(rq);
-                        }
-                    }
-                }
-            }
             next();
         };
         this._name = name;
         this._properties = [];
         this._unsafeProps = [];
         for (const p of properties) {
-            const prop = new Property(p.key, p.type, p.min, p.max, p.required, p.safe, p.typeCheck, p.methods, p.sanitize, p.normalize, p.validate, p.sanitizer, p.normalizer, p.validator);
+            const prop = new Property(p.key, p.type, p.min, p.max, p.send, p.need, p.typeCheck, p.sanitizer, p.normalizer, p.validator);
             Object.assign(prop, p);
             this._properties.push(prop);
             if (!prop.safe)
@@ -409,7 +348,7 @@ class Entity {
     getPropsByMethod(method) {
         const props = [];
         for (const p of this.properties) {
-            if (isIn(p.methods, method, 0))
+            if (isIn(p.need, method, 0))
                 props.push(p);
         }
         return props;

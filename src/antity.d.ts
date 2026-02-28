@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-declare const Methods: readonly [ "GET", "PATCH", "PUT", "POST", "DELETE" ];
+declare const Methods: readonly ["PATCH", "PUT", "POST"];
 type Method = typeof Methods[number];
 type Type = 
   "boolean" |
@@ -46,7 +46,6 @@ declare class Entity {
   normalizeOne: (req: Request, _res: Response, next: NextFunction) => void;
   validateArray: (req: Request, _res: Response, next: NextFunction) => void;
   validateOne: (req: Request, _res: Response, next: NextFunction) => void;
-  check: (req: Request, _res: Response, next: NextFunction) => void;
 }
 
 declare class Property {
@@ -55,13 +54,9 @@ declare class Property {
   type: Type;
   min: number | Date | null;
   max: number | Date | null;
-  required: boolean;
-  safe: boolean;
+  send: boolean;
+  need: Method[];
   typeCheck: boolean;
-  methods: Method[];
-  sanitize: boolean;
-  normalize: boolean;
-  validate: boolean;
   sanitizer: ((v: any) => any) | null;
   normalizer: ((v: any) => any) | null;
   validator: ((v: any) => any) | null;
@@ -70,13 +65,9 @@ declare class Property {
     type: Type,
     min: number | Date | null,
     max: number | Date | null,
-    required: boolean,
-    safe: boolean,
+    send: boolean,
+    need: Method[],
     typeCheck: boolean,
-    methods: Method[],
-    sanitize: boolean,
-    normalize: boolean,
-    validate: boolean,
     sanitizer: ((v: any) => any) | null,
     normalizer: ((v: any) => any) | null,
     validator: ((v: any) => any) | null

@@ -350,39 +350,6 @@ class Entity {
    */
   validateOne: (req: Request, _res: Response, next: NextFunction) => void;
 
-  /**
-   * Checks, sanitizes, normalizes, and validates each row in req.body.rows according to property config and HTTP method.
-   *
-   * - Applies sanitization if `sanitize: true` and method matches
-   * - Applies normalization if `normalize: true` and method matches
-   * - Checks required properties and validates values
-   * - Calls next(error) on failure, next() on success
-   *
-   * @param {Request} req - Express request object containing rows
-   * @param {Response} _res - Express response object (not used)
-   * @param {NextFunction} next - Express next function
-   *
-   * @returns {void}
-   *
-   * **Input Properties Required:**
-   * - `req.body.rows` (array) - Array of objects to check
-   * - Each property config can specify sanitize, normalize, validate, required, etc.
-   *
-   * **Output Properties:**
-   * - Mutates `req.body.rows` with sanitized/normalized values
-   * - Calls next(error) if any row fails checks, next() if all pass
-   *
-   * @example
-   * ```typescript
-   * router.post('/entity', entity.check, (req, res) => {
-   *   // req.body.rows are now sanitized, normalized, and validated
-   *   res.json({ success: true });
-   * });
-   * ```
-   */
-  check: (req: Request, _res: Response, next: NextFunction) => void;
-}
-
 ```
 **normalizeArray()**, **normalizeOne()**, **validateArray()**, and **validateOne()** methods are made to be used as Express.js middlewares.
 
@@ -423,22 +390,18 @@ Properties **min** and **max** of the password properties will override default 
 
 Any of these can be passed into the options object for each function.
 
-| Name            | Type                      |               Description                         |  Default value  |  
-| :-------------- | :------------------------ | :------------------------------------------------ | :-------------- |
-| key             |  string                   | Name of the property                              |
-| type            |  Type                     | Type of the property                              |
-| min             |  number \| Date           | Minimum value                                     | 0 \| 1900-01-01
-| max             |  number \| Date           | Maximum value                                     | 999999999 \| 2200-12-31
-| required        |  boolean                  | Property is required during validation            | false
-| safe            |  boolean                  | Property is sent in the response                  | true
-| typeCheck       |  boolean                  | Type is checked during validation                 | false
-| methods         |  Method[]                 | property is validated for the listed methods only | [ "GET", "POST", "PUT", "DELETE" ]
-| sanitize        |  boolean                  | Sanitize the property if true                     | true
-| normalize       |  boolean                  | Normalize the property if true                    | false
-| validate        |  boolean                  | validate the property if true                     | true
-| sanitizer       |  ((v:any) => any) \| null | Custom sanitizer function if sanitize is true     | null
-| normalizer      |  ((v:any) => any) \| null | Custop Normalizer function if normalize is true   | null
-| validator       |  ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null  | validator function if validate is true            | null
+| Name            | Type                     |               Description                        |  Default value  |  
+| :-------------- | :----------------------- | :----------------------------------------------- | :-------------- |
+| key             | string                   | Name of the property                             |
+| type            | Type                     | Type of the property                             |
+| min             | number \| Date           | Minimum value if applicable                      | 0 \| 1900-01-01
+| max             | number \| Date           | Maximum value if applicable                      | 999999999 \| 2200-12-31
+| need            | Methods[]                | Property is required for the listed methods only | [ "POST", "PUT", "PATCH" ]
+| send            | boolean                  | Property is sent in the response                 | true
+| typeCheck       | boolean                  | Strict type check at validation                  | false
+| sanitizer       | ((v:any) => any) \| null | Custom sanitizer function                        | null
+| normalizer      | ((v:any) => any) \| null | Custom Normalizer function                       | null
+| validator       | ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null         | Custom validator | null
 
 * *Min and max parameters are not used for boolean type*
 * *TypeCheck Parameter is not used for boolean, string and array types*

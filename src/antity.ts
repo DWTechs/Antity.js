@@ -1,11 +1,8 @@
-import { isArray, isString, isIn, isFunction, isObject } from '@dwtechs/checkard';
+import { isArray, isString, isIn, isObject } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Property } from './property';
-import { sanitize as san } from './sanitize';
-import { control } from './control';
-import { require } from './require';
-import { applyNormalization } from './normalizer';
-import { applyValidation } from './validator';
+import { normalize } from './normalize';
+import { validate } from './validate';
 import type {  Method } from './types';
 import type { Request, Response, NextFunction } from 'express';
 import { LOGS_PREFIX, METHODS } from './constants';
@@ -30,13 +27,9 @@ export class Entity {
         p.type,
         p.min,
         p.max,
-        p.required,
-        p.safe,
+        p.send,
+        p.need,
         p.typeCheck,
-        p.methods,
-        p.sanitize,
-        p.normalize,
-        p.validate,
         p.sanitizer,
         p.normalizer,
         p.validator, 
@@ -87,7 +80,7 @@ export class Entity {
   public getPropsByMethod(method: Method): Property[] {
     const props: Property[] = [];
     for(const p of this.properties) {
-      if (isIn(p.methods, method, 0))
+      if (isIn(p.need, method, 0))
         props.push(p);
     }
     return props;
@@ -108,7 +101,7 @@ export class Entity {
       return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
     
     for (const r of rows) {
-      applyNormalization(r, this._properties);
+      normalize(r, this._properties);
     }
     next()
   }
@@ -127,7 +120,7 @@ export class Entity {
     if (!isObject(r, true))
       return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
     
-    applyNormalization(r, this._properties);
+    normalize(r, this._properties);
     next()
   }
   
@@ -154,7 +147,7 @@ export class Entity {
       });
     
     for (const r of rows) {
-      const error = applyValidation(r, this._properties, method);
+      const error = validate(r, this._properties, method);
       if (error)
         return next(error);
     }
@@ -183,113 +176,10 @@ export class Entity {
         message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
       });
     
-    const error = applyValidation(record, this._properties, method);
+    const error = validate(record, this._properties, method);
     if (error)
       return next(error);
     
     next();
   }
-
-  /**
-   * Checks, sanitizes, normalizes, and validates each row in req.body.rows according to property config and HTTP method.
-   *
-   * - Applies sanitization if `sanitize: true` and method matches
-   * - Applies normalization if `normalize: true` and method matches
-   * - Checks required properties and validates values
-   * - Calls next(error) on failure, next() on success
-   *
-   * @param {Request} req - Express request object containing rows
-   * @param {Response} _res - Express response object (not used)
-   * @param {NextFunction} next - Express next function
-   *
-   * @returns {void}
-   *
-   * **Input Properties Required:**
-   * - `req.body.rows` (array) - Array of objects to check
-   * - Each property config can specify sanitize, normalize, validate, required, etc.
-   *
-   * **Output Properties:**
-   * - Mutates `req.body.rows` with sanitized/normalized values
-   * - Calls next(error) if any row fails checks, next() if all pass
-   *
-   * @example
-   * ```typescript
-   * router.post('/entity', entity.check, (req, res) => {
-   *   // req.body.rows are now sanitized, normalized, and validated
-   *   res.json({ success: true });
-   * });
-   * ```
-   */
-  public check = (req: Request, _res: Response, next: NextFunction): void => {
-    
-    const rows: Record<string, unknown>[] = req.body?.rows;
-    const method: Method = req.method;
-  
-    log.debug(`check ${this.name}`);
-
-    try {
-      isArray(rows, "!0", null, true);
-    } catch (err) {
-      return next({ 
-        statusCode: 400, 
-        message: `${LOGS_PREFIX}no rows found in request body - caused by: ${(err as Error).message}`
-      });
-    }
-
-    try {
-      isIn(METHODS, method, 0, true);
-    } catch (err) {
-      return next({ 
-        statusCode: 400, 
-        message: `${LOGS_PREFIX}Invalid REST method. Must be one of: ${METHODS.toString()} - caused by: ${(err as Error).message}`
-      });
-    }
-
-    for (const r of rows) {
-      for (const { 
-        key, 
-        type,
-        min,
-        max,
-        required,
-        typeCheck,
-        methods,
-        validate,
-        sanitize,
-        normalize,
-        sanitizer,
-        normalizer,
-        validator
-      } of this._properties) {
-        let v = r[key];
-        if (isIn(methods, method)) {
-          if (v) {
-            if (sanitize) {
-              log.debug(`sanitize ${key}: ${type} = ${v}`);
-              v = san(v, sanitizer);
-            }
-            if (normalize && isFunction(normalizer)) {
-              log.debug(`normalize ${key}: ${type} = ${v}`);
-              v = normalizer(v);
-            }
-            r[key] = v;
-            if (validate) {
-              const ct = control(v, key, type, min, max, typeCheck, validator);
-              if (ct)
-                return next(ct);
-            }
-          }
-          if (required) {
-            const rq = require(v, key, type);
-            if (rq)
-              return next(rq);
-          }
-        }
-      }
-    }
-
-    next();
-  }
-
 }
-  
