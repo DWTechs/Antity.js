@@ -52,12 +52,8 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 120,
     typeCheck: true,
-    methods: ["GET", "PUT", "DELETE"],
-    required: true,
+    need: ["PUT"],
     safe: true,
-    sanitize: true,
-    normalize: true,
-    validate: true,
     sanitizer: null,
     normalizer: null,
     validator: null,
@@ -68,12 +64,8 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    required: true,
+    need: ["PUT"],
     safe: true,
-    sanitize: true,
-    normalize: true,
-    validate: true,
     sanitizer: null,
     normalizer: normalizeName,
     validator: null,
@@ -84,12 +76,8 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    required: true,
+    need: ["PUT"],
     safe: true,
-    sanitize: true,
-    normalize: true,
-    validate: true,
     sanitizer: null,
     normalizer: normalizeName,
     validator: null,
@@ -100,12 +88,8 @@ const entity = new Entity("consumers", [
     min: 0,
     max: 255,
     typeCheck: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    required: true,
+    need: ["PUT"],
     safe: true,
-    sanitize: true,
-    normalize: true,
-    validate: true,
     sanitizer: null,
     normalizer: normalizeNickname,
     validator: null,
@@ -154,20 +138,16 @@ type Type =
   "node" |
   "object";
             
-type Method = "GET" | "PATCH" | "PUT" | "POST" | "DELETE";
+type Method = "PATCH" | "PUT" | "POST";
 
 class Property {
   key: string;
   type: Type;
   min: number | Date | null;
   max: number | Date | null;
-  required: boolean;
-  safe: boolean;
+  need: Method[];
+  send: boolean;
   typeCheck: boolean;
-  methods: Method[];
-  sanitize: boolean;
-  normalize: boolean;
-  validate: boolean;
   sanitizer: Function | null;
   normalizer: Function | null;
   validator: Function | null;
