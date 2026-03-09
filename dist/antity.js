@@ -135,7 +135,7 @@ const Types = {
 };
 
 class Property {
-    constructor(key, type, min, max, send, need, typeCheck, sanitizer, normalizer, validator) {
+    constructor(key, type, min, max, isPrivate, requiredFor, isTypeChecked, sanitizer, normalizer, validator) {
         try {
             isString(key, "!0", null, true);
         }
@@ -148,13 +148,13 @@ class Property {
         catch (err) {
             throw new Error(`${LOGS_PREFIX}Property "type" must be a valid type - caused by: ${err.message}`);
         }
-        if (isArray(need)) {
-            for (const m of need) {
+        if (isArray(requiredFor)) {
+            for (const m of requiredFor) {
                 try {
                     isIn(METHODS, m, 0, true);
                 }
                 catch (err) {
-                    throw new Error(`${LOGS_PREFIX}Property "need" must be an array of REST methods - caused by: ${err.message}`);
+                    throw new Error(`${LOGS_PREFIX}Property "requiredFor" must be an array of REST methods - caused by: ${err.message}`);
                 }
             }
         }
@@ -162,9 +162,9 @@ class Property {
         this.type = type;
         this.min = this.interval(min, type, 0, "1900-01-01T00:00:00Z");
         this.max = this.interval(max, type, 999999999, "2200-12-31T00:00:00Z");
-        this.need = isArray(need) ? need : [];
-        this.send = isBoolean(send) ? send : true;
-        this.typeCheck = isBoolean(typeCheck) ? typeCheck : false;
+        this.requiredFor = isArray(requiredFor) ? requiredFor : [];
+        this.isPrivate = isBoolean(isPrivate) ? isPrivate : false;
+        this.isTypeChecked = isBoolean(isTypeChecked) ? isTypeChecked : false;
         this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
         this.normalizer = isFunction(normalizer) ? normalizer : null;
         this.validator = isFunction(validator) ? validator : null;
@@ -245,15 +245,15 @@ function require(v, key, type) {
 }
 
 function validate(record, properties, method) {
-    for (const { key, type, min, max, need, typeCheck, validator } of properties) {
+    for (const { key, type, min, max, requiredFor, isTypeChecked, validator } of properties) {
         const v = record[key];
-        if (isIn(need, method)) {
+        if (isIn(requiredFor, method)) {
             const rq = require(v, key, type);
             if (rq)
                 return rq;
         }
         if (v) {
-            const ct = control(v, key, type, min, max, typeCheck, validator);
+            const ct = control(v, key, type, min, max, isTypeChecked, validator);
             if (ct)
                 return ct;
         }
@@ -321,10 +321,10 @@ class Entity {
         this._properties = [];
         this._unsafeProps = [];
         for (const p of properties) {
-            const prop = new Property(p.key, p.type, p.min, p.max, p.send, p.need, p.typeCheck, p.sanitizer, p.normalizer, p.validator);
+            const prop = new Property(p.key, p.type, p.min, p.max, p.isPrivate, p.requiredFor, p.isTypeChecked, p.sanitizer, p.normalizer, p.validator);
             Object.assign(prop, p);
             this._properties.push(prop);
-            if (!prop.safe)
+            if (prop.isPrivate)
                 this._unsafeProps.push(prop.key);
         }
     }
@@ -348,7 +348,7 @@ class Entity {
     getPropsByMethod(method) {
         const props = [];
         for (const p of this.properties) {
-            if (isIn(p.need, method, 0))
+            if (isIn(p.requiredFor, method, 0))
                 props.push(p);
         }
         return props;

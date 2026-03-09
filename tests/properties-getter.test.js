@@ -8,9 +8,9 @@ describe('Entity properties getter', () => {
         type: 'integer',
         min: 1,
         max: 999999999,
-        typeCheck: true,
-        need: ['PUT', 'PATCH'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['PUT', 'PATCH'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: null,
         validator: null
@@ -20,9 +20,9 @@ describe('Entity properties getter', () => {
         type: 'string',
         min: 1,
         max: 255,
-        typeCheck: true,
-        need: ['POST', 'PUT'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['POST', 'PUT'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: val => val.trim(),
         validator: null
@@ -32,9 +32,9 @@ describe('Entity properties getter', () => {
         type: 'email',
         min: 5,
         max: 255,
-        typeCheck: true,
-        need: ['POST'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['POST'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: val => val.toLowerCase(),
         validator: null
@@ -47,7 +47,7 @@ describe('Entity properties getter', () => {
     expect(props).toHaveLength(3);
     expect(props[0].key).toBe('id');
     expect(props[0].type).toBe('integer');
-    expect(props[0].need).toEqual(['PUT', 'PATCH']);
+    expect(props[0].requiredFor).toEqual(['PUT', 'PATCH']);
     expect(props[1].key).toBe('name');
     expect(props[1].normalizer).toBeDefined();
     expect(props[2].key).toBe('email');
@@ -61,9 +61,9 @@ describe('Entity properties getter', () => {
         type: 'integer',
         min: 1,
         max: 999999999,
-        typeCheck: true,
-        need: ['PUT'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['PUT'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: null,
         validator: null,
@@ -78,9 +78,9 @@ describe('Entity properties getter', () => {
         type: 'string',
         min: 1,
         max: 255,
-        typeCheck: true,
-        need: ['POST'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['POST'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: null,
         validator: null,
@@ -111,9 +111,9 @@ describe('Entity properties getter', () => {
         type: 'integer',
         min: 0,
         max: 120,
-        typeCheck: true,
-        need: ['POST', 'PUT'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['POST', 'PUT'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: null,
         validator: val => val >= 18
@@ -123,9 +123,9 @@ describe('Entity properties getter', () => {
         type: 'password',
         min: 8,
         max: 64,
-        typeCheck: true,
-        need: ['POST'],
-        send: false,
+        isTypeChecked: true,
+        requiredFor: ['POST'],
+        isPrivate: true,
         sanitizer: null,
         normalizer: null,
         validator: null
@@ -137,7 +137,7 @@ describe('Entity properties getter', () => {
     
     expect(props[0].type).toBe('integer');
     expect(props[0].validator).toBeDefined();
-    expect(props[1].send).toBe(false);
+    expect(props[1].isPrivate).toBe(true);
     expect(props[1].type).toBe('password');
   });
 });

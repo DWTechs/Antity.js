@@ -27,9 +27,9 @@ export class Entity {
         p.type,
         p.min,
         p.max,
-        p.send,
-        p.need,
-        p.typeCheck,
+        p.isPrivate,
+        p.requiredFor,
+        p.isTypeChecked,
         p.sanitizer,
         p.normalizer,
         p.validator, 
@@ -38,7 +38,7 @@ export class Entity {
       Object.assign(prop, p);
       this._properties.push(prop);
 
-      if (!prop.safe) this._unsafeProps.push(prop.key);
+      if (prop.isPrivate) this._unsafeProps.push(prop.key);
 
     }
   }
@@ -80,7 +80,7 @@ export class Entity {
   public getPropsByMethod(method: Method): Property[] {
     const props: Property[] = [];
     for(const p of this.properties) {
-      if (isIn(p.need, method, 0))
+      if (isIn(p.requiredFor, method, 0))
         props.push(p);
     }
     return props;

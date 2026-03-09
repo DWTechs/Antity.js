@@ -80,9 +80,9 @@ declare class Property {
   type: Type;
   min: number | Date | null;
   max: number | Date | null;
-  send: boolean;
-  need: Method[];
-  typeCheck: boolean;
+  isPrivate: boolean;
+  requiredFor: Method[];
+  isTypeChecked: boolean;
   sanitizer: ((v: any) => any) | null;
   normalizer: ((v: any) => any) | null;
   validator: ((v: any) => any) | null;
@@ -91,9 +91,9 @@ declare class Property {
     type: Type,
     min: number | Date | null,
     max: number | Date | null,
-    send: boolean,
-    need: Method[],
-    typeCheck: boolean,
+    isPrivate: boolean,
+    requiredFor: Method[],
+    isTypeChecked: boolean,
     sanitizer: ((v: any) => any) | null,
     normalizer: ((v: any) => any) | null,
     validator: ((v: any) => any) | null

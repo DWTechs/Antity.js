@@ -1,6 +1,6 @@
 import { isIn } from '@dwtechs/checkard';
 import { control } from './control';
-import { require } from './need';
+import { require } from './require';
 import type { Property } from './property';
 import type { Method } from './types';
 
@@ -27,18 +27,18 @@ export function validate(
     type,
     min,
     max,
-    need,
-    typeCheck,
+    requiredFor,
+    isTypeChecked,
     validator
   } of properties) {
     const v = record[key];
-    if (isIn(need, method)) {
+    if (isIn(requiredFor, method)) {
       const rq = require(v, key, type);
       if (rq)
         return rq;
     }
     if (v) {
-      const ct = control(v, key, type, min, max, typeCheck, validator);
+      const ct = control(v, key, type, min, max, isTypeChecked, validator);
       if (ct)
         return ct;
     }

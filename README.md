@@ -146,7 +146,7 @@ class Property {
   min: number | Date | null;
   max: number | Date | null;
   need: Method[];
-  send: boolean;
+  private: boolean;
   typeCheck: boolean;
   sanitizer: Function | null;
   normalizer: Function | null;
@@ -376,9 +376,9 @@ Any of these can be passed into the options object for each function.
 | type            | Type                     | Type of the property                             |
 | min             | number \| Date           | Minimum value if applicable                      | 0 \| 1900-01-01
 | max             | number \| Date           | Maximum value if applicable                      | 999999999 \| 2200-12-31
-| need            | Methods[]                | Property is required for the listed methods only | [ "POST", "PUT", "PATCH" ]
-| send            | boolean                  | Property is sent in the response                 | true
-| typeCheck       | boolean                  | Strict type check at validation                  | false
+| requiredFor     | Methods[]                | Property is required for the listed methods only | [ "POST", "PUT", "PATCH" ]
+| isPrivate       | boolean                  | Property should not be sent in the response      | false
+| isTypeChecked   | boolean                  | Strict type check at validation                  | false
 | sanitizer       | ((v:any) => any) \| null | Custom sanitizer function                        | null
 | normalizer      | ((v:any) => any) \| null | Custom Normalizer function                       | null
 | validator       | ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null         | Custom validator | null

@@ -10,9 +10,9 @@ describe('Entity.getPropsByMethod', () => {
         type: 'integer',
         min: 1,
         max: 999999999,
-        typeCheck: true,
-        need: ['PUT', 'PATCH'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['PUT', 'PATCH'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: null,
         validator: null
@@ -22,9 +22,9 @@ describe('Entity.getPropsByMethod', () => {
         type: 'email',
         min: 5,
         max: 255,
-        typeCheck: true,
-        need: ['POST', 'PUT'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['POST', 'PUT'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: val => val.toLowerCase(),
         validator: null
@@ -34,9 +34,9 @@ describe('Entity.getPropsByMethod', () => {
         type: 'password',
         min: 8,
         max: 64,
-        typeCheck: true,
-        need: ['POST'],
-        send: false,
+        isTypeChecked: true,
+        requiredFor: ['POST'],
+        isPrivate: true,
         sanitizer: null,
         normalizer: null,
         validator: null
@@ -46,9 +46,9 @@ describe('Entity.getPropsByMethod', () => {
         type: 'string',
         min: 1,
         max: 100,
-        typeCheck: true,
-        need: ['POST', 'PUT', 'PATCH'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['POST', 'PUT', 'PATCH'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: val => val.trim(),
         validator: null
@@ -58,9 +58,9 @@ describe('Entity.getPropsByMethod', () => {
         type: 'integer',
         min: 0,
         max: 120,
-        typeCheck: true,
-        need: ['PATCH'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['PATCH'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: null,
         validator: null
@@ -112,9 +112,9 @@ describe('Entity.getPropsByMethod', () => {
         type: 'string',
         min: 1,
         max: 100,
-        typeCheck: true,
-        need: ['POST'],
-        send: true,
+        isTypeChecked: true,
+        requiredFor: ['POST'],
+        isPrivate: false,
         sanitizer: null,
         normalizer: null,
         validator: null
@@ -132,12 +132,12 @@ describe('Entity.getPropsByMethod', () => {
     const firstNameProp = props.find(p => p.key === 'firstName');
     
     expect(emailProp).toBeDefined();
-    expect(emailProp?.need).toContain('POST');
-    expect(emailProp?.need).toContain('PUT');
+    expect(emailProp?.requiredFor).toContain('POST');
+    expect(emailProp?.requiredFor).toContain('PUT');
     
     expect(firstNameProp).toBeDefined();
-    expect(firstNameProp?.need).toContain('POST');
-    expect(firstNameProp?.need).toContain('PUT');
-    expect(firstNameProp?.need).toContain('PATCH');
+    expect(firstNameProp?.requiredFor).toContain('POST');
+    expect(firstNameProp?.requiredFor).toContain('PUT');
+    expect(firstNameProp?.requiredFor).toContain('PATCH');
   });
 });
