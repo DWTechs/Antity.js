@@ -59,7 +59,7 @@ type Type =
 
 declare class Entity {
   private _name;
-  private _unsafeProps;
+  private _privateProps;
   private _properties;
   constructor(name: string, properties: Property[]);
   get name(): string;

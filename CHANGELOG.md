@@ -1,9 +1,12 @@
 
 # 0.15.1 (Mar 8th 2026)
 
-- Rename `send` property to `private` with inverted logic (private: true means the property should NOT be sent)
-- Fix `unsafeProps` construction method in Entity constructor to properly collect private properties
-- Add comprehensive test suite for `unsafeProps` getter
+- Rename `send` property to `isPrivate` with inverted logic (isPrivate: true means the property should NOT be sent)
+- Rename `need` property to `requiredFor` for better clarity
+- Rename `typeCheck` property to `isTypeChecked` for consistency
+- Rename `unsafeProps` getter to `privateProps` to align with new naming convention
+- Fix `privateProps` construction method in Entity constructor to properly collect private properties
+- Add comprehensive test suite for `privateProps` getter
 
 # 0.15.0 (Feb 28th 2026)
 

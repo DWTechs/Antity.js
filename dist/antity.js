@@ -319,20 +319,20 @@ class Entity {
         };
         this._name = name;
         this._properties = [];
-        this._unsafeProps = [];
+        this._privateProps = [];
         for (const p of properties) {
             const prop = new Property(p.key, p.type, p.min, p.max, p.isPrivate, p.requiredFor, p.isTypeChecked, p.sanitizer, p.normalizer, p.validator);
             Object.assign(prop, p);
             this._properties.push(prop);
             if (prop.isPrivate)
-                this._unsafeProps.push(prop.key);
+                this._privateProps.push(prop.key);
         }
     }
     get name() {
         return this._name;
     }
-    get unsafeProps() {
-        return this._unsafeProps;
+    get privateProps() {
+        return this._privateProps;
     }
     get properties() {
         return this._properties;

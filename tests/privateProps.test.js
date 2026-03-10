@@ -1,6 +1,6 @@
 import { Entity } from '../dist/antity';
 
-describe('Entity unsafeProps getter', () => {
+describe('Entity privateProps getter', () => {
   it('should return an empty array when all properties have isPrivate: false', () => {
     const properties = [
       {
@@ -42,10 +42,10 @@ describe('Entity unsafeProps getter', () => {
     ];
     
     const entity = new Entity('users', properties);
-    const unsafe = entity.unsafeProps;
+    const privateResult = entity.privateProps;
     
-    expect(unsafe).toEqual([]);
-    expect(unsafe).toHaveLength(0);
+    expect(privateResult).toEqual([]);
+    expect(privateResult).toHaveLength(0);
   });
 
   it('should return all property keys when all properties have isPrivate: true', () => {
@@ -89,10 +89,10 @@ describe('Entity unsafeProps getter', () => {
     ];
     
     const entity = new Entity('secure', properties);
-    const unsafe = entity.unsafeProps;
+    const privateResult = entity.privateProps;
     
-    expect(unsafe).toEqual(['password', 'token', 'ssn']);
-    expect(unsafe).toHaveLength(3);
+    expect(privateResult).toEqual(['password', 'token', 'ssn']);
+    expect(privateResult).toHaveLength(3);
   });
 
   it('should return only property keys where isPrivate is true in mixed scenario', () => {
@@ -160,26 +160,26 @@ describe('Entity unsafeProps getter', () => {
     ];
     
     const entity = new Entity('users', properties);
-    const unsafe = entity.unsafeProps;
+    const privateResult = entity.privateProps;
     
-    expect(unsafe).toEqual(['password', 'secretKey']);
-    expect(unsafe).toHaveLength(2);
-    expect(unsafe).not.toContain('id');
-    expect(unsafe).not.toContain('username');
-    expect(unsafe).not.toContain('email');
+    expect(privateResult).toEqual(['password', 'secretKey']);
+    expect(privateResult).toHaveLength(2);
+    expect(privateResult).not.toContain('id');
+    expect(privateResult).not.toContain('username');
+    expect(privateResult).not.toContain('email');
   });
 
   it('should return an empty array when no properties are provided', () => {
     const properties = [];
     
     const entity = new Entity('empty', properties);
-    const unsafe = entity.unsafeProps;
+    const privateResult = entity.privateProps;
     
-    expect(unsafe).toEqual([]);
-    expect(unsafe).toHaveLength(0);
+    expect(privateResult).toEqual([]);
+    expect(privateResult).toHaveLength(0);
   });
 
-  it('should return correct unsafe properties when only one property has isPrivate: true', () => {
+  it('should return correct private properties when only one property has isPrivate: true', () => {
     const properties = [
       {
         key: 'id',
@@ -208,13 +208,13 @@ describe('Entity unsafeProps getter', () => {
     ];
     
     const entity = new Entity('items', properties);
-    const unsafe = entity.unsafeProps;
+    const privateResult = entity.privateProps;
     
-    expect(unsafe).toEqual(['internalCode']);
-    expect(unsafe).toHaveLength(1);
+    expect(privateResult).toEqual(['internalCode']);
+    expect(privateResult).toHaveLength(1);
   });
 
-  it('should maintain the order of unsafe properties as they appear in the properties array', () => {
+  it('should maintain the order of private properties as they appear in the properties array', () => {
     const properties = [
       {
         key: 'field1',
@@ -279,12 +279,12 @@ describe('Entity unsafeProps getter', () => {
     ];
     
     const entity = new Entity('test', properties);
-    const unsafe = entity.unsafeProps;
+    const privateResult = entity.privateProps;
     
-    expect(unsafe).toEqual(['field2', 'field4', 'field5']);
-    expect(unsafe[0]).toBe('field2');
-    expect(unsafe[1]).toBe('field4');
-    expect(unsafe[2]).toBe('field5');
+    expect(privateResult).toEqual(['field2', 'field4', 'field5']);
+    expect(privateResult[0]).toBe('field2');
+    expect(privateResult[1]).toBe('field4');
+    expect(privateResult[2]).toBe('field5');
   });
 
   it('should return an array (not modify the internal array reference)', () => {
@@ -304,8 +304,8 @@ describe('Entity unsafeProps getter', () => {
     ];
     
     const entity = new Entity('test', properties);
-    const unsafe1 = entity.unsafeProps;
-    const unsafe2 = entity.unsafeProps;
+    const unsafe1 = entity.privateProps;
+    const unsafe2 = entity.privateProps;
     
     expect(unsafe1).toEqual(['secret']);
     expect(unsafe2).toEqual(['secret']);
@@ -365,9 +365,9 @@ describe('Entity unsafeProps getter', () => {
     ];
     
     const entity = new Entity('mixed', properties);
-    const unsafe = entity.unsafeProps;
+    const privateResult = entity.privateProps;
     
-    expect(unsafe).toEqual(['apiKey', 'internalId']);
-    expect(unsafe).toHaveLength(2);
+    expect(privateResult).toEqual(['apiKey', 'internalId']);
+    expect(privateResult).toHaveLength(2);
   });
 });

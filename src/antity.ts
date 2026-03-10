@@ -9,7 +9,7 @@ import { LOGS_PREFIX, METHODS } from './constants';
 
 export class Entity {
   private _name: string;
-  private _unsafeProps: string[];
+  private _privateProps: string[];
   private _properties: Property[];
 
   constructor (
@@ -19,7 +19,7 @@ export class Entity {
 
     this._name = name;
     this._properties = [];
-    this._unsafeProps = [];
+    this._privateProps = [];
 
     for (const p of properties) {
       const prop = new Property(
@@ -38,7 +38,7 @@ export class Entity {
       Object.assign(prop, p);
       this._properties.push(prop);
 
-      if (prop.isPrivate) this._unsafeProps.push(prop.key);
+      if (prop.isPrivate) this._privateProps.push(prop.key);
 
     }
   }
@@ -47,8 +47,8 @@ export class Entity {
     return this._name;
   }
 
-  public get unsafeProps(): string[] {
-    return this._unsafeProps;
+  public get privateProps(): string[] {
+    return this._privateProps;
   }
 
   public get properties(): Property[] {
