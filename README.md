@@ -51,9 +51,9 @@ const entity = new Entity("consumers", [
     type: "integer",
     min: 0,
     max: 120,
-    typeCheck: true,
-    need: ["PUT"],
-    safe: true,
+    isTypeChecked: true,
+    requiredFor: ["PUT"],
+    isPrivate: true,
     sanitizer: null,
     normalizer: null,
     validator: null,
@@ -63,9 +63,9 @@ const entity = new Entity("consumers", [
     type: "string",
     min: 0,
     max: 255,
-    typeCheck: true,
-    need: ["PUT"],
-    safe: true,
+    isTypeChecked: true,
+    requiredFor: ["PUT"],
+    isPrivate: true,
     sanitizer: null,
     normalizer: normalizeName,
     validator: null,
@@ -75,9 +75,9 @@ const entity = new Entity("consumers", [
     type: "string",
     min: 0,
     max: 255,
-    typeCheck: true,
-    need: ["PUT"],
-    safe: true,
+    isTypeChecked: true,
+    requiredFor: ["PUT"],
+    isPrivate: true,
     sanitizer: null,
     normalizer: normalizeName,
     validator: null,
@@ -87,9 +87,9 @@ const entity = new Entity("consumers", [
     type: "string",
     min: 0,
     max: 255,
-    typeCheck: true,
-    need: ["PUT"],
-    safe: true,
+    isTypeChecked: true,
+    requiredFor: ["PUT"],
+    isPrivate: true,
     sanitizer: null,
     normalizer: normalizeNickname,
     validator: null,
@@ -145,9 +145,9 @@ class Property {
   type: Type;
   min: number | Date | null;
   max: number | Date | null;
-  need: Method[];
-  private: boolean;
-  typeCheck: boolean;
+  requiredFor: Method[];
+  isPrivate: boolean;
+  isTypeChecked: boolean;
   sanitizer: Function | null;
   normalizer: Function | null;
   validator: Function | null;
@@ -156,7 +156,7 @@ class Property {
 class Entity {
   constructor(name: string, properties: Property[]);
   get name(): string;
-  get unsafeProps(): string[];
+  get privateProps(): string[];
   get properties(): Property[];
   set name(name: string);
   

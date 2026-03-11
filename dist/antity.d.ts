@@ -63,7 +63,7 @@ declare class Entity {
   private _properties;
   constructor(name: string, properties: Property[]);
   get name(): string;
-  get unsafeProps(): string[];
+  get privateProps(): string[];
   get properties(): Property[];
   set name(name: string);
   getProp(key: string): Property | undefined;
