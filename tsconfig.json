@@ -24,7 +24,6 @@
   },
   "exclude": [
     "node_modules",
-    "**/*.test.ts",
-    "pgsql"
+    "**/*.test.ts"
   ]
 }
