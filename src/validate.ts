@@ -1,4 +1,3 @@
-import { isIn } from '@dwtechs/checkard';
 import { control } from './control';
 import { require } from './require';
 import type { Property } from './property';
@@ -32,7 +31,7 @@ export function validate(
     validator
   } of properties) {
     const v = record[key];
-    if (isIn(requiredFor, method)) {
+    if (requiredFor.includes(method)) {
       const rq = require(v, key, type);
       if (rq)
         return rq;

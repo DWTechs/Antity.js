@@ -136,7 +136,10 @@ type Type =
   "htmlElement" |
   "htmlEventAttribute" |
   "node" |
-  "object";
+  "object" |
+  "ansiEscapeCode" |
+  "locale" |
+  "timeZone";
             
 type Method = "PATCH" | "PUT" | "POST";
 

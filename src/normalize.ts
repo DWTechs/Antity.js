@@ -1,4 +1,4 @@
-import { isFunction } from '@dwtechs/checkard';
+
 import { log } from "@dwtechs/winstan";
 import { sanitize } from './sanitize';
 import type { Property } from './property';
@@ -23,7 +23,7 @@ export function normalize(
     if (v) {
       log.debug(`sanitize ${key}: ${type} = ${v}`);
       v = sanitize(v, sanitizer);
-      if (isFunction(normalizer)) {
+      if (normalizer) {
         log.debug(`normalize ${key}: ${type} = ${v}`);
         v = normalizer(v);
       }

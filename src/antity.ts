@@ -1,4 +1,4 @@
-import { isArray, isString, isIn, isObject } from '@dwtechs/checkard';
+import { isArray, isString, isObject } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Property } from './property';
 import { normalize } from './normalize';
@@ -80,7 +80,7 @@ export class Entity {
   public getPropsByMethod(method: Method): Property[] {
     const props: Property[] = [];
     for(const p of this.properties) {
-      if (isIn(p.requiredFor, method, 0))
+      if (p.requiredFor.includes(method))
         props.push(p);
     }
     return props;
@@ -97,8 +97,10 @@ export class Entity {
     
     const rows: Record<string, unknown>[] = req.body?.rows;
     
-    if (!isArray(rows, ">", 0))
-      return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
+    if (!isArray(rows, ">", 0)) {
+      next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
+      return;
+    }
     
     for (const r of rows) {
       normalize(r, this._properties);
@@ -117,8 +119,10 @@ export class Entity {
     
     const r: Record<string, unknown> = req.body;
     
-    if (!isObject(r, true))
-      return next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
+    if (!isObject(r, true)) {
+      next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
+      return;
+    }
     
     normalize(r, this._properties);
     next()
@@ -137,19 +141,22 @@ export class Entity {
     const rows: Record<string, unknown>[] = req.body?.rows;
     const method: Method = req.method;
   
-    if (!isArray(rows, ">", 0))
-      return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
+    if (!isArray(rows, ">", 0)) {
+      next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
+      return;
+    }
 
-    if (!isIn(METHODS, method))
-      return next({ 
-        statusCode: 400, 
-        message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
-      });
+    if (!METHODS.includes(method)) {
+      next({ statusCode: 400, message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}` });
+      return;
+    }
     
     for (const r of rows) {
       const error = validate(r, this._properties, method);
-      if (error)
-        return next(error);
+      if (error) {
+        next(error);
+        return;
+      }
     }
     next();
   }
@@ -167,18 +174,21 @@ export class Entity {
     const record: Record<string, unknown> = req.body;
     const method: Method = req.method;
   
-    if (!isObject(record, true))
-      return next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no data found in request body` });
+    if (!isObject(record, true)) {
+      next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no data found in request body` });
+      return;
+    }
 
-    if (!isIn(METHODS, method))
-      return next({ 
-        statusCode: 400, 
-        message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}`
-      });
+    if (!METHODS.includes(method)) {
+      next({ statusCode: 400, message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}` });
+      return;
+    }
     
     const error = validate(record, this._properties, method);
-    if (error)
-      return next(error);
+    if (error) {
+      next(error);
+      return;
+    }
     
     next();
   }

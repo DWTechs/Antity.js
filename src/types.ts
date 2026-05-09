@@ -29,7 +29,10 @@ export type Type =
   "htmlElement" |
   "htmlEventAttribute" |
   "node" |
-  "object";
+  "object" |
+  "ansiEscapeCode" |
+  "locale" |
+  "timeZone";
   // "geometry";
 
 export type Method = typeof METHODS[number];

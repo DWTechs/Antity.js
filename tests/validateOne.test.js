@@ -183,4 +183,138 @@ describe('Entity.validateOne', () => {
     entity.validateOne(req, null, next);
     expect(next).toHaveBeenCalledWith();
   });
+
+  describe('type: ansiEscapeCode', () => {
+    let ansiEntity;
+
+    beforeEach(() => {
+      ansiEntity = new Entity('ansi', [
+        {
+          key: 'code',
+          type: 'ansiEscapeCode',
+          min: 0,
+          max: 0,
+          isTypeChecked: false,
+          requiredFor: ['POST'],
+          isPrivate: false,
+          sanitizer: null,
+          normalizer: null,
+          validator: null
+        }
+      ]);
+    });
+
+    it('should accept a valid ANSI escape code', () => {
+      const req = { body: { code: '\\x1b[31m' }, method: 'POST' };
+      ansiEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should reject an invalid ANSI escape code', () => {
+      const req = { body: { code: 'notansi' }, method: 'POST' };
+      ansiEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({
+        statusCode: 400,
+        message: expect.stringContaining('"code"')
+      }));
+    });
+  });
+
+  describe('type: locale', () => {
+    let localeEntity;
+
+    beforeEach(() => {
+      localeEntity = new Entity('loc', [
+        {
+          key: 'lang',
+          type: 'locale',
+          min: 0,
+          max: 0,
+          isTypeChecked: false,
+          requiredFor: ['POST'],
+          isPrivate: false,
+          sanitizer: null,
+          normalizer: null,
+          validator: null
+        }
+      ]);
+    });
+
+    it('should accept a valid locale', () => {
+      const req = { body: { lang: 'en-US' }, method: 'POST' };
+      localeEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should accept an extended locale when isTypeChecked is true', () => {
+      const extLocaleEntity = new Entity('loc-ext', [
+        {
+          key: 'lang',
+          type: 'locale',
+          min: 0,
+          max: 0,
+          isTypeChecked: true,
+          requiredFor: ['POST'],
+          isPrivate: false,
+          sanitizer: null,
+          normalizer: null,
+          validator: null
+        }
+      ]);
+      const req = { body: { lang: 'fr' }, method: 'POST' };
+      extLocaleEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should reject an invalid locale', () => {
+      const req = { body: { lang: '12345' }, method: 'POST' };
+      localeEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({
+        statusCode: 400,
+        message: expect.stringContaining('"lang"')
+      }));
+    });
+  });
+
+  describe('type: timeZone', () => {
+    let tzEntity;
+
+    beforeEach(() => {
+      tzEntity = new Entity('tz', [
+        {
+          key: 'timezone',
+          type: 'timeZone',
+          min: 0,
+          max: 0,
+          isTypeChecked: false,
+          requiredFor: ['POST'],
+          isPrivate: false,
+          sanitizer: null,
+          normalizer: null,
+          validator: null
+        }
+      ]);
+    });
+
+    it('should accept a valid IANA time zone', () => {
+      const req = { body: { timezone: 'Europe/Paris' }, method: 'POST' };
+      tzEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should accept America/New_York', () => {
+      const req = { body: { timezone: 'America/New_York' }, method: 'POST' };
+      tzEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should reject an invalid time zone', () => {
+      const req = { body: { timezone: 'Not/ATimeZone' }, method: 'POST' };
+      tzEntity.validateOne(req, null, next);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({
+        statusCode: 400,
+        message: expect.stringContaining('"timezone"')
+      }));
+    });
+  });
 });

@@ -14,8 +14,8 @@ function sanitize(v: unknown, cb: ((v:unknown) => unknown) | null): unknown {
   if (cb)
     return cb(v);
   if (isArray(v, null, null)) {
-    for (let d of v) {
-      d = trim(d);
+    for (let i = 0; i < v.length; i++) {
+      v[i] = trim(v[i]);
     }
     return v;
   }
@@ -33,11 +33,12 @@ function trim(v: unknown): unknown {
   if (isString(v, "!0"))
     return v.trim();
   if (isObject(v, true)) {
-    for (const k in v) {
-      if (Object.prototype.hasOwnProperty.call(v, k)) {
-        let o = (v as Record<string, unknown>)[k];
+    const obj = v as Record<string, unknown>;
+    for (const k in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, k)) {
+        const o = obj[k];
         if (isString(o, "!0", null))
-          o = o.trim();
+          obj[k] = (o as string).trim();
       }
     }
   }

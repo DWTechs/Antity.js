@@ -29,7 +29,10 @@ type Type =
   "htmlElement" |
   "htmlEventAttribute" |
   "node" |
-  "object";
+  "object" |
+  "ansiEscapeCode" |
+  "locale" |
+  "timeZone";
 
 declare class Entity {
   private _name;
