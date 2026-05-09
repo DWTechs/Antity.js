@@ -1,9 +1,9 @@
 
-# 0.17.0 (May 9th 2026)
+# 0.17.0 (May 7th 2026)
 
+- Add `ansiEscapeCode`, `locale` and `timeZone` types
 - Update @dwtechs/checkard to 3.6.0
 - Update @dwtechs/winstan to 0.7.0
-- Add `ansiEscapeCode`, `locale` and `timeZone` types
 
 # 0.16.0 (Mar 8th 2026)
 
