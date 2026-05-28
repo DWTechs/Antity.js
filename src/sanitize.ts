@@ -34,12 +34,10 @@ function trim(v: unknown): unknown {
     return v.trim();
   if (isObject(v, true)) {
     const obj = v as Record<string, unknown>;
-    for (const k in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, k)) {
-        const o = obj[k];
-        if (isString(o, "!0", null))
-          obj[k] = (o as string).trim();
-      }
+    for (const k of Object.keys(obj)) {
+      const o = obj[k];
+      if (isString(o, "!0", null))
+        obj[k] = (o as string).trim();
     }
   }
   return v;

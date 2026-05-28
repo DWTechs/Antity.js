@@ -8,6 +8,7 @@ import {
   PWD_SYMBOLS
 } from './constants';
 
+import { isValidPassword } from '@dwtechs/passken';
 import { 
   isSymbol,
   isBoolean,
@@ -16,7 +17,6 @@ import {
   isValidInteger,
   isValidFloat,
   isValidNumber,
-  isValidPassword,
   isEmail,
   isRegex,
   isJson,
@@ -94,12 +94,12 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   password: {
     validate: (v: any, min: number | Date, max: number | Date, _typeCheck: boolean) => {
       const o = { 
-        minLength: (min as number) || PWD_MIN_LENGTH,
-        maxLength: (max as number) || PWD_MAX_LENGTH,
-        lowerCase: PWD_LOWERCASE,
-        upperCase: PWD_UPPERCASE,
-        number: PWD_NUMBERS,
-        specialCharacter: PWD_SYMBOLS, 
+        minLen: (min as number) || PWD_MIN_LENGTH,
+        maxLen: (max as number) || PWD_MAX_LENGTH,
+        lcase: PWD_LOWERCASE,
+        ucase: PWD_UPPERCASE,
+        num: PWD_NUMBERS,
+        sym: PWD_SYMBOLS, 
       };
       return isValidPassword(v, o, true);
     }

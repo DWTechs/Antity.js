@@ -7,10 +7,13 @@ import type {  Method } from './types';
 import type { Request, Response, NextFunction } from 'express';
 import { LOGS_PREFIX, METHODS } from './constants';
 
+const STANDARD_PROP_KEYS = new Set(['key', 'type', 'min', 'max', 'isPrivate', 'requiredFor', 'isTypeChecked', 'sanitizer', 'normalizer', 'validator']);
+
 export class Entity {
   private _name: string;
   private _privateProps: string[];
   private _properties: Property[];
+  private _propsByMethod: Map<Method, Property[]>;
 
   constructor (
     name: string,
@@ -20,6 +23,7 @@ export class Entity {
     this._name = name;
     this._properties = [];
     this._privateProps = [];
+    this._propsByMethod = new Map(METHODS.map(m => [m as Method, []]));
 
     for (const p of properties) {
       const prop = new Property(
@@ -34,11 +38,15 @@ export class Entity {
         p.normalizer,
         p.validator, 
       )
-      // Copy all extra fields from p to prop
-      Object.assign(prop, p);
+      // Copy only extra (non-standard) fields from p to prop
+      for (const k of Object.keys(p))
+        if (!STANDARD_PROP_KEYS.has(k))
+          prop[k] = p[k];
       this._properties.push(prop);
 
       if (prop.isPrivate) this._privateProps.push(prop.key);
+      for (const m of prop.requiredFor)
+        this._propsByMethod.get(m)?.push(prop);
 
     }
   }
@@ -78,12 +86,7 @@ export class Entity {
    * @returns {Property[]} An array of properties that are associated with the specified method.
    */
   public getPropsByMethod(method: Method): Property[] {
-    const props: Property[] = [];
-    for(const p of this.properties) {
-      if (p.requiredFor.includes(method))
-        props.push(p);
-    }
-    return props;
+    return this._propsByMethod.get(method) ?? [];
   }
   
   /**

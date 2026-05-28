@@ -1,4 +1,11 @@
 
+# 0.18.0 (May 28th 2026)
+
+- Use @dwtechs/passken isValidPassword() instead of @dwtechs/checkard for password type validation
+- Add @dwtechs/passken 0.6.1 dependency
+- Update Object.assign() in Entity constructor bypassing Property validation by only copying non-standard fields
+- Cache getPropsByMethod() results at construction time for O(1) lookups
+
 # 0.17.0 (May 7th 2026)
 
 - Add `ansiEscapeCode`, `locale` and `timeZone` types
