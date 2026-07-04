@@ -37,7 +37,7 @@
     "@dwtechs/checkard": "3.6.1",
     "@dwtechs/passken": "0.6.1",
     "@dwtechs/sparray": "0.2.1",
-    "@dwtechs/winstan": "0.7.0"
+    "@dwtechs/winstan": "0.7.1"
   },
   "devDependencies": {
     "@babel/core": "7.26.0",
