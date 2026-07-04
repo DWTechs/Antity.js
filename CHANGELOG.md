@@ -1,3 +1,6 @@
+# 0.18.1 (Jul 3rd 2026)
+
+- Update @dwtechs/checkard to 3.6.1
 
 # 0.18.0 (May 28th 2026)
 
