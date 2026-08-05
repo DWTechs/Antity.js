@@ -1,13 +1,20 @@
 {
   "name": "@dwtechs/antity",
-  "version": "0.18.1",
+  "version": "0.18.2",
   "description": "Open source library for easy entity management",
   "keywords": [
     "entities"
   ],
   "homepage": "https://github.com/DWTechs/Antity.js",
-  "main": "dist/antity",
-  "types": "dist/antity",
+  "type": "module",
+  "main": "dist/antity.js",
+  "types": "dist/antity.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/antity.d.ts",
+      "import": "./dist/antity.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/DWTechs/Antity.js"
@@ -23,7 +30,7 @@
   },
   "scripts": {
     "prebuild": "npm install",
-    "build": "node ./scripts/clear && tsc && npm run rollup && node ./scripts/copy && npm run test",
+    "build": "node ./scripts/clear.cjs && tsc && npm run rollup && node ./scripts/copy.cjs && npm run test",
     "rollup": "rollup --config rollup.config.mjs",
     "test": "jest --coverage"
   },

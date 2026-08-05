@@ -1,3 +1,7 @@
+# 0.18.2 (aug 3rd 2026)
+
+- Add `"type": "module"` to package.json, fix `main`/`types` to point to the actual `dist/antity.js`/`dist/antity.d.ts` build output, and add an `exports` map
+
 # 0.18.1 (Jul 3rd 2026)
 
 - Update @dwtechs/checkard to 3.6.1
