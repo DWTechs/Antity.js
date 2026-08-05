@@ -1,3 +1,7 @@
+# 0.18.3 (aug 4rd 2026)
+
+- Fix package.json config for library usability in applications test suites
+
 # 0.18.2 (aug 3rd 2026)
 
 - Add `"type": "module"` to package.json, fix `main`/`types` to point to the actual `dist/antity.js`/`dist/antity.d.ts` build output, and add an `exports` map
