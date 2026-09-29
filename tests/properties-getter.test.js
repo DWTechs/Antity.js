@@ -140,4 +140,27 @@ describe('Entity properties getter', () => {
     expect(props[1].isPrivate).toBe(true);
     expect(props[1].type).toBe('password');
   });
+
+  it('should preserve non-integer min/max bounds for a float property', () => {
+    const properties = [
+      {
+        key: 'totalAmount',
+        type: 'float',
+        min: 0.01,
+        max: 999999.99,
+        isTypeChecked: true,
+        requiredFor: [],
+        isPrivate: false,
+        sanitizer: null,
+        normalizer: null,
+        validator: null
+      }
+    ];
+
+    const entity = new Entity('orders', properties);
+    const props = entity.properties;
+
+    expect(props[0].min).toBe(0.01);
+    expect(props[0].max).toBe(999999.99);
+  });
 });

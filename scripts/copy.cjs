@@ -7,7 +7,7 @@ const src     = `${rel}build/`;
 const dest    = `${rel}dist/`; 
 const files   = [
   {
-    src:  `${rel}src/antity.d.ts`,
+    src:  `${src}antity.d.ts`,
     dest: `${dest}antity.d.ts`
   },
   // {

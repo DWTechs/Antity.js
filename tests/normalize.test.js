@@ -1,5 +1,6 @@
 import { Entity } from '../dist/antity.js';
 import { normalizeName } from '@dwtechs/checkard';
+import { log } from '@dwtechs/winstan';
 
 describe('Entity.normalizeArray', () => {
   let entity;
@@ -166,5 +167,109 @@ describe('Entity.normalizeArray', () => {
     expect(req.body.rows[2].firstName).toBe('Charlie');
     
     expect(next).toHaveBeenCalledWith();
+  });
+});
+
+describe('readOnly enforcement', () => {
+  let roEntity;
+
+  beforeEach(() => {
+    roEntity = new Entity('accounts', [
+      {
+        key: 'id',
+        type: 'integer',
+        min: 1,
+        max: 999999999,
+        isTypeChecked: true,
+        requiredFor: [],
+        isPrivate: false,
+        sanitizer: null,
+        normalizer: null,
+        validator: null,
+        readOnly: true,
+      },
+      {
+        key: 'name',
+        type: 'string',
+        min: 1,
+        max: 255,
+        isTypeChecked: true,
+        requiredFor: [],
+        isPrivate: false,
+        sanitizer: null,
+        normalizer: null,
+        validator: null,
+      },
+    ]);
+  });
+
+  it('should strip a readOnly field from the record by default', () => {
+    const req = { body: { rows: [{ id: 999, name: 'acme' }] } };
+    roEntity.normalizeArray(req, null, jest.fn());
+    expect(req.body.rows[0].id).toBeUndefined();
+    expect(req.body.rows[0].name).toBe('acme');
+  });
+
+  it('should keep a readOnly field when res.locals.allowReadOnly is true', () => {
+    const req = { body: { rows: [{ id: 999, name: 'acme' }] } };
+    const res = { locals: { allowReadOnly: true } };
+    roEntity.normalizeArray(req, res, jest.fn());
+    expect(req.body.rows[0].id).toBe(999);
+  });
+
+  it('should strip a readOnly field via normalizeOne when res is not provided', () => {
+    const req = { body: { id: 999, name: 'acme' } };
+    roEntity.normalizeOne(req, null, jest.fn());
+    expect(req.body.id).toBeUndefined();
+    expect(req.body.name).toBe('acme');
+  });
+});
+
+describe('falsy values are still normalized', () => {
+  it('should run a custom normalizer for numeric 0, boolean false, and empty string', () => {
+    const entity = new Entity('t', [
+      {
+        key: 'count',
+        type: 'integer',
+        min: 0,
+        max: 100,
+        isTypeChecked: true,
+        requiredFor: [],
+        isPrivate: false,
+        sanitizer: null,
+        normalizer: (v) => `seen:${v}`,
+        validator: null,
+      },
+    ]);
+    const req = { body: { rows: [{ count: 0 }] } };
+    entity.normalizeArray(req, null, jest.fn());
+    expect(req.body.rows[0].count).toBe('seen:0');
+  });
+});
+
+describe('log injection hardening', () => {
+  it('should strip \\r\\n from a submitted value before logging it', () => {
+    const debugSpy = jest.spyOn(log, 'debug');
+    const entity = new Entity('t', [
+      {
+        key: 'bio',
+        type: 'string',
+        min: 0,
+        max: 500,
+        isTypeChecked: true,
+        requiredFor: [],
+        isPrivate: false,
+        sanitizer: null,
+        normalizer: null,
+        validator: null,
+      },
+    ]);
+    const req = { body: { rows: [{ bio: 'line1\r\nfake_log_line=INFO line2' }] } };
+    entity.normalizeArray(req, null, jest.fn());
+
+    for (const call of debugSpy.mock.calls) {
+      expect(call[0]).not.toMatch(/[\r\n]/);
+    }
+    debugSpy.mockRestore();
   });
 });

@@ -3,11 +3,17 @@ import { log } from "@dwtechs/winstan";
 import { Property } from './property';
 import { normalize } from './normalize';
 import { validate } from './validate';
-import type {  Method } from './types';
+import type { Method, Type } from './types';
 import type { Request, Response, NextFunction } from 'express';
 import { LOGS_PREFIX, METHODS } from './constants';
 
-const STANDARD_PROP_KEYS = new Set(['key', 'type', 'min', 'max', 'isPrivate', 'requiredFor', 'isTypeChecked', 'sanitizer', 'normalizer', 'validator']);
+export { Property };
+export type { Type, Method };
+
+export const STANDARD_PROP_KEYS: ReadonlySet<string> = new Set([
+  'key', 'type', 'min', 'max', 'isPrivate', 'requiredFor',
+  'isTypeChecked', 'readOnly', 'sanitizer', 'normalizer', 'validator',
+]);
 
 export class Entity {
   private _name: string;
@@ -26,22 +32,7 @@ export class Entity {
     this._propsByMethod = new Map(METHODS.map(m => [m as Method, []]));
 
     for (const p of properties) {
-      const prop = new Property(
-        p.key,
-        p.type,
-        p.min,
-        p.max,
-        p.isPrivate,
-        p.requiredFor,
-        p.isTypeChecked,
-        p.sanitizer,
-        p.normalizer,
-        p.validator, 
-      )
-      // Copy only extra (non-standard) fields from p to prop
-      for (const k of Object.keys(p))
-        if (!STANDARD_PROP_KEYS.has(k))
-          prop[k] = p[k];
+      const prop = this.createProperty(p as unknown as Record<string, unknown>);
       this._properties.push(prop);
 
       if (prop.isPrivate) this._privateProps.push(prop.key);
@@ -49,6 +40,33 @@ export class Entity {
         this._propsByMethod.get(m)?.push(prop);
 
     }
+  }
+
+  /**
+   * Builds a single Property instance from a plain field-definition object.
+   * Subclasses that extend `Property` (e.g. @dwtechs/antity-pgsql) should
+   * override this to construct their own Property subclass and copy any
+   * extra keys their subclass doesn't formally own onto it.
+   */
+  protected createProperty(p: Record<string, unknown>): Property {
+    const prop = new Property(
+      p.key as string,
+      p.type as Type,
+      p.min as number | Date | null,
+      p.max as number | Date | null,
+      p.isPrivate as boolean,
+      p.requiredFor as Method[],
+      p.isTypeChecked as boolean,
+      p.readOnly as boolean,
+      p.sanitizer as ((v: any) => any) | null,
+      p.normalizer as ((v: any) => any) | null,
+      p.validator as ((v: any) => any) | null,
+    )
+    // Copy only extra (non-standard) fields from p to prop
+    for (const k of Object.keys(p))
+      if (!STANDARD_PROP_KEYS.has(k))
+        prop[k] = p[k];
+    return prop;
   }
 
   public get name(): string {
@@ -94,20 +112,20 @@ export class Entity {
    * rules defined in the `properties` of the class.
    *
    */
-  public normalizeArray = (req: Request, _res: Response, next: NextFunction): void => {
-    
+  public normalizeArray = (req: Request, res: Response, next: NextFunction): void => {
+
     log.debug(`normalizeArray ${this.name}`);
-    
+
     const rows: Record<string, unknown>[] = req.body?.rows;
-    
+
     if (!isArray(rows, ">", 0)) {
       next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no rows found in request body` });
       return;
     }
-    
-    for (const r of rows) {
-      normalize(r, this._properties);
-    }
+
+    const allowReadOnly = res?.locals?.allowReadOnly === true;
+    for (const r of rows)
+      normalize(r, this._properties, allowReadOnly);
     next()
   }
 
@@ -116,18 +134,18 @@ export class Entity {
    * rules defined in the `properties` of the class.
    *
    */
-  public normalizeOne = (req: Request, _res: Response, next: NextFunction): void => {
-    
+  public normalizeOne = (req: Request, res: Response, next: NextFunction): void => {
+
     log.debug(`normalizeOne ${this.name}`);
-    
+
     const r: Record<string, unknown> = req.body;
-    
+
     if (!isObject(r, true)) {
       next({ statusCode: 400, message: `${LOGS_PREFIX}Normalize: no data found in request body` });
       return;
     }
-    
-    normalize(r, this._properties);
+
+    normalize(r, this._properties, res?.locals?.allowReadOnly === true);
     next()
   }
   
@@ -137,13 +155,13 @@ export class Entity {
    * If a property is required and missing, or if it fails the control checks, the function returns an error message.
    * Otherwise, it returns `null` indicating successful validation.
    */
-  public validateArray = (req: Request, _res: Response, next: NextFunction): void => {
-      
+  public validateArray = (req: Request, res: Response, next: NextFunction): void => {
+
     log.debug(`validateArray ${this.name}`);
-    
+
     const rows: Record<string, unknown>[] = req.body?.rows;
     const method: Method = req.method;
-  
+
     if (!isArray(rows, ">", 0)) {
       next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no rows found in request body` });
       return;
@@ -153,9 +171,10 @@ export class Entity {
       next({ statusCode: 400, message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}` });
       return;
     }
-    
+
+    const allowReadOnly = res?.locals?.allowReadOnly === true;
     for (const r of rows) {
-      const error = validate(r, this._properties, method);
+      const error = validate(r, this._properties, method, allowReadOnly);
       if (error) {
         next(error);
         return;
@@ -170,13 +189,13 @@ export class Entity {
    * If a property is required and missing, or if it fails the control checks, the function returns an error message.
    * Otherwise, it returns `null` indicating successful validation.
    */
-  public validateOne = (req: Request, _res: Response, next: NextFunction): void => {
-      
+  public validateOne = (req: Request, res: Response, next: NextFunction): void => {
+
     log.debug(`validateOne ${this.name}`);
-    
+
     const record: Record<string, unknown> = req.body;
     const method: Method = req.method;
-  
+
     if (!isObject(record, true)) {
       next({ statusCode: 400, message: `${LOGS_PREFIX}Validate: no data found in request body` });
       return;
@@ -186,13 +205,13 @@ export class Entity {
       next({ statusCode: 400, message: `${LOGS_PREFIX}Invalid REST method. Received: ${method}. Must be one of: ${METHODS.toString()}` });
       return;
     }
-    
-    const error = validate(record, this._properties, method);
+
+    const error = validate(record, this._properties, method, res?.locals?.allowReadOnly === true);
     if (error) {
       next(error);
       return;
     }
-    
+
     next();
   }
 }

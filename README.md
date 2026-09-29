@@ -2,7 +2,7 @@
 [![License: MIT](https://img.shields.io/npm/l/@dwtechs/antity.svg?color=brightgreen)](https://opensource.org/licenses/MIT)
 [![npm version](https://badge.fury.io/js/%40dwtechs%2Fantity.svg)](https://www.npmjs.com/package/@dwtechs/antity)
 [![last version release date](https://img.shields.io/github/release-date/DWTechs/Antity.js)](https://www.npmjs.com/package/@dwtechs/antity)
-![Jest:coverage](https://img.shields.io/badge/Jest:coverage-75%25-brightgreen.svg)
+![Jest:coverage](https://img.shields.io/badge/Jest:coverage-79%25-brightgreen.svg)
 
 - [Synopsis](#synopsis)
 - [Support](#support)
@@ -45,7 +45,7 @@ $ npm i @dwtechs/antity
 import { Entity } from "@dwtechs/antity";
 import { normalizeName, normalizeNickname } from "@dwtechs/checkard";
 
-const entity = new Entity("consumers", [
+const entity = new Entity("users", [
   {
     key: "id",
     type: "integer",
@@ -89,7 +89,7 @@ const entity = new Entity("consumers", [
     max: 255,
     isTypeChecked: true,
     requiredFor: ["PUT"],
-    isPrivate: true,
+    isPrivate: false,
     sanitizer: null,
     normalizer: normalizeNickname,
     validator: null,
@@ -146,14 +146,15 @@ type Method = "PATCH" | "PUT" | "POST";
 class Property {
   key: string;
   type: Type;
-  min: number | Date | null;
-  max: number | Date | null;
+  min: number | Date;
+  max: number | Date;
   requiredFor: Method[];
   isPrivate: boolean;
   isTypeChecked: boolean;
   sanitizer: Function | null;
   normalizer: Function | null;
   validator: Function | null;
+  readOnly: boolean;
 };
 
 class Entity {
@@ -208,6 +209,28 @@ class Entity {
    * ```
    */
   getPropsByMethod(method: Method): Property[];
+
+  /**
+   * Builds a single Property instance from a plain field-definition object.
+   * Called once per entry of the `properties` array passed to the constructor.
+   *
+   * - Not meant to be called directly; override it in a subclass to build
+   *   your own `Property` subclass (e.g. a library adding its own fields)
+   *   while still reusing `Entity`'s constructor bookkeeping.
+   *
+   * @param {Record<string, unknown>} p - Plain field-definition object
+   * @returns {Property} The constructed Property instance
+   *
+   * @example
+   * ```typescript
+   * class MyEntity extends Entity {
+   *   protected createProperty(p: Record<string, unknown>): Property {
+   *     return new MyProperty(p.key, p.type, ..., p.myCustomField);
+   *   }
+   * }
+   * ```
+   */
+  protected createProperty(p: Record<string, unknown>): Property;
   
   /**
    * Normalizes an array of records by applying sanitization and normalization
@@ -219,7 +242,7 @@ class Entity {
    * - Calls next(error) on failure, next() on success
    *
    * @param {Request} req - Express request object containing rows
-   * @param {Response} _res - Express response object (not used)
+   * @param {Response} res - Express response object. Set `res.locals.allowReadOnly = true` beforehand to allow writing `readOnly` properties through this call.
    * @param {NextFunction} next - Express next function
    *
    * @returns {void}
@@ -240,7 +263,7 @@ class Entity {
    * });
    * ```
    */
-  normalizeArray: (req: Request, _res: Response, next: NextFunction) => void;
+  normalizeArray: (req: Request, res: Response, next: NextFunction) => void;
   
   /**
    * Normalizes a single record by applying sanitization and normalization
@@ -252,7 +275,7 @@ class Entity {
    * - Calls next(error) on failure, next() on success
    *
    * @param {Request} req - Express request object containing a single record
-   * @param {Response} _res - Express response object (not used)
+   * @param {Response} res - Express response object. Set `res.locals.allowReadOnly = true` beforehand to allow writing `readOnly` properties through this call.
    * @param {NextFunction} next - Express next function
    *
    * @returns {void}
@@ -273,7 +296,7 @@ class Entity {
    * });
    * ```
    */
-  normalizeOne: (req: Request, _res: Response, next: NextFunction) => void;
+  normalizeOne: (req: Request, res: Response, next: NextFunction) => void;
   
   /**
    * Validates an array of rows according to property config and HTTP method.
@@ -282,7 +305,7 @@ class Entity {
    * - Calls next(error) on failure, next() on success
    *
    * @param {Request} req - Express request object containing rows
-   * @param {Response} _res - Express response object (not used)
+   * @param {Response} res - Express response object. Set `res.locals.allowReadOnly = true` beforehand to allow writing `readOnly` properties through this call.
    * @param {NextFunction} next - Express next function
    *
    * @returns {void}
@@ -302,7 +325,7 @@ class Entity {
    * });
    * ```
    */
-  validateArray: (req: Request, _res: Response, next: NextFunction) => void;
+  validateArray: (req: Request, res: Response, next: NextFunction) => void;
   
   /**
    * Validates a single record according to property config and HTTP method.
@@ -311,7 +334,7 @@ class Entity {
    * - Calls next(error) on failure, next() on success
    *
    * @param {Request} req - Express request object containing a single record
-   * @param {Response} _res - Express response object (not used)
+   * @param {Response} res - Express response object. Set `res.locals.allowReadOnly = true` beforehand to allow writing `readOnly` properties through this call.
    * @param {NextFunction} next - Express next function
    *
    * @returns {void}
@@ -331,7 +354,7 @@ class Entity {
    * });
    * ```
    */
-  validateOne: (req: Request, _res: Response, next: NextFunction) => void;
+  validateOne: (req: Request, res: Response, next: NextFunction) => void;
 
 ```
 **normalizeArray()**, **normalizeOne()**, **validateArray()**, and **validateOne()** methods are made to be used as Express.js middlewares.
@@ -371,23 +394,21 @@ Properties **min** and **max** of the password properties will override default 
 
 ### Available options for a property
 
-Any of these can be passed into the options object for each function.
+Any of these can be passed into the options object for each function. **Behavior** describes exactly what `normalizeArray`/`normalizeOne`/`validateArray`/`validateOne` do with the property at runtime, depending on its value.
 
-| Name            | Type                     |               Description                        |  Default value  |  
-| :-------------- | :----------------------- | :----------------------------------------------- | :-------------- |
-| key             | string                   | Name of the property                             |
-| type            | Type                     | Type of the property                             |
-| min             | number \| Date           | Minimum value if applicable                      | 0 \| 1900-01-01
-| max             | number \| Date           | Maximum value if applicable                      | 999999999 \| 2200-12-31
-| requiredFor     | Methods[]                | Property is required for the listed methods only | [ "POST", "PUT", "PATCH" ]
-| isPrivate       | boolean                  | Property should not be sent in the response      | false
-| isTypeChecked   | boolean                  | Strict type check at validation                  | false
-| sanitizer       | ((v:any) => any) \| null | Custom sanitizer function                        | null
-| normalizer      | ((v:any) => any) \| null | Custom Normalizer function                       | null
-| validator       | ((v:any, min:number, max:number, typeCheck:boolean) => any) \| null         | Custom validator | null
-
-* *Min and max parameters are not used for boolean type*
-* *TypeCheck Parameter is not used for boolean, string and array types*
+| Name            | Type                     |  Default value  | Behavior |
+| :-------------- | :----------------------- | :-------------- | :------- |
+| key             | string                   |                  | Read/write key on each record. No behavior of its own. |
+| type            | Type                     |                  | When a value is present, selects the built-in type validator run during `validate()` — skipped entirely if `validator` is set. |
+| min             | number \| Date           | 0 \| 1900-01-01 | Passed to the `type` validator as a lower bound during `validate()`. Not used for `boolean`. |
+| max             | number \| Date           | 999999999 \| 2200-12-31 | Passed to the `type` validator as an upper bound during `validate()`. Not used for `boolean`. |
+| requiredFor     | Methods[]                | [ ]              | If the current HTTP method is in this list, `validate()` rejects the record with a 400 when the value is `null`/`undefined`. **Ignored when `readOnly` is `true`** (see below) — a `readOnly` field is never required. |
+| isPrivate       | boolean                  | false            | Not enforced by `normalize()`/`validate()`. When `true`, the key is added to `entity.privateProps` — your own response code is responsible for stripping it from output; antity.js never removes it itself. |
+| isTypeChecked   | boolean                  | false            | Passed to the `type` validator to toggle strict vs. lenient checking; the exact effect depends on `type` (e.g. a stricter locale/timezone allow-list). Not used for `boolean`, `string` or `array` types. |
+| readOnly        | boolean                  | false            | If `true`: `normalize()` **deletes** the key from the record before sanitizing/normalizing, and `validate()` **skips** it entirely (never required, never checked) — a client can never set it or trigger validation on it, whatever `requiredFor` says. Bypassed for one request by setting `res.locals.allowReadOnly = true` beforehand (trusted server-side writes only). If `false`, treated like any other property. |
+| sanitizer       | ((v:any) => any) \| null | null             | If set, `normalize()` calls it instead of the default sanitizer for any present (truthy) value. If `null`, the default trims strings — recursively for a plain object's string properties, per-element for an array. |
+| normalizer      | ((v:any) => any) \| null | null             | If set, `normalize()` calls it right after sanitizing, for any present (truthy) value. If `null`, no normalization step runs. |
+| validator       | ((v:any) => boolean) \| null | null | If set, `validate()` calls it instead of the built-in `type` validator for any present value: return `false` or throw to fail (a thrown error's message is included in the 400 response). If `null`, the built-in `type`/`min`/`max`/`isTypeChecked` validator runs. |
 
 
 ## Contributors

@@ -3,6 +3,7 @@ import { log } from "@dwtechs/winstan";
 import { Type } from './types';
 import { Types } from './check';
 import { LOGS_PREFIX } from './constants';
+import { logSafe } from './logsafe';
 import type { ValidationError } from './validate';
 
 function control(
@@ -15,14 +16,15 @@ function control(
   cb: ((v:unknown) => boolean) | null
 ): ValidationError | null {
   
-  log.debug(`control ${key}: ${type} = ${v}`);
+  log.debug(`control ${key}: ${type} = ${logSafe(v)}`);
   
   let errorMessage: string = "";
   
   if (cb) // the property is controlled by a custom callback function
     try {
-      cb(v);
-    } catch (err) { 
+      if (cb(v) === false)
+        errorMessage = `Custom validator callback failed for "${key}"`;
+    } catch (err) {
       errorMessage = `Custom validator callback failed for "${key}" - caused by: ${(err as Error).message}`;
     }
   else // the property is controlled by the default controller of the type

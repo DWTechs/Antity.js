@@ -2,6 +2,7 @@ import { isNil } from '@dwtechs/checkard';
 import { log } from "@dwtechs/winstan";
 import { Type } from './types';
 import { LOGS_PREFIX } from './constants';
+import { logSafe } from './logsafe';
 import type { ValidationError } from './validate';
   
 /**
@@ -13,7 +14,7 @@ import type { ValidationError } from './validate';
  * @returns A ValidationError containing statusCode and message if the value is null or undefined, otherwise `null`.
  */
 function require(v: unknown, key: string, type: Type): ValidationError | null {
-  log.debug(`require ${key}: ${type} = ${v}`);	
+  log.debug(`require ${key}: ${type} = ${logSafe(v)}`);
   return isNil(v) ? { statusCode: 400, message: `${LOGS_PREFIX}Missing ${key} of type ${type}`} : null;
 }
 

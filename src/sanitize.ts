@@ -23,11 +23,12 @@ function sanitize(v: unknown, cb: ((v:unknown) => unknown) | null): unknown {
 }
 
 /**
- * Trims whitespace from a string or recursively trims all string properties of an object.
+ * Trims whitespace from a string, or trims each of an object's own string properties
+ * (one level deep only — nested objects/arrays are not recursed into).
  *
  * @param v - The value to be trimmed. Can be a string or an object.
  * @returns The trimmed value. If the input is a string, returns the trimmed string.
- *          If the input is an object, returns the object with all string properties trimmed.
+ *          If the input is an object, returns the object with its top-level string properties trimmed.
  */
 function trim(v: unknown): unknown {
   if (isString(v, "!0"))

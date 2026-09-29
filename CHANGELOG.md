@@ -1,3 +1,17 @@
+# 0.19.0 (Sep 27th 2026)
+
+- Export `Property` and `STANDARD_PROP_KEYS`.
+- `Entity` builds each `Property` through a new overridable `protected createProperty(p)` method instead of inlining construction, so a subclass (e.g. `@dwtechs/antity-pgsql`'s `SQLEntity`) can construct its own `Property` subclass while reusing the base bookkeeping. Fixes a layering bug where subclass `Property` types were declared but never actually constructed.
+- Add `readOnly` to `Property` (mandatory, no default) — marks a field as system-managed, not directly editable via the API, distinct from `isPrivate` (hides from responses). Enforced: `normalizeArray`/`normalizeOne` strip `readOnly` fields from the incoming record, and `validateArray`/`validateOne` skip them entirely (never required, never checked), so a client can never set or trigger validation on them. Trusted server-side code that legitimately needs to write a `readOnly` field through the same `normalize`/`validate` pipeline can set `res.locals.allowReadOnly = true` beforehand to bypass this for that request.
+- A custom `validator` returning `false` was silently treated as valid — only a thrown exception counted. `validator`'s type is corrected from `(v:any) => any` to `(v:any) => boolean` to match.
+- `isTypeChecked: false` (the library's own default) could never actually produce lenient checking for `number`/`integer`/`float`/`even`/`odd`/`positive`/`negative`/`powerOfTwo`/`ascii`/`regex`/`timestamp`/`locale` — it was being converted to `undefined` before reaching checkard, which silently re-defaulted most of these to strict.
+- `min: 0`/`max: 0` were silently treated as "no bound" for `number`/`float`/`array`/`date`/`timestamp` (same root cause, different value being erased). `password`'s min/max keep their existing fallback-to-policy-default behavior, which is intentional there.
+- `Property`'s internal bounds resolution discarded any non-integer `min`/`max` regardless of the field's `type`, so a `float`/`number` field with a fractional bound (e.g. `min: 0.01`) silently got reset to the integer default.
+- A submitted value of `0`, `false`, or `""` skipped type/bounds/custom-validator checking entirely in both `normalize()` and `validate()` (only presence — `requiredFor` — was still checked).
+- `Property.min`/`max`'s declared type in `antity.d.ts`/README allowed `null`, which never actually occurs at runtime (`interval()` always resolves to a concrete `number`/`Date`) — corrected to `number | Date`.
+- Debug logs (`control`/`require`/`normalize`) now strip `\r`/`\n`/`\t` from a submitted value before interpolating it into the log message, closing a log-injection vector for anyone with debug logging enabled.
+- **`dist/antity.d.ts` is now generated, not hand-maintained.** `tsc` already emitted correct per-file declarations (`"declaration": true`); `rollup-plugin-dts` now bundles them into one file the same way rollup already bundles the JS, tree-shaken to only what `antity.ts`'s entry point re-exports. The hand-written `src/antity.d.ts` is retired — every constructor-order/field mismatch found during this release's review only ever existed in that hand-copied file, never in the real compiled types. Also promoted `Type`/`Method` to a genuine `export type` from `antity.ts` (previously only present in the hand-written declaration, not actually backed by a real export).
+
 # 0.18.3 (aug 4rd 2026)
 
 - Fix package.json config for library usability in applications test suites

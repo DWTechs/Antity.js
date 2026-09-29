@@ -205,7 +205,7 @@ describe('Entity.validateOne', () => {
     });
 
     it('should accept a valid ANSI escape code', () => {
-      const req = { body: { code: '\\x1b[31m' }, method: 'POST' };
+      const req = { body: { code: '\x1b[31m' }, method: 'POST' };
       ansiEntity.validateOne(req, null, next);
       expect(next).toHaveBeenCalledWith();
     });

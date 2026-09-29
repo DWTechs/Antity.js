@@ -53,43 +53,43 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   },
   number: {
     validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => 
-      isValidNumber(v, (min as number) || undefined, (max as number) || undefined, typeCheck || undefined, true)
+      isValidNumber(v, min as number, max as number, typeCheck, true)
   },
   integer: {
     validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => 
-      isValidInteger(v, (min as number) ?? undefined, (max as number) ?? undefined, typeCheck || undefined, true)
+      isValidInteger(v, min as number, max as number, typeCheck, true)
   },
   float: {
     validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => 
-      isValidFloat(v, (min as number) || undefined, (max as number) || undefined, typeCheck || undefined, true)
+      isValidFloat(v, min as number, max as number, typeCheck, true)
   },
   even: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isEven(v, typeCheck || undefined, true)
+      isEven(v, typeCheck, true)
   },
   odd: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isOdd(v, typeCheck || undefined, true)
+      isOdd(v, typeCheck, true)
   },
   positive: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isPositive(v, typeCheck || undefined, true)
+      isPositive(v, typeCheck, true)
   },
   negative: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isNegative(v, typeCheck || undefined, true)
+      isNegative(v, typeCheck, true)
   },
   powerOfTwo: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isPowerOfTwo(v, typeCheck || undefined, true)
+      isPowerOfTwo(v, typeCheck, true)
   },
   ascii: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isAscii(v, typeCheck || undefined, true) // typeCheck = extended ASCII
+      isAscii(v, typeCheck, true) // typeCheck = extended ASCII
   },
   array: {
     validate: (v: any, min: number | Date, max: number | Date, _typeCheck: boolean) => 
-      isArrayOfLength(v, (min as number) || undefined, (max as number) || undefined, true)
+      isArrayOfLength(v, min as number, max as number, true)
   },
   password: {
     validate: (v: any, min: number | Date, max: number | Date, _typeCheck: boolean) => {
@@ -110,7 +110,7 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   },
   regex: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isRegex(v, typeCheck || undefined, true)
+      isRegex(v, typeCheck, true)
   },
   json: {
     validate: (v: any, _min: number | Date, _max: number | Date, _typeCheck: boolean) => 
@@ -138,11 +138,11 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   },
   date: {
     validate: (v: any, min: Date | number, max: Date | number, _typeCheck: boolean) => 
-      isValidDate(v, min || undefined, max || undefined, true)
+      isValidDate(v, min, max, true)
   },
   timestamp: {
     validate: (v: any, min: number | Date, max: number | Date, typeCheck: boolean) => 
-      isValidTimestamp(v, min || undefined, max || undefined, typeCheck || undefined, true)
+      isValidTimestamp(v, min, max, typeCheck, true)
   },
   function: {
     validate: (v: any, _min: number | Date, _max: number | Date, _typeCheck: boolean) => 
@@ -161,8 +161,8 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
       isNode(v, true)
   },
   object: {
-    validate: (v: any, _min: number | Date, _max: number | Date, _typeCheck: boolean) => 
-      isObject(v, true)
+    validate: (v: any, _min: number | Date, _max: number | Date, _typeCheck: boolean) =>
+      isObject(v, false, true)
   },
   ansiEscapeCode: {
     validate: (v: any, _min: number | Date, _max: number | Date, _typeCheck: boolean) => 
@@ -170,7 +170,7 @@ const Types: Record<Type, { validate: (v: any, min: number | Date, max: number |
   },
   locale: {
     validate: (v: any, _min: number | Date, _max: number | Date, typeCheck: boolean) => 
-      isLocale(v, typeCheck || undefined, true)
+      isLocale(v, typeCheck, true)
   },
   timeZone: {
     validate: (v: any, _min: number | Date, _max: number | Date, _typeCheck: boolean) => 

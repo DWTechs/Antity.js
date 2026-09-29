@@ -5,7 +5,6 @@ import {
   isDate,
   isIn,
   isProperty,
-  isInteger,
   isBoolean,
   isFunction } from '@dwtechs/checkard';
 import { Types } from './check';
@@ -21,10 +20,11 @@ export class Property {
   isPrivate: boolean;
   requiredFor: Method[];
   isTypeChecked: boolean;
+  readOnly: boolean;
   sanitizer: ((v:any) => any) | null;
   normalizer: ((v:any) => any) | null;
-  validator: ((v:any) => any) | null;
-  
+  validator: ((v:any) => boolean) | null;
+
   constructor(
     key: string,
     type: Type,
@@ -33,9 +33,10 @@ export class Property {
     isPrivate: boolean,
     requiredFor: Method[],
     isTypeChecked: boolean,
+    readOnly: boolean,
     sanitizer: ((v:any) => any) | null,
     normalizer: ((v:any) => any) | null,
-    validator: ((v:any) => any) | null,
+    validator: ((v:any) => boolean) | null,
   ) {
 
     try {
@@ -50,15 +51,13 @@ export class Property {
       throw new Error(`${LOGS_PREFIX}Property "type" must be a valid type - caused by: ${(err as Error).message}`);
     }
     
-    if (isArray(requiredFor)) {
-      for (const m of requiredFor) {
+    if (isArray(requiredFor))
+      for (const m of requiredFor)
         try {
           isIn(METHODS as unknown as unknown[], m, 0, true);
         } catch (err) {
           throw new Error(`${LOGS_PREFIX}Property "requiredFor" must be an array of REST methods - caused by: ${(err as Error).message}`);
         }
-      }
-    }
 
     this.key = key;
     this.type = type;
@@ -67,6 +66,7 @@ export class Property {
     this.requiredFor = isArray(requiredFor) ? requiredFor : [];
     this.isPrivate = isBoolean(isPrivate) ? isPrivate : false;
     this.isTypeChecked = isBoolean(isTypeChecked) ? isTypeChecked : false;
+    this.readOnly = isBoolean(readOnly) ? readOnly : false;
     this.sanitizer = isFunction(sanitizer) ? sanitizer : null;
     this.normalizer = isFunction(normalizer) ? normalizer : null;
     this.validator = isFunction(validator) ? validator : null;
@@ -80,7 +80,7 @@ export class Property {
   ): number | Date {
     if (type === "date")
       return isDate(val) ? val : new Date(dateDefault);
-    return (isNumber(val, true) && isInteger(val, true)) ? val : integerDefault;
+    return isNumber(val, true) ? val : integerDefault;
   }
 
 }
