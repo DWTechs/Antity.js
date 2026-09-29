@@ -10,7 +10,7 @@
 - A submitted value of `0`, `false`, or `""` skipped type/bounds/custom-validator checking entirely in both `normalize()` and `validate()` (only presence — `requiredFor` — was still checked).
 - `Property.min`/`max`'s declared type in `antity.d.ts`/README allowed `null`, which never actually occurs at runtime (`interval()` always resolves to a concrete `number`/`Date`) — corrected to `number | Date`.
 - Debug logs (`control`/`require`/`normalize`) now strip `\r`/`\n`/`\t` from a submitted value before interpolating it into the log message, closing a log-injection vector for anyone with debug logging enabled.
-- **`dist/antity.d.ts` is now generated, not hand-maintained.** `tsc` already emitted correct per-file declarations (`"declaration": true`); `rollup-plugin-dts` now bundles them into one file the same way rollup already bundles the JS, tree-shaken to only what `antity.ts`'s entry point re-exports. The hand-written `src/antity.d.ts` is retired — every constructor-order/field mismatch found during this release's review only ever existed in that hand-copied file, never in the real compiled types. Also promoted `Type`/`Method` to a genuine `export type` from `antity.ts` (previously only present in the hand-written declaration, not actually backed by a real export).
+- Update "@dwtechs/checkard" dependency to version "3.7.0".
 
 # 0.18.3 (aug 4rd 2026)
 
