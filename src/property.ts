@@ -51,6 +51,9 @@ export class Property {
       throw new Error(`${LOGS_PREFIX}Property "type" must be a valid type - caused by: ${(err as Error).message}`);
     }
     
+    if (requiredFor != null && !isArray(requiredFor))
+      throw new Error(`${LOGS_PREFIX}Property "requiredFor" must be an array of REST methods`);
+
     if (isArray(requiredFor))
       for (const m of requiredFor)
         try {
@@ -62,8 +65,8 @@ export class Property {
     this.key = key;
     this.type = type;
     this.min = this.interval(min, type, 0, "1900-01-01T00:00:00Z");
-    this.max = this.interval(max, type, 999999999, "2200-12-31T00:00:00Z");
-    this.requiredFor = isArray(requiredFor) ? requiredFor : [];
+    this.max = this.interval(max, type, type === "password" ? 0 : 999999999, "2200-12-31T00:00:00Z");
+    this.requiredFor = requiredFor ?? [];
     this.isPrivate = isBoolean(isPrivate) ? isPrivate : false;
     this.isTypeChecked = isBoolean(isTypeChecked) ? isTypeChecked : false;
     this.readOnly = isBoolean(readOnly) ? readOnly : false;
@@ -78,8 +81,13 @@ export class Property {
     integerDefault: number,
     dateDefault: string
   ): number | Date {
-    if (type === "date")
-      return isDate(val) ? val : new Date(dateDefault);
+    if (type === "date") {
+      if (val === null || val === undefined)
+        return new Date(dateDefault);
+      if (!isDate(val))
+        throw new Error(`${LOGS_PREFIX}Property date bound must be a valid Date`);
+      return val;
+    }
     return isNumber(val, true) ? val : integerDefault;
   }
 

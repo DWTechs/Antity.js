@@ -7,5 +7,7 @@
  * @returns {unknown} The value, with any string content made log-safe
  */
 export function logSafe(v: unknown): unknown {
-  return typeof v === 'string' ? v.replace(/[\r\n\t]/g, '') : v;
+  if (typeof v === 'string') return v.replace(/[\r\n\t]/g, '');
+  if (typeof v === 'symbol') return v.toString();
+  return v;
 }

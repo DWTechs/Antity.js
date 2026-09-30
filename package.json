@@ -1,6 +1,6 @@
 {
   "name": "@dwtechs/antity",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "Open source library for easy entity management",
   "keywords": [
     "entities"

@@ -2,7 +2,7 @@
 [![License: MIT](https://img.shields.io/npm/l/@dwtechs/antity.svg?color=brightgreen)](https://opensource.org/licenses/MIT)
 [![npm version](https://badge.fury.io/js/%40dwtechs%2Fantity.svg)](https://www.npmjs.com/package/@dwtechs/antity)
 [![last version release date](https://img.shields.io/github/release-date/DWTechs/Antity.js)](https://www.npmjs.com/package/@dwtechs/antity)
-![Jest:coverage](https://img.shields.io/badge/Jest:coverage-79%25-brightgreen.svg)
+![Jest:coverage](https://img.shields.io/badge/Jest:coverage-90%25-brightgreen.svg)
 
 - [Synopsis](#synopsis)
 - [Support](#support)
@@ -406,8 +406,8 @@ Any of these can be passed into the options object for each function. **Behavior
 | isPrivate       | boolean                  | false            | Not enforced by `normalize()`/`validate()`. When `true`, the key is added to `entity.privateProps` — your own response code is responsible for stripping it from output; antity.js never removes it itself. |
 | isTypeChecked   | boolean                  | false            | Passed to the `type` validator to toggle strict vs. lenient checking; the exact effect depends on `type` (e.g. a stricter locale/timezone allow-list). Not used for `boolean`, `string` or `array` types. |
 | readOnly        | boolean                  | false            | If `true`: `normalize()` **deletes** the key from the record before sanitizing/normalizing, and `validate()` **skips** it entirely (never required, never checked) — a client can never set it or trigger validation on it, whatever `requiredFor` says. Bypassed for one request by setting `res.locals.allowReadOnly = true` beforehand (trusted server-side writes only). If `false`, treated like any other property. |
-| sanitizer       | ((v:any) => any) \| null | null             | If set, `normalize()` calls it instead of the default sanitizer for any present (truthy) value. If `null`, the default trims strings — recursively for a plain object's string properties, per-element for an array. |
-| normalizer      | ((v:any) => any) \| null | null             | If set, `normalize()` calls it right after sanitizing, for any present (truthy) value. If `null`, no normalization step runs. |
+| sanitizer       | ((v:any) => any) \| null | null             | If set, `normalize()` calls it instead of the default sanitizer for any non-nil value (`0`, `false`, and `""` are still processed; only `null`/`undefined` are skipped). If `null`, the default trims strings — one level deep only for a plain object's string properties (nested objects/arrays are not recursed into), per-element for an array. |
+| normalizer      | ((v:any) => any) \| null | null             | If set, `normalize()` calls it right after sanitizing, for any non-nil value (`0`, `false`, and `""` are still processed; only `null`/`undefined` are skipped). If `null`, no normalization step runs. |
 | validator       | ((v:any) => boolean) \| null | null | If set, `validate()` calls it instead of the built-in `type` validator for any present value: return `false` or throw to fail (a thrown error's message is included in the 400 response). If `null`, the built-in `type`/`min`/`max`/`isTypeChecked` validator runs. |
 
 

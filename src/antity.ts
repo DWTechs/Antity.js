@@ -16,7 +16,7 @@ export const STANDARD_PROP_KEYS: ReadonlySet<string> = new Set([
 ]);
 
 export class Entity {
-  private _name: string;
+  private _name!: string;
   private _privateProps: string[];
   private _properties: Property[];
   private _propsByMethod: Map<Method, Property[]>;
@@ -26,10 +26,13 @@ export class Entity {
     properties: Property[],
   ) {
 
-    this._name = name;
+    this.name = name;
     this._properties = [];
     this._privateProps = [];
     this._propsByMethod = new Map(METHODS.map(m => [m as Method, []]));
+
+    if (!isArray(properties))
+      throw new Error(`${LOGS_PREFIX}"properties" must be an array`);
 
     for (const p of properties) {
       const prop = this.createProperty(p as unknown as Record<string, unknown>);

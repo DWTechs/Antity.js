@@ -1,3 +1,13 @@
+# 0.19.1 (Sep 29th 2026)
+
+- **Fixes 3 bugs** :
+  - A `password` property declared without an explicit `max` got `maxLen = 999999999` instead of falling back to the documented `PWD_MAX_LENGTH` policy default — `min`'s equivalent fallback only worked because its default (`0`) is falsy, while `max`'s old default (`999999999`) wasn't. `Property.interval()` now defaults an omitted `password` `max` to `0` too, so the existing `|| PWD_MAX_LENGTH` fallback in `check.ts` behaves correctly.
+  - `Entity`'s constructor bypassed its own validated `name` setter (`this._name = name` instead of `this.name = name`), so `new Entity("", props)` was silently accepted, and never checked that `properties` was actually an array, so a non-array threw a raw `TypeError` instead of the library's own error format. Both are now validated in the constructor.
+  - `Property.interval()` silently discarded an invalid (non-Date) `min`/`max` bound for `type: "date"` and fell back to the hardcoded default range instead of erroring — the same "silently discard user intent" bug already fixed in 0.19.0 for numeric bounds. It now throws.
+- `requiredFor` now throws when provided a non-array value instead of silently coercing it to `[]` — for consistency, an array *containing* an invalid method already threw.
+- Fixed a crash: logging a `Symbol`-typed property value (`type: "symbol"`) threw `TypeError: Cannot convert a Symbol value to a string` from the debug logger. `logSafe()` now explicitly stringifies `Symbol` values before they're interpolated into a log message.
+- Corrected README's `sanitizer`/`normalizer` docs to match actual behavior: the default sanitizer trims one level deep only (not recursively), and both run for any non-nil value (`0`/`false`/`""` included, not just "truthy" ones).
+
 # 0.19.0 (Sep 27th 2026)
 
 - Export `Property` and `STANDARD_PROP_KEYS`.
